@@ -74,7 +74,8 @@ public static partial class Strings
             return kind switch
             {
                 "@" => Convert.ToString(arg, CultureInfo.InvariantCulture) ?? "",
-                "d" or "i" => Convert.ToInt64(arg ?? 0, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture),
+                "d" or "i" => Convert.ToInt64(arg ?? 0, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
+                    .PadLeft(m.Groups[3].Value.Length > 0 ? int.Parse(m.Groups[3].Value) : 0, m.Groups[2].Value.Contains('0') ? '0' : ' '),
                 _ => Convert.ToDouble(arg ?? 0, CultureInfo.InvariantCulture).ToString("F" + (precision ?? 6), CultureInfo.InvariantCulture),
             };
         });

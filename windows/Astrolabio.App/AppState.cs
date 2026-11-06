@@ -31,6 +31,14 @@ public sealed class AppState
         Runner = new SessionRunner();
         Live = new LiveModel(Client);
         History.Attach(Client, () => Settings.ExposureMs);
+        History.ContextProvider = () =>
+        {
+            var s = Settings;
+            var h = WeatherService.Nearest(DateTime.UtcNow, Weather);
+            return new SessionContext(s.SiteName, s.Latitude, s.Longitude, s.Gain, s.LpFilter, s.DitherEnabled, s.DitherPixels, s.DitherInterval,
+                h is null ? null : new WeatherSnapshot(h.CloudCover, h.Temperature, h.DewPoint, h.Humidity, h.Wind),
+                path => { if (Live.Image is not { } img) return false; img.Save(path); return true; });
+        };
         _ = WeatherLoop();
         if (Settings.AutoConnect) Dispatcher.UIThread.Post(async () => await Connect());
     }

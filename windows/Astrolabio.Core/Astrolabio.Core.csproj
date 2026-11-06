@@ -3,6 +3,10 @@
     <RootNamespace>Astrolabio.Core</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- PDF de los informes (licencia Community: gratuita para proyectos de código abierto y particulares) -->
+    <PackageReference Include="QuestPDF" Version="2025.*" />
+  </ItemGroup>
+  <ItemGroup>
     <!-- Datos generados desde el proyecto de macOS (scripts/windows_data.py) -->
     <EmbeddedResource Include="Data\*.json;Data\*.txt;Data\*.jpg" />
   </ItemGroup>

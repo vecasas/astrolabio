@@ -19,10 +19,24 @@ public static class WeatherService
         return h;
     }
 
-    public static async Task<List<WeatherHour>> Forecast(double lat, double lon)
+    public static Task<List<WeatherHour>> Forecast(double lat, double lon) =>
+        Fetch("https://api.open-meteo.com/v1/forecast", lat, lon, "&forecast_days=3");
+
+    /// <summary>Tiempo pasado: últimos 90 días con la API de previsión y lo anterior con el archivo ERA5.</summary>
+    public static Task<List<WeatherHour>> History(double lat, double lon, DateTime fromUtc, DateTime toUtc)
+    {
+        var recent = fromUtc > DateTime.UtcNow.AddDays(-88);
+        return Fetch(recent ? "https://api.open-meteo.com/v1/forecast" : "https://archive-api.open-meteo.com/v1/archive", lat, lon,
+            $"&start_date={fromUtc:yyyy-MM-dd}&end_date={toUtc:yyyy-MM-dd}");
+    }
+
+    public static WeatherHour? Nearest(DateTime utc, IReadOnlyList<WeatherHour> hours) =>
+        hours.Count == 0 ? null : hours.MinBy(h => Math.Abs((h.Time - utc).TotalSeconds)) is { } n && Math.Abs((n.Time - utc).TotalMinutes) < 90 ? n : null;
+
+    private static async Task<List<WeatherHour>> Fetch(string baseUrl, double lat, double lon, string extra)
     {
         var url = string.Create(CultureInfo.InvariantCulture,
-            $"https://api.open-meteo.com/v1/forecast?latitude={lat:F4}&longitude={lon:F4}&hourly=cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m&timezone=UTC&forecast_days=3");
+            $"{baseUrl}?latitude={lat:F4}&longitude={lon:F4}&hourly=cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m&timezone=UTC{extra}");
         var root = JsonNode.Parse(await Http.GetStringAsync(url));
         var h = root?["hourly"];
         if (h?["time"] is not JsonArray times) return [];

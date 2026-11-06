@@ -12,7 +12,7 @@ using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.App;
 
-public enum Section { Tonight, Pick, SkyChart, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Album, Stats, Weather, Log, Settings }
+public enum Section { Tonight, Pick, SkyChart, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Album, Stats, Reports, Weather, Log, Settings }
 
 public sealed class MainWindow : Window
 {
@@ -22,7 +22,7 @@ public sealed class MainWindow : Window
         ("Observar", [(Section.Telescope, "Telescopio", "🎯"), (Section.Live, "Vista en directo", "📷")]),
         ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐"), (Section.Stacker, "Apilador planetario", "🎞")]),
         ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦")]),
-        ("Archivo", [(Section.Album, "Álbum", "🖼"), (Section.Stats, "Estadísticas", "📊")]),
+        ("Archivo", [(Section.Album, "Álbum", "🖼"), (Section.Stats, "Estadísticas", "📊"), (Section.Reports, "Informes", "📄")]),
         ("Sistema", [(Section.Weather, "Tiempo", "⛅"), (Section.Log, "Registro", "📜"), (Section.Settings, "Ajustes", "⚙")]),
     ];
 
@@ -133,6 +133,7 @@ public sealed class MainWindow : Window
             Section.Mosaic => new MosaicView(),
             Section.Album => new AlbumView(),
             Section.Stats => new StatsView(),
+            Section.Reports => new ReportsView(),
             Section.Weather => new WeatherView(),
             Section.Log => new LogView(),
             _ => new SettingsView(),

@@ -1,0 +1,121 @@
+/* Astrolabio — web de descarga. Diseño propio: azul noche, sin dependencias. */
+:root {
+  --deep: #050d1f;
+  --navy: #0d1b39;
+  --midnight: #13264d;
+  --card: rgba(22, 40, 77, 0.72);
+  --stroke: rgba(102, 153, 255, 0.22);
+  --accent: #52a1ff;
+  --accent-soft: #8cc7ff;
+  --text: #eaf1ff;
+  --muted: #a6b4cf;
+  --good: #59d9bf;
+  --warn: #ffb859;
+  --radius: 16px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: var(--deep);
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 9%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 38% 32%, #fff9 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 41%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 22% 63%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 61% 74%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 93% 86%, #fff5 50%, transparent 51%),
+    radial-gradient(ellipse 90% 60% at 70% -10%, #1d3d7a 0%, transparent 60%),
+    linear-gradient(180deg, var(--navy) 0%, var(--deep) 55%);
+  background-attachment: fixed;
+}
+a { color: var(--accent-soft); }
+img { max-width: 100%; height: auto; display: block; }
+.hero > *, .grid > *, .gallery > *, .two > * { min-width: 0; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+/* Cabecera */
+header.top {
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  background: rgba(5, 13, 31, 0.72);
+  border-bottom: 1px solid var(--stroke);
+}
+header.top .wrap { display: flex; align-items: center; gap: 18px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; color: var(--text); text-decoration: none; }
+.brand img { width: 30px; height: 30px; border-radius: 7px; }
+nav.links { display: flex; gap: 18px; margin-left: auto; font-size: 14px; }
+nav.links a { color: var(--muted); text-decoration: none; }
+nav.links a:hover { color: var(--text); }
+.lang { font-size: 13px; border: 1px solid var(--stroke); border-radius: 999px; padding: 3px 10px; text-decoration: none; color: var(--accent-soft); }
+
+/* Portada */
+.hero { padding-top: 72px; padding-bottom: 40px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 48px; align-items: center; }
+.eyebrow { color: var(--accent-soft); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; }
+h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.08; margin: 10px 0 16px; letter-spacing: -0.02em; }
+h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent-soft), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { color: var(--muted); font-size: 18px; max-width: 34em; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 10px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 20px; border-radius: 12px; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--stroke); color: var(--text); background: var(--card);
+  transition: transform .15s ease, border-color .15s ease;
+}
+.btn:hover { transform: translateY(-1px); border-color: var(--accent); }
+.btn.primary { background: linear-gradient(180deg, #5eaaff, #3a86f0); border-color: transparent; color: #04112a; }
+.btn small { display: block; font-weight: 500; font-size: 12px; opacity: .8; }
+.btn svg { width: 22px; height: 22px; flex: none; }
+.note { color: var(--muted); font-size: 13px; }
+.shot { border-radius: var(--radius); border: 1px solid var(--stroke); box-shadow: 0 30px 80px -20px #000c, 0 0 0 1px #0004; }
+.hero .shot { transform: perspective(1400px) rotateY(-6deg); }
+
+/* Secciones */
+section { padding: 56px 0; }
+h2 { font-size: clamp(26px, 3.4vw, 36px); margin: 0 0 8px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 30px; max-width: 46em; }
+.grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+.card { background: var(--card); border: 1px solid var(--stroke); border-radius: var(--radius); padding: 20px; }
+.card h3 { margin: 6px 0 6px; font-size: 17px; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.icon { font-size: 22px; }
+
+.gallery { display: grid; gap: 22px; grid-template-columns: repeat(2, 1fr); }
+.gallery figure { margin: 0; }
+.gallery figcaption { color: var(--muted); font-size: 14px; margin-top: 8px; }
+.gallery img { border-radius: 12px; border: 1px solid var(--stroke); }
+
+.steps { counter-reset: step; display: grid; gap: 14px; }
+.steps li { list-style: none; position: relative; padding-left: 46px; }
+.steps li::before {
+  counter-increment: step; content: counter(step);
+  position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  background: rgba(82, 161, 255, .16); color: var(--accent-soft); border: 1px solid var(--stroke);
+}
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+code { background: #0a1630; border: 1px solid var(--stroke); padding: 1px 6px; border-radius: 6px; font-size: 14px; }
+pre { background: #0a1630; border: 1px solid var(--stroke); padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-size: 13.5px; }
+.callout { border-left: 3px solid var(--warn); padding: 12px 16px; background: rgba(255, 184, 89, .07); border-radius: 0 10px 10px 0; color: var(--muted); }
+
+.donate { text-align: center; }
+.donate .btn { margin-top: 10px; }
+
+footer { border-top: 1px solid var(--stroke); padding: 30px 0 40px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+footer p { margin: 4px 0; }
+
+@media (max-width: 860px) {
+  .hero { grid-template-columns: 1fr; padding-top: 40px; }
+  .btn { width: 100%; }
+  .hero .shot { transform: none; }
+  .grid { grid-template-columns: 1fr 1fr; }
+  .gallery, .two { grid-template-columns: 1fr; }
+  nav.links a:not(.lang) { display: none; }
+}
+@media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }

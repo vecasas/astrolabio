@@ -10,7 +10,7 @@ public sealed record WeatherHour(DateTime Time, double CloudCover, double LowClo
 /// <summary>Previsión de Open-Meteo (gratuita, sin clave).</summary>
 public static class WeatherService
 {
-    internal static readonly HttpClient Http = CreateHttp();
+    public static readonly HttpClient Http = CreateHttp();
 
     private static HttpClient CreateHttp()
     {

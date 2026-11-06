@@ -44,7 +44,7 @@ public sealed class SkyImage : Border
             if (!Cache.TryGetValue(url, out var bmp))
             {
                 var data = await WeatherService.Http.GetByteArrayAsync(url);
-                bmp = Stretch(new Bitmap(new MemoryStream(data)));
+                bmp = Levels(new Bitmap(new MemoryStream(data)));
                 Cache[url] = bmp;
             }
             img.Source = bmp; label.IsVisible = false;
@@ -53,7 +53,7 @@ public sealed class SkyImage : Border
     }
 
     /// <summary>Negro en el fondo del cielo (percentil 40), blanco en el 99,7 y una curva suave.</summary>
-    private static Bitmap Stretch(Bitmap src)
+    private static Bitmap Levels(Bitmap src)
     {
         int w = src.PixelSize.Width, h = src.PixelSize.Height;
         if (w < 100 || h < 100) return src;

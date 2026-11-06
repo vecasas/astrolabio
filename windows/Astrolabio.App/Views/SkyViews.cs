@@ -25,6 +25,7 @@ public sealed class SkyCanvas : Control
     private Point? _drag;
 
     private DateTime Date => DateTime.UtcNow.AddHours(HourOffset);
+    private static double Dist(Point a, Point b) => Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
 
     private (double R, Point C, double Lst) Proj()
     {
@@ -115,14 +116,14 @@ public sealed class SkyCanvas : Control
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         if (_drag is Point d && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        { var p = e.GetPosition(this); Pan += p - d; _drag = p; InvalidateVisual(); }
+        { var p = e.GetPosition(this); Pan += new Vector(p.X - d.X, p.Y - d.Y); _drag = p; InvalidateVisual(); }
         base.OnPointerMoved(e);
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         var p = e.GetPosition(this);
-        if (_drag is Point d && (p - d).Length < 3) Pick(p);
+        if (_drag is Point d && Dist(p, d) < 3) Pick(p);
         _drag = null;
         base.OnPointerReleased(e);
     }
@@ -142,7 +143,7 @@ public sealed class SkyCanvas : Control
         void Consider(string t, string d, Point? q, double bonus = 0)
         {
             if (q is not Point x) return;
-            var dist = (x - p).Length - bonus;
+            var dist = Dist(x, p) - bonus;
             if (dist < 16 && (best is null || dist < best.Value.D)) best = (t, d, dist);
         }
         foreach (var o in Catalog.Objects.Where(o => o.Magnitude <= DsoMag))

@@ -35,7 +35,7 @@ public sealed class AppState
         {
             var s = Settings;
             var h = WeatherService.Nearest(DateTime.UtcNow, Weather);
-            return new SessionContext(s.SiteName, s.Latitude, s.Longitude, s.Gain, s.LpFilter, s.DitherEnabled, s.DitherPixels, s.DitherInterval,
+            return new SessionContext(s.SiteName, s.Latitude, s.Longitude, s.Gain, Client.LpFilter, s.DitherEnabled, s.DitherPixels, s.DitherInterval,
                 h is null ? null : new WeatherSnapshot(h.CloudCover, h.Temperature, h.DewPoint, h.Humidity, h.Wind),
                 path => { if (Live.Image is not { } img) return false; img.Save(path); return true; });
         };

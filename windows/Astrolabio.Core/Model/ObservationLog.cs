@@ -49,7 +49,7 @@ public sealed record ObservationRecord(Guid Id, string Target, DateTime Start, D
 }
 
 /// <summary>Lo que la aplicación aporta a cada sesión: lugar, tiempo y una forma de guardar la imagen apilada.</summary>
-public sealed record SessionContext(string SiteName, double Latitude, double Longitude, int Gain, bool LpFilter,
+public sealed record SessionContext(string SiteName, double Latitude, double Longitude, int Gain, bool? LpFilter,
     bool DitherEnabled, int DitherPixels, int DitherInterval, WeatherSnapshot? Weather, Func<string, bool> SaveImage);
 
 /// <summary>Historial de sesiones de apilado (history.json): base de las estadísticas.</summary>
@@ -137,7 +137,7 @@ public sealed partial class ObservationLog : Observable
             r = r with
             {
                 SiteName = ctx.SiteName, Latitude = ctx.Latitude, Longitude = ctx.Longitude, Gain = r.Gain ?? ctx.Gain,
-                LpFilter = ctx.LpFilter, DitherEnabled = ctx.DitherEnabled, DitherPixels = ctx.DitherPixels,
+                LpFilter = ctx.LpFilter ?? r.LpFilter, DitherEnabled = ctx.DitherEnabled, DitherPixels = ctx.DitherPixels,
                 DitherInterval = ctx.DitherInterval, Weather = ctx.Weather,
             };
             if (r.Coordinates is { } co) r = r with { AltitudeStart = Altitude(co, r.Start, ctx) };

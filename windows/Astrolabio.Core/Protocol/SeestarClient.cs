@@ -62,6 +62,7 @@ public sealed class SeestarClient : Observable
     private int? _expMs; public int? StackExposureMs { get => _expMs; private set => Set(ref _expMs, value); }
     private int? _gain; public int? CurrentGain { get => _gain; private set => Set(ref _gain, value); }
     private (int Lo, int Hi)? _gainRange; public (int Lo, int Hi)? GainRange { get => _gainRange; private set => Set(ref _gainRange, value); }
+    private bool? _lp; public bool? LpFilter { get => _lp; private set => Set(ref _lp, value); }
     private string? _target; public string? ViewTarget { get => _target; private set => Set(ref _target, value); }
 
     public ObservableCollection<LogEntry> Log { get; } = new();
@@ -410,6 +411,7 @@ public sealed class SeestarClient : Observable
             {
                 if (v.Str("result.View.target_name") is { Length: > 0 } t) ViewTarget = t;
                 if (v.Int("result.View.gain") is int g) CurrentGain = g;
+                if (v.Bool("result.View.lp_filter") is bool lp) LpFilter = lp;
                 if (v.Int("result.View.Stack.stacked_frame") is int f) StackedFrames = f;
                 if (v.Int("result.View.Stack.dropped_frame") is int d) DroppedFrames = d;
             });

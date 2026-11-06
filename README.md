@@ -1,6 +1,6 @@
 # Astrolabio
 
-**Versión 1.0.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
+**Versión 1.1.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
 
 App nativa para macOS (SwiftUI) que controla un telescopio inteligente Seestar S50 desde el Mac por la red local.
 
@@ -31,6 +31,7 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 **Archivo**
 - **Álbum**: las fotos del Seestar (portada y número de archivos de cada sesión) con visor a tamaño completo y descarga, y las imágenes guardadas en el Mac.
 - **Estadísticas**: horas de integración, noches, sesiones, objetos, gráficas por noche y por tipo y tabla por objeto. Astrolabio anota cada sesión mientras apila; también puede importar las sesiones antiguas del álbum del Seestar. Exporta a CSV.
+- **Informes** (nuevo en 1.1): lista de noches de observación e informe completo de cada una (lugar, tiempo, Luna, ajustes y fotogramas de cada objeto, imagen apilada, batería, firmware y eventos), descargable en PDF A4 en el idioma elegido.
 
 **Sistema**: previsión del tiempo de 48 horas y registro con diagnóstico.
 
@@ -52,7 +53,7 @@ python3 scripts/i18n_build.py   # valida (huecos %@, %.1f…) y regenera Transla
 
 ## Instalar
 
-Descarga `Astrolabio-1.0.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
+Descarga `Astrolabio-1.1.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
 
 Para crear el instalador desde el código: `./scripts/make_dmg.sh` (deja `dist/Astrolabio-<versión>.dmg`).
 
@@ -110,7 +111,7 @@ Los nombres de los métodos del protocolo vienen de lo que ha documentado la com
 
 ## English
 
-Astrolabio is a native macOS app (SwiftUI, macOS 14+, no external dependencies) to control a ZWO Seestar S50 smart telescope over the local network: discovery, authentication (PEM key required by recent firmware), GoTo, stacking with live view and on-the-fly processing, a night planner with "what to see" and "pick for me", an interactive star chart, Moon and planets, an automatic session runner, mosaics, a planetary video stacker, the telescope album and observing statistics. The interface is available in Spanish, English, French, German, Chinese and Russian, with a red night mode.
+Astrolabio is a native macOS app (SwiftUI, macOS 14+, no external dependencies) to control a ZWO Seestar S50 smart telescope over the local network: discovery, authentication (PEM key required by recent firmware), GoTo, stacking with live view and on-the-fly processing, a night planner with "what to see" and "pick for me", an interactive star chart, Moon and planets, an automatic session runner, mosaics, a planetary video stacker, the telescope album, observing statistics and per-night session reports exportable to PDF. The interface is available in Spanish, English, French, German, Chinese and Russian, with a red night mode.
 
 Install from the `.dmg` in Releases (right-click → Open the first time), or build with `swift build` / `./scripts/make_app.sh` / `./scripts/make_dmg.sh`. Tests: `./scripts/test.sh`.
 

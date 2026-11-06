@@ -21,7 +21,8 @@ enum DebugSnapshot {
             let sections = AppSection.allCases.filter { only == nil || only!.contains("\($0)") }
             for section in sections {
                 nav?.selection = section
-                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic].contains(section) ? 9 : 3))
+                let slow = Double(ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT_WAIT"] ?? "") ?? 9
+                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic].contains(section) ? slow : 3))
                 save(to: folder.appendingPathComponent("\(section).png"))
             }
             if only?.contains("settings") == true {

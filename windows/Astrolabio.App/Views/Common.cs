@@ -37,13 +37,26 @@ public sealed class SkyImage : Border
         _ = Load(url, img, (TextBlock)grid.Children[1]);
     }
 
+    private static readonly SemaphoreSlim Gate = new(1, 1);
+
     private static async Task Load(string url, Image img, TextBlock label)
     {
         try
         {
             if (!Cache.TryGetValue(url, out var bmp))
             {
-                var data = await WeatherService.Http.GetByteArrayAsync(url);
+                // Con varias peticiones a la vez SkyView devuelve una imagen en blanco de unos cientos de
+                // bytes: se piden de una en una y, si llega en blanco, se reintenta.
+                byte[]? data = null;
+                for (var attempt = 0; attempt < 5 && data is null; attempt++)
+                {
+                    if (attempt > 0) await Task.Delay(attempt * 3000);
+                    await Gate.WaitAsync();
+                    try { var d = await WeatherService.Http.GetByteArrayAsync(url); if (d.Length > 3000) data = d; }
+                    catch { }
+                    finally { Gate.Release(); }
+                }
+                if (data is null) throw new InvalidOperationException("SkyView");
                 bmp = Levels(new Bitmap(new MemoryStream(data)));
                 Cache[url] = bmp;
             }

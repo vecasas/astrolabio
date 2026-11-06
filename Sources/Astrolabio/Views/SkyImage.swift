@@ -91,19 +91,31 @@ struct StretchedSkyImage: View {
         if let hit = Self.cache.object(forKey: url as NSURL) { image = hit.image; return }
         image = nil
         failed = false
-        do {
-            var req = URLRequest(url: url)
-            req.timeoutInterval = 45
-            let (data, response) = try await URLSession.shared.data(for: req)
-            guard (response as? HTTPURLResponse)?.statusCode == 200 else { failed = true; return }
+        // Con varias peticiones a la vez SkyView devuelve una imagen en blanco de unos cientos de bytes:
+        // se piden de una en una y, si llega en blanco, se reintenta.
+        for attempt in 0..<5 {
+            if Task.isCancelled { return }
+            if attempt > 0 { try? await Task.sleep(for: .seconds(Double(attempt) * 3)) }
+            await SkyViewQueue.shared.acquire()
+            let result: Data? = await {
+                var req = URLRequest(url: url)
+                req.timeoutInterval = 45
+                guard let (data, response) = try? await URLSession.shared.data(for: req),
+                      (response as? HTTPURLResponse)?.statusCode == 200 else { return nil }
+                return data
+            }()
+            await SkyViewQueue.shared.release()
+            guard let data = result, data.count > 3000 else { continue }
             let out = await Task.detached { StretchedSkyImage.process(data) }.value
             if let out {
                 Self.cache.setObject(RemoteImage.CGImageBox(out), forKey: url as NSURL)
                 image = out
-            } else { failed = true }
-        } catch {
-            if !Task.isCancelled { failed = true }
+                return
+            }
+            // Imagen de aviso (zona sin datos): no tiene sentido reintentar.
+            break
         }
+        if !Task.isCancelled { failed = true }
     }
 
     nonisolated static func process(_ data: Data) -> CGImage? {
@@ -136,5 +148,22 @@ struct StretchedSkyImage: View {
         return CGImage(width: w, height: h, bitsPerComponent: 8, bitsPerPixel: 8, bytesPerRow: w,
                        space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue),
                        provider: provider, decode: nil, shouldInterpolate: true, intent: .defaultIntent)
+    }
+}
+
+/// Limita las descargas simultáneas de SkyView.
+actor SkyViewQueue {
+    static let shared = SkyViewQueue()
+    private let limit = 1
+    private var running = 0
+    private var waiting: [CheckedContinuation<Void, Never>] = []
+
+    func acquire() async {
+        if running < limit { running += 1; return }
+        await withCheckedContinuation { waiting.append($0) }
+    }
+
+    func release() {
+        if waiting.isEmpty { running -= 1 } else { waiting.removeFirst().resume() }
     }
 }

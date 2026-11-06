@@ -100,7 +100,7 @@ public static class ReportPdf
         t.ColumnsDefinition(c => { c.RelativeColumn(42); c.RelativeColumn(58); });
         for (var i = 0; i < rows.Count; i++)
         {
-            var bg = i % 2 == 0 ? PaleBlue : Colors.White;
+            string bg = i % 2 == 0 ? PaleBlue : "#FFFFFF";
             t.Cell().Background(bg).PaddingVertical(3).PaddingHorizontal(6).Text(rows[i].Label).FontColor(Muted);
             t.Cell().Background(bg).PaddingVertical(3).PaddingHorizontal(6).Text(rows[i].Value);
         }

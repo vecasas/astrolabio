@@ -33,7 +33,9 @@ struct AstrolabioApp: App {
     @StateObject private var sky = SkyStore()
     @StateObject private var tonight = TonightModel()
     @StateObject private var nav = AppNavigation()
-    @StateObject private var history = ObservationLog()
+    // ASTROLABIO_HISTORY permite usar otro historial (solo para capturas y pruebas).
+    @StateObject private var history = ObservationLog(storage: ProcessInfo.processInfo.environment["ASTROLABIO_HISTORY"]
+        .map { URL(fileURLWithPath: $0) })
     @ObservedObject private var loc = Loc.shared
 
     var body: some Scene {
@@ -112,6 +114,11 @@ struct AstrolabioApp: App {
         client.signerProvider = { s.makeSigner() }
         live.attach(to: client)
         history.attach(to: client, exposureMs: { s.exposureMs })
+        let sky = self.sky, live = self.live
+        history.contextProvider = {
+            SessionContext(siteName: s.siteName, latitude: s.latitude, longitude: s.longitude, gain: s.gain,
+                           weather: sky.snapshot, image: { live.image })
+        }
         if settings.autoConnect && !client.isConnected {
             await client.connect(to: settings.telescopeHost)
             if client.isConnected { live.connect(host: settings.telescopeHost) }

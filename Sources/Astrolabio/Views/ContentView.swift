@@ -14,6 +14,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case stacker = "Apilador planetario"
     case album = "Álbum"
     case stats = "Estadísticas"
+    case reports = "Informes"
     case weather = "Tiempo"
     case log = "Registro"
 
@@ -34,6 +35,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .stacker: return "square.stack.3d.down.right"
         case .album: return "photo.on.rectangle"
         case .stats: return "chart.bar.xaxis"
+        case .reports: return "doc.richtext"
         case .weather: return "cloud.sun"
         case .log: return "text.alignleft"
         }
@@ -45,7 +47,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         ("Observar", [.telescope, .live]),
         (tr("Sistema solar"), [.moon, .planets, .stacker]),
         ("Planificar", [.planner, .session, .mosaic]),
-        ("Archivo", [.album, .stats]),
+        ("Archivo", [.album, .stats, .reports]),
         ("Sistema", [.weather, .log]),
     ]
 }
@@ -91,6 +93,7 @@ struct ContentView: View {
                     case .stacker: StackerView()
                     case .album: AlbumView()
                     case .stats: StatsView()
+                    case .reports: ReportsView()
                     case .weather: WeatherView()
                     case .log: LogView()
                     }

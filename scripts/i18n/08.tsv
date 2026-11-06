@@ -1,0 +1,38 @@
+%@ s	%@ s	%@ s	%@ s	%@ 秒	%@ с
+%d fotogramas	%d frames	%d images	%d Bilder	%d 帧	%d кадров
+%d h %02d min	%d h %02d min	%d h %02d min	%d h %02d min	%d 小时 %02d 分	%d ч %02d мин
+%d min	%d min	%d min	%d Min.	%d 分钟	%d мин
+(%d descartados)	(%d rejected)	(%d rejetées)	(%d verworfen)	（%d 帧被剔除）	(%d отброшено)
+Altura de la Luna	Moon altitude	Hauteur de la Lune	Mondhöhe	月球高度	Высота Луны
+Altura inicio / fin	Altitude start / end	Hauteur début / fin	Höhe Beginn / Ende	起止高度	Высота в начале / в конце
+Bajo el horizonte	Below the horizon	Sous l’horizon	Unter dem Horizont	在地平线以下	Под горизонтом
+Batería inicio / fin	Battery start / end	Batterie début / fin	Akku Beginn / Ende	起止电量	Батарея в начале / в конце
+Condiciones	Conditions	Conditions	Bedingungen	观测条件	Условия
+Coordenadas del lugar	Site coordinates	Coordonnées du site	Standortkoordinaten	观测地坐标	Координаты места
+Cuando apiles con el Seestar, o importes el álbum en Estadísticas, las sesiones aparecerán aquí.	Sessions will appear here once you stack with the Seestar or import the album in Statistics.	Les sessions apparaîtront ici dès que vous empilerez avec le Seestar ou importerez l’album dans Statistiques.	Sitzungen erscheinen hier, sobald du mit dem Seestar stackst oder das Album in Statistik importierst.	使用 Seestar 叠加或在“统计”中导入相册后，观测记录会显示在这里。	Сеансы появятся здесь после накопления на Seestar или импорта альбома в «Статистике».
+Descargar PDF	Download PDF	Télécharger le PDF	PDF herunterladen	下载 PDF	Скачать PDF
+Dither	Dither	Dithering	Dithering	抖动	Дизеринг
+Eventos y errores	Events and errors	Événements et erreurs	Ereignisse und Fehler	事件与错误	События и ошибки
+Fase lunar	Moon phase	Phase lunaire	Mondphase	月相	Фаза Луны
+Generado con %@ %@ el %@	Generated with %@ %@ on %@	Généré avec %@ %@ le %@	Erstellt mit %@ %@ am %@	由 %1$@ %2$@ 于 %3$@ 生成	Создано в %@ %@ %@
+Horario	Time	Horaire	Zeitraum	时间	Время
+Iluminación de la Luna	Moon illumination	Illumination de la Lune	Mondbeleuchtung	月面照亮比例	Освещённость Луны
+Importado del álbum del Seestar	Imported from the Seestar album	Importé de l’album du Seestar	Aus dem Seestar-Album importiert	从 Seestar 相册导入	Импортировано из альбома Seestar
+Informe	Report	Rapport	Bericht	报告	Отчёт
+Informe de sesión	Session report	Rapport de session	Sitzungsbericht	观测报告	Отчёт о сеансе
+Informes	Reports	Rapports	Berichte	报告	Отчёты
+Inicio / fin	Start / end	Début / fin	Beginn / Ende	开始 / 结束	Начало / конец
+Integración total	Total integration	Intégration totale	Gesamtbelichtung	总积分时间	Общее накопление
+Lugar	Site	Lieu	Standort	地点	Место
+No hay eventos registrados para esta sesión.	No events were logged for this session.	Aucun événement enregistré pour cette session.	Für diese Sitzung wurden keine Ereignisse protokolliert.	此次观测没有记录事件。	Для этого сеанса события не записаны.
+No se pudo guardar el PDF	Could not save the PDF	Impossible d’enregistrer le PDF	PDF konnte nicht gespeichert werden	无法保存 PDF	Не удалось сохранить PDF
+Objetos observados	Observed objects	Objets observés	Beobachtete Objekte	观测目标	Наблюдавшиеся объекты
+Origen	Source	Origine	Quelle	来源	Источник
+Posición del enfoque	Focus position	Position de mise au point	Fokusposition	对焦位置	Положение фокуса
+Página %d	Page %d	Page %d	Seite %d	第 %d 页	Страница %d
+Resumen	Summary	Résumé	Übersicht	概要	Сводка
+Sin datos	No data	Aucune donnée	Keine Daten	无数据	Нет данных
+Sí, %d px cada %d fotogramas	Yes, %d px every %d frames	Oui, %d px toutes les %d images	Ja, %d px alle %d Bilder	是，每 %2$d 帧 %1$d 像素	Да, %d пикс. каждые %d кадров
+Temperatura del telescopio	Telescope temperature	Température du télescope	Teleskoptemperatur	望远镜温度	Температура телескопа
+Todavía no hay sesiones	No sessions yet	Aucune session pour l’instant	Noch keine Sitzungen	还没有观测记录	Сеансов пока нет
+Versión %@	Version %@	Version %@	Version %@	版本 %@	Версия %@

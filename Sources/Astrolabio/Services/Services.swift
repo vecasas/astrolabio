@@ -16,14 +16,34 @@ struct WeatherHour: Identifiable {
 
 enum WeatherService {
     static func forecast(lat: Double, lon: Double) async throws -> [WeatherHour] {
-        var c = URLComponents(string: "https://api.open-meteo.com/v1/forecast")!
+        try await fetch("https://api.open-meteo.com/v1/forecast", lat: lat, lon: lon, extra: [.init(name: "forecast_days", value: "3")])
+    }
+
+    /// Tiempo pasado entre dos fechas: los últimos 90 días salen de la API de previsión
+    /// (más precisa) y lo anterior del archivo histórico ERA5 de Open-Meteo.
+    static func history(lat: Double, lon: Double, from: Date, to: Date) async throws -> [WeatherHour] {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX"); f.timeZone = TimeZone(identifier: "UTC"); f.dateFormat = "yyyy-MM-dd"
+        let recent = from > Date().addingTimeInterval(-88 * 86400)
+        return try await fetch(recent ? "https://api.open-meteo.com/v1/forecast" : "https://archive-api.open-meteo.com/v1/archive",
+                               lat: lat, lon: lon,
+                               extra: [.init(name: "start_date", value: f.string(from: from)), .init(name: "end_date", value: f.string(from: to))])
+    }
+
+    /// Hora más cercana a una fecha (como mucho a 90 minutos).
+    static func nearest(_ date: Date, in hours: [WeatherHour]) -> WeatherHour? {
+        hours.min(by: { abs($0.time.timeIntervalSince(date)) < abs($1.time.timeIntervalSince(date)) })
+            .flatMap { abs($0.time.timeIntervalSince(date)) < 5400 ? $0 : nil }
+    }
+
+    private static func fetch(_ base: String, lat: Double, lon: Double, extra: [URLQueryItem]) async throws -> [WeatherHour] {
+        var c = URLComponents(string: base)!
         c.queryItems = [
             .init(name: "latitude", value: String(format: "%.4f", lat)),
             .init(name: "longitude", value: String(format: "%.4f", lon)),
             .init(name: "hourly", value: "cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m"),
             .init(name: "timezone", value: "UTC"),
-            .init(name: "forecast_days", value: "3"),
-        ]
+        ] + extra
         let (data, _) = try await URLSession.shared.data(from: c.url!)
         guard let obj = (try JSONSerialization.jsonObject(with: data)) as? JSONObject,
               let hourly = obj["hourly"] as? JSONObject,

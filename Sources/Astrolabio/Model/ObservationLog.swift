@@ -1,6 +1,19 @@
 import Foundation
+import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
 
-/// Una sesión de apilado registrada por Astrolabio.
+/// Tiempo en un momento de la sesión.
+struct WeatherSnapshot: Codable, Hashable {
+    var cloudCover: Double
+    var temperature: Double
+    var dewPoint: Double
+    var humidity: Double
+    var wind: Double
+}
+
+/// Una sesión de apilado registrada por Astrolabio. Los campos opcionales se añadieron en la
+/// versión 1.1 para los informes; los registros antiguos o importados no los tienen.
 struct ObservationRecord: Codable, Identifiable, Hashable {
     var id = UUID()
     var target: String
@@ -9,12 +22,56 @@ struct ObservationRecord: Codable, Identifiable, Hashable {
     var frames: Int
     var exposureMs: Int
 
+    var raJ2000: Double?
+    var decJ2000: Double?
+    var gain: Int?
+    var lpFilter: Bool?
+    var dropped: Int?
+    var ditherEnabled: Bool?
+    var ditherPixels: Int?
+    var ditherInterval: Int?
+    var focusPosition: Int?
+    var altitudeStart: Double?
+    var altitudeEnd: Double?
+    var batteryStart: Int?
+    var batteryEnd: Int?
+    var temperature: Double?
+    var firmware: String?
+    var device: String?
+    var siteName: String?
+    var latitude: Double?
+    var longitude: Double?
+    var weather: WeatherSnapshot?
+    var events: [String]?
+    var imageFile: String?
+    var albumThumb: String?
+    var imported: Bool?
+
     var integrationMinutes: Double { Double(frames * exposureMs) / 60_000 }
 
     /// Noche a la que pertenece (fecha del atardecer: de mediodía a mediodía).
     var nightDate: Date { Calendar.current.startOfDay(for: start.addingTimeInterval(-12 * 3600)) }
 
     var kind: ObjectKind? { Catalog.find(target)?.kind }
+
+    /// Coordenadas: las guardadas o, si no hay, las del catálogo.
+    var coordinates: (ra: Double, dec: Double)? {
+        if let raJ2000, let decJ2000 { return (raJ2000, decJ2000) }
+        return Catalog.find(target).map { ($0.raHours, $0.decDeg) }
+    }
+
+    /// Imagen guardada del apilado (en Application Support/Astrolabio/reports).
+    var imageURL: URL? { imageFile.map { ObservationLog.reportsFolder.appendingPathComponent($0) } }
+}
+
+/// Lo que el resto de la app aporta al empezar y al cerrar una sesión.
+struct SessionContext {
+    var siteName: String
+    var latitude: Double
+    var longitude: Double
+    var gain: Int
+    var weather: WeatherSnapshot?
+    var image: () -> CGImage?
 }
 
 /// Historial de observación: escucha los eventos de apilado del Seestar y guarda cada sesión
@@ -29,6 +86,15 @@ final class ObservationLog: ObservableObject {
     private var lastUpdate = Date.distantPast
     private weak var client: SeestarClient?
     private var exposureProvider: () -> Int = { 10_000 }
+    /// Datos del lugar, el tiempo y la imagen en directo (lo pone la app al arrancar).
+    var contextProvider: () -> SessionContext? = { nil }
+
+    nonisolated static var reportsFolder: URL {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Astrolabio/reports", isDirectory: true)
+        try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        return base
+    }
 
     private let storage: URL?
 
@@ -84,23 +150,88 @@ final class ObservationLog: ObservableObject {
             if var cur = current, cur.target == name, frames >= cur.frames {
                 cur.frames = frames
                 cur.end = now
+                if let d = event.data.int("dropped_frame") { cur.dropped = d }
+                if let b = client?.battery { cur.batteryEnd = b }
                 current = cur
             } else {
                 closeCurrent()
                 let exp = client?.stackExposureMs ?? exposureProvider()
-                current = ObservationRecord(target: name, start: now.addingTimeInterval(-Double(frames * exp) / 1000),
+                var rec = ObservationRecord(target: name, start: now.addingTimeInterval(-Double(frames * exp) / 1000),
                                             end: now, frames: frames, exposureMs: exp)
+                rec.dropped = event.data.int("dropped_frame")
+                fillContext(&rec)
+                current = rec
             }
             lastUpdate = now
         }
         if ["complete", "cancel", "fail"].contains(state) { closeCurrent() }
     }
 
+    /// Completa un registro nuevo con lo que se sabe del telescopio, el lugar y el tiempo.
+    private func fillContext(_ rec: inout ObservationRecord) {
+        if let c = client {
+            rec.gain = c.currentGain
+            rec.lpFilter = c.viewLPFilter
+            rec.focusPosition = c.focuserPosition
+            rec.batteryStart = c.battery
+            rec.batteryEnd = c.battery
+            rec.temperature = c.temperature
+            rec.firmware = c.firmwareString.isEmpty ? nil : c.firmwareString
+            rec.device = c.deviceName.isEmpty ? nil : c.deviceName
+            if let d = c.ditherSetting { rec.ditherEnabled = d.enabled; rec.ditherPixels = d.pixels; rec.ditherInterval = d.interval }
+            if let ra = c.viewTargetRA, let dec = c.viewTargetDec {
+                // El telescopio da coordenadas de la fecha; se guardan tal cual (la diferencia con J2000 es de minutos de arco).
+                rec.raJ2000 = ra; rec.decJ2000 = dec
+            }
+        }
+        if rec.raJ2000 == nil, let o = Catalog.find(rec.target) { rec.raJ2000 = o.raHours; rec.decJ2000 = o.decDeg }
+        if let ctx = contextProvider() {
+            rec.siteName = ctx.siteName
+            rec.latitude = ctx.latitude
+            rec.longitude = ctx.longitude
+            if rec.gain == nil { rec.gain = ctx.gain }
+            rec.weather = ctx.weather
+            if let co = rec.coordinates {
+                let now = Astro.precessFromJ2000(raHours: co.ra, decDeg: co.dec, to: Date())
+                rec.altitudeStart = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: ctx.latitude, lon: ctx.longitude).alt
+            }
+        }
+    }
+
     func closeCurrent() {
-        guard let cur = current else { return }
+        guard var cur = current else { return }
         current = nil
         guard cur.frames >= 3 else { return }
+        if let ctx = contextProvider() {
+            if let co = cur.coordinates {
+                let now = Astro.precessFromJ2000(raHours: co.ra, decDeg: co.dec, to: cur.end)
+                cur.altitudeEnd = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: cur.end, lat: ctx.latitude, lon: ctx.longitude).alt
+            }
+            if let img = ctx.image() { cur.imageFile = saveImage(img, id: cur.id) }
+        }
+        if let c = client {
+            cur.batteryEnd = c.battery ?? cur.batteryEnd
+            // Avisos y errores del registro durante la sesión (sin el tráfico de red).
+            let evs = c.log.filter { $0.date >= cur.start.addingTimeInterval(-120) && $0.date <= Date() && $0.level != .traffic }
+            cur.events = evs.suffix(60).map { "\($0.date.formatted(Date.FormatStyle(date: .omitted, time: .shortened, locale: Loc.shared.locale)))  \($0.text)" }
+        }
         records.append(cur)
+        save()
+    }
+
+    /// Guarda una copia JPEG de la imagen apilada para el informe.
+    private func saveImage(_ img: CGImage, id: UUID) -> String? {
+        let name = "\(id.uuidString).jpg"
+        let url = Self.reportsFolder.appendingPathComponent(name)
+        guard let dest = CGImageDestinationCreateWithURL(url as CFURL, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(dest, img, [kCGImageDestinationLossyCompressionQuality: 0.85] as CFDictionary)
+        return CGImageDestinationFinalize(dest) ? name : nil
+    }
+
+    /// Actualiza un registro ya guardado (por ejemplo, al completar el tiempo de una sesión antigua).
+    func update(_ rec: ObservationRecord) {
+        guard let i = records.firstIndex(where: { $0.id == rec.id }) else { return }
+        records[i] = rec
         save()
     }
 
@@ -154,7 +285,12 @@ final class ObservationLog: ObservableObject {
                     Catalog.normalize($0.target) == Catalog.normalize(target) && abs($0.end.timeIntervalSince(end)) < 1800
                 }
                 if duplicate || frames < 1 { continue }
-                records.append(ObservationRecord(target: target, start: start, end: end, frames: frames, exposureMs: expMs))
+                var rec = ObservationRecord(target: target, start: start, end: end, frames: frames, exposureMs: expMs)
+                rec.imported = true
+                rec.albumThumb = albumBase(reply).map { "\($0)/\(thn)" }
+                rec.lpFilter = name.contains("_LP_")
+                if let o = Catalog.find(target) { rec.raJ2000 = o.raHours; rec.decJ2000 = o.decDeg }
+                records.append(rec)
                 added += 1
             }
         }
@@ -163,6 +299,13 @@ final class ObservationLog: ObservableObject {
             save()
         }
         return added
+    }
+
+    /// Ruta base de las imágenes del álbum (http://IP/MyWorks).
+    private func albumBase(_ reply: JSONObject) -> String? {
+        guard let host = client?.host, !host.isEmpty else { return nil }
+        let path = (reply.value(at: "result.path") as? String) ?? "MyWorks"
+        return "http://\(host)/\(path)"
     }
 
     func csv() -> String {

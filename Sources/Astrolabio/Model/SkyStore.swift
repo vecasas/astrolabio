@@ -44,4 +44,10 @@ final class SkyStore: ObservableObject {
     var currentCloud: Double? { nearest()?.cloudCover }
     var currentHumidity: Double? { nearest()?.humidity }
     var currentDewPoint: Double? { nearest()?.dewPoint }
+
+    /// Tiempo actual para guardarlo en el historial.
+    var snapshot: WeatherSnapshot? {
+        nearest().map { WeatherSnapshot(cloudCover: $0.cloudCover, temperature: $0.temperature, dewPoint: $0.dewPoint,
+                                        humidity: $0.humidity, wind: $0.wind) }
+    }
 }

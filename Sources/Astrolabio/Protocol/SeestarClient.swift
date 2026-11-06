@@ -82,6 +82,9 @@ final class SeestarClient: ObservableObject {
     @Published private(set) var autoFocusBeforeStackSetting: Bool?
     @Published private(set) var viewTarget: String?
     @Published private(set) var stackState: String?
+    @Published private(set) var viewLPFilter: Bool?
+    @Published private(set) var viewTargetRA: Double?
+    @Published private(set) var viewTargetDec: Double?
     @Published private(set) var lastEvents: [String: SeestarEvent] = [:]
     @Published var log: [LogEntry] = []
     @Published var logTraffic = false
@@ -459,6 +462,11 @@ final class SeestarClient: ObservableObject {
             if let t = v.string("result.View.target_name"), !t.isEmpty { viewTarget = t }
             if let g = v.int("result.View.gain") { currentGain = g }
             stackState = v.string("result.View.Stack.state")
+            if let lp = v.bool("result.View.lp_filter") { viewLPFilter = lp }
+            if let coords = v.value(at: "result.View.target_ra_dec") as? [Any], coords.count >= 2,
+               let ra = (coords[0] as? NSNumber)?.doubleValue, let dec = (coords[1] as? NSNumber)?.doubleValue {
+                viewTargetRA = ra; viewTargetDec = dec
+            }
             if let f = v.int("result.View.Stack.stacked_frame") { stackedFrames = f }
             if let d = v.int("result.View.Stack.dropped_frame") { droppedFrames = d }
             if let mode = v.string("result.View.mode") { currentView = mode }

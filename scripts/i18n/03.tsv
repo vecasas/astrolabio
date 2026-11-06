@@ -1,0 +1,150 @@
+Espacio libre	Free space	Espace libre	Freier Speicher	可用空间	Свободно
+Esperando a la noche astronómica (%@).	Waiting for astronomical night (%@).	Attente de la nuit astronomique (%@).	Warte auf die astronomische Nacht (%@).	等待天文夜开始（%@）。	Ожидание астрономической ночи (%@).
+Esperando a que el objeto suba	Waiting for the object to rise	Attente que l'objet monte	Warte, bis das Objekt steigt	等待天体升高	Ожидание подъёма объекта
+Esperando a que oscurezca	Waiting for darkness	Attente de l'obscurité	Warte auf Dunkelheit	等待天黑	Ожидание темноты
+Esperando imagen…	Waiting for image…	En attente de l'image…	Warte auf Bild…	等待图像…	Ожидание изображения…
+Esperando la primera imagen apilada…	Waiting for the first stacked image…	En attente de la première image empilée…	Warte auf das erste gestackte Bild…	等待第一张叠加图像…	Ожидание первого сложенного изображения…
+Esperar a la noche astronómica	Wait for astronomical night	Attendre la nuit astronomique	Auf astronomische Nacht warten	等待天文夜	Ждать астрономической ночи
+Esta noche	Tonight	Cette nuit	Heute Nacht	今晚	Этой ночью
+Estado	Status	État	Status	状态	Состояние
+Estadísticas	Statistics	Statistiques	Statistik	统计	Статистика
+Estirado	Stretch	Étirement	Streckung	拉伸	Растяжка
+Estrella Flameante	Flaming Star	Étoile flamboyante	Flammender Stern	烽火恒星星云	Пламенеющая звезда
+Estrella de magnitud %.1f	Star of magnitude %.1f	Étoile de magnitude %.1f	Stern der Helligkeit %.1f	%.1f 等星	Звезда %.1f зв. вел.
+Está a %.0f° de altura, en su mejor momento.	It is at %.0f° altitude, at its best.	Il est à %.0f° de hauteur, à son meilleur moment.	Es steht in %.0f° Höhe, im besten Moment.	高度 %.0f°，正是最佳时机。	Высота %.0f° — лучший момент.
+Está a %.0f° y empieza a bajar: mejor ahora que más tarde.	It is at %.0f° and starting to sink: better now than later.	Il est à %.0f° et commence à descendre : mieux vaut maintenant que plus tard.	Es steht bei %.0f° und sinkt bereits: besser jetzt als später.	高度 %.0f°，开始下降：越早越好。	Высота %.0f°, начинает опускаться: лучше сейчас, чем позже.
+Está a %.0f° y sube hasta %.0f° hacia las %@.	It is at %.0f° and rises to %.0f° around %@.	Il est à %.0f° et monte jusqu'à %.0f° vers %@.	Es steht bei %1$.0f° und steigt bis gegen %3$@ auf %2$.0f°.	当前 %1$.0f°，约 %3$@ 升至 %2$.0f°。	Сейчас %1$.0f°, к %3$@ поднимется до %2$.0f°.
+Está demasiado bajo para apuntar.	It is too low to slew to.	Il est trop bas pour pointer.	Es steht zu tief zum Anfahren.	太低，无法指向。	Слишком низко для наведения.
+Excelente para cielo profundo	Excellent for deep sky	Excellente pour le ciel profond	Ausgezeichnet für Deep Sky	非常适合深空	Отлично для дальнего космоса
+Exportado a %@	Exported to %@	Exporté vers %@	Exportiert nach %@	已导出到 %@	Экспортировано в %@
+Exportar CSV	Export CSV	Exporter en CSV	CSV exportieren	导出 CSV	Экспорт CSV
+Exposición	Exposure	Exposition	Belichtung	曝光	Выдержка
+Fallo de autenticación: %@	Authentication failed: %@	Échec de l'authentification : %@	Authentifizierung fehlgeschlagen: %@	认证失败：%@	Ошибка аутентификации: %@
+Fantasma de Casiopea	Ghost of Cassiopeia	Fantôme de Cassiopée	Geist der Kassiopeia	仙后座幽灵星云	Призрак Кассиопеи
+Fecha	Date	Date	Datum	日期	Дата
+Fiesta de estrellas	Star party	Soirée d'observation	Sternparty	观星会	Звёздная вечеринка
+Filas del mosaico: %@	Mosaic rows: %@	Lignes de la mosaïque : %@	Mosaik-Zeilen: %@	拼接行数：%@	Строк мозаики: %@
+Filas: %@	Rows: %@	Lignes : %@	Zeilen: %@	行数：%@	Строк: %@
+Filtro LP	LP filter	Filtre LP	LP-Filter	LP 滤镜	Фильтр LP
+Filtro antipolución (LP)	Light-pollution filter (LP)	Filtre antipollution (LP)	Lichtverschmutzungsfilter (LP)	抗光害滤镜（LP）	Фильтр от засветки (LP)
+Finder	Finder	Finder	Finder	访达	Finder
+Firmware	Firmware	Firmware	Firmware	固件	Прошивка
+Fondo neutro y color de las estrellas	Neutral background and star colour	Fond neutre et couleur des étoiles	Neutraler Hintergrund und Sternfarben	背景中性化与恒星色彩	Нейтральный фон и цвет звёзд
+Foto real de la zona (DSS2, NASA SkyView) con el norte arriba y el este a la izquierda. Cada rectángulo amarillo es un panel del Seestar, numerado columna-fila; el círculo discontinuo marca el tamaño aproximado del objeto.	Real photo of the area (DSS2, NASA SkyView) with north up and east to the left. Each yellow rectangle is a Seestar panel, numbered column-row; the dashed circle marks the approximate size of the object.	Photo réelle de la zone (DSS2, NASA SkyView), nord en haut et est à gauche. Chaque rectangle jaune est un panneau du Seestar, numéroté colonne-ligne ; le cercle pointillé indique la taille approximative de l'objet.	Echtes Foto der Region (DSS2, NASA SkyView), Norden oben, Osten links. Jedes gelbe Rechteck ist ein Seestar-Panel, nummeriert nach Spalte-Zeile; der gestrichelte Kreis zeigt die ungefähre Objektgröße.	该区域的真实照片（DSS2，NASA SkyView），上北左东。每个黄色矩形是一块 Seestar 拼接板，按列-行编号；虚线圆圈表示天体的大致大小。	Реальное фото области (DSS2, NASA SkyView): север вверху, восток слева. Каждый жёлтый прямоугольник — панель Seestar с номером «столбец-строка»; пунктирный круг показывает примерный размер объекта.
+Fotografiar la Luna con el Seestar	Photographing the Moon with the Seestar	Photographier la Lune avec le Seestar	Den Mond mit dem Seestar fotografieren	用 Seestar 拍摄月亮	Съёмка Луны на Seestar
+Fotogramas	Frames	Images	Bilder	帧数	Кадры
+Fotogramas apilados	Stacked frames	Images empilées	Gestackte Bilder	已叠加帧数	Сложено кадров
+Fácil y brillante	Easy and bright	Facile et lumineux	Einfach und hell	简单明亮	Простые и яркие
+Galaxia	Galaxy	Galaxie	Galaxie	星系	Галактика
+Galaxia Fantasma	Phantom Galaxy	Galaxie Fantôme	Phantom-Galaxie	幻影星系	Галактика Фантом
+Galaxia de Andrómeda	Andromeda Galaxy	Galaxie d'Andromède	Andromedagalaxie	仙女座星系	Галактика Андромеды
+Galaxia de Bode	Bode's Galaxy	Galaxie de Bode	Bodes Galaxie	波德星系	Галактика Боде
+Galaxia de la Aguja	Needle Galaxy	Galaxie de l'Aiguille	Nadelgalaxie	针状星系	Галактика Игла
+Galaxia de la Ballena	Whale Galaxy	Galaxie de la Baleine	Walgalaxie	鲸鱼星系	Галактика Кит
+Galaxia de la Hamburguesa	Hamburger Galaxy	Galaxie du Hamburger	Hamburger-Galaxie	汉堡星系	Галактика Гамбургер
+Galaxia de los Fuegos Artificiales	Fireworks Galaxy	Galaxie du Feu d'artifice	Feuerwerksgalaxie	烟火星系	Галактика Фейерверк
+Galaxia del Cigarro	Cigar Galaxy	Galaxie du Cigare	Zigarrengalaxie	雪茄星系	Галактика Сигара
+Galaxia del Escultor	Sculptor Galaxy	Galaxie du Sculpteur	Sculptor-Galaxie	玉夫座星系	Галактика Скульптор
+Galaxia del Girasol	Sunflower Galaxy	Galaxie du Tournesol	Sonnenblumengalaxie	向日葵星系	Галактика Подсолнух
+Galaxia del Huso	Spindle Galaxy	Galaxie du Fuseau	Spindelgalaxie	纺锤星系	Галактика Веретено
+Galaxia del Molinillo	Pinwheel Galaxy	Galaxie du Moulinet	Feuerradgalaxie	风车星系	Галактика Вертушка
+Galaxia del Ojo Negro	Black Eye Galaxy	Galaxie de l'Œil noir	Black-Eye-Galaxie	黑眼星系	Галактика Чёрный Глаз
+Galaxia del Remolino	Whirlpool Galaxy	Galaxie du Tourbillon	Whirlpool-Galaxie	涡状星系	Галактика Водоворот
+Galaxia del Sombrero	Sombrero Galaxy	Galaxie du Sombrero	Sombrerogalaxie	草帽星系	Галактика Сомбреро
+Galaxia del Triángulo	Triangulum Galaxy	Galaxie du Triangle	Dreiecksgalaxie	三角座星系	Галактика Треугольника
+Galaxias	Galaxies	Galaxies	Galaxien	星系	Галактики
+Galaxias Antena	Antennae Galaxies	Galaxies des Antennes	Antennen-Galaxien	触须星系	Галактики Антенны
+Gamma	Gamma	Gamma	Gamma	伽马	Гамма
+Ganancia	Gain	Gain	Gain	增益	Усиление
+Ganancia %@	Gain %@	Gain %@	Gain %@	增益 %@	Усиление %@
+Generar uno	Generate one	En générer un	Eins erzeugen	生成一个	Создать
+Gibosa creciente	Waxing gibbous	Gibbeuse croissante	Zunehmender Mond	盈凸月	Растущая Луна
+Gibosa menguante	Waning gibbous	Gibbeuse décroissante	Abnehmender Mond	亏凸月	Убывающая Луна
+GoTo	GoTo	GoTo	GoTo	指向	Навести
+GoTo Luna	GoTo Moon	GoTo Lune	GoTo Mond	指向月亮	Наведение на Луну
+GoTo a la Luna	GoTo the Moon	GoTo vers la Lune	GoTo zum Mond	指向月亮	Навести на Луну
+GoTo fallido (intento %@). Reintento en 30 s.	GoTo failed (attempt %@). Retrying in 30 s.	Échec du GoTo (essai %@). Nouvel essai dans 30 s.	GoTo fehlgeschlagen (Versuch %@). Neuer Versuch in 30 s.	指向失败（第 %@ 次），30 秒后重试。	Наведение не удалось (попытка %@). Повтор через 30 с.
+Grabando: %@ · %@ fotogramas	Recording: %@ · %@ frames	Enregistrement : %@ · %@ images	Aufzeichnung: %@ · %@ Bilder	记录中：%@ · %@ 帧	Запись: %@ · %@ кадров
+Gran Cúmulo de Hércules	Great Hercules Cluster	Grand amas d'Hercule	Großer Herkuleshaufen	武仙座大星团	Большое скопление Геркулеса
+Gran Nebulosa de Orión	Great Orion Nebula	Grande nébuleuse d'Orion	Großer Orionnebel	猎户座大星云	Большая туманность Ориона
+Guardado en %@	Saved to %@	Enregistré dans %@	Gespeichert in %@	已保存到 %@	Сохранено в %@
+Guardado en %@: %@	Saved to %@: %@	Enregistré dans %@ : %@	Gespeichert in %@: %@	已保存到 %@：%@	Сохранено в %@: %@
+Guardar	Save	Enregistrer	Speichern	保存	Сохранить
+Guardar PNG y FITS	Save PNG and FITS	Enregistrer PNG et FITS	PNG und FITS speichern	保存 PNG 和 FITS	Сохранить PNG и FITS
+Ha llegado el amanecer.	Dawn has arrived.	L'aube est arrivée.	Die Morgendämmerung hat begonnen.	天亮了。	Наступил рассвет.
+Hasta mag.	Down to mag.	Jusqu'à mag.	Bis mag.	最暗星等	До зв. вел.
+Haz clic en una estrella, un objeto o un planeta para ver sus datos. Arrastra para moverte, pellizca o usa la lupa para acercarte y mueve la barra para ver el cielo a otra hora.	Click a star, object or planet to see its details. Drag to move around, pinch or use the magnifier to zoom in, and move the slider to see the sky at another time.	Cliquez sur une étoile, un objet ou une planète pour voir ses données. Faites glisser pour vous déplacer, pincez ou utilisez la loupe pour zoomer et déplacez la barre pour voir le ciel à une autre heure.	Klicke auf einen Stern, ein Objekt oder einen Planeten, um Details zu sehen. Ziehe zum Verschieben, zoome per Fingergeste oder Lupe und bewege den Regler, um den Himmel zu einer anderen Zeit zu sehen.	点击恒星、天体或行星查看详情。拖动可移动，捏合或用放大镜缩放，拖动滑块可查看其他时间的天空。	Нажмите на звезду, объект или планету, чтобы увидеть данные. Перетаскивайте карту, масштабируйте жестом или лупой и двигайте ползунок, чтобы увидеть небо в другое время.
+Hora	Time	Heure	Uhrzeit	时间	Время
+Hora y ubicación	Time and location	Heure et position	Uhrzeit und Standort	时间和位置	Время и местоположение
+Humedad (%) y viento (km/h)	Humidity (%) and wind (km/h)	Humidité (%) et vent (km/h)	Luftfeuchte (%) und Wind (km/h)	湿度 (%) 和风速 (km/h)	Влажность (%) и ветер (км/ч)
+IP	IP	IP	IP	IP	IP
+IP del telescopio	Telescope IP	IP du télescope	IP des Teleskops	望远镜 IP	IP телескопа
+Idioma	Language	Langue	Sprache	语言	Язык
+Idioma de la interfaz	Interface language	Langue de l'interface	Sprache der Oberfläche	界面语言	Язык интерфейса
+Iluminada al %.0f %%	%.0f %% illuminated	Éclairée à %.0f %%	%.0f %% beleuchtet	照亮 %.0f %%	Освещена на %.0f %%
+Iluminada al %.0f %% · %.1f días	%.0f %% illuminated · %.1f days	Éclairée à %.0f %% · %.1f jours	%.0f %% beleuchtet · %.1f Tage	照亮 %.0f %% · 月龄 %.1f 天	Освещена на %.0f %% · %.1f сут.
+Imagen	Image	Image	Bild	图像	Изображение
+Imagen no disponible (sin internet)	Image unavailable (no internet)	Image indisponible (pas d'internet)	Bild nicht verfügbar (kein Internet)	图像不可用（无网络）	Изображение недоступно (нет интернета)
+Importadas %@ sesiones del álbum del Seestar.	Imported %@ sessions from the Seestar album.	%@ sessions importées de l'album du Seestar.	%@ Sitzungen aus dem Seestar-Album importiert.	已从 Seestar 相册导入 %@ 次拍摄。	Импортировано сеансов из альбома Seestar: %@.
+Importar del Seestar	Import from Seestar	Importer du Seestar	Vom Seestar importieren	从 Seestar 导入	Импорт из Seestar
+Indica al telescopio que está apuntando a estas coordenadas.	Tells the telescope it is pointing at these coordinates.	Indique au télescope qu'il pointe vers ces coordonnées.	Teilt dem Teleskop mit, dass es auf diese Koordinaten zeigt.	告诉望远镜它正指向这些坐标。	Сообщает телескопу, что он направлен на эти координаты.
+Integración	Integration	Intégration	Integration	累计曝光	Накопление
+Integración por noche	Integration per night	Intégration par nuit	Integration pro Nacht	每晚累计曝光	Накопление за ночь
+Ir a un objeto	Go to an object	Aller à un objet	Zu einem Objekt	前往天体	Навести на объект
+Ir y apilar	Go and stack	Aller et empiler	Anfahren und stacken	前往并叠加	Навести и сложить
+Ir y apilar…	Go and stack…	Aller et empiler…	Anfahren und stacken…	前往并叠加…	Навести и сложить…
+JPEG	JPEG	JPEG	JPEG	JPEG	JPEG
+Junto al Sol	Near the Sun	Près du Soleil	Nahe der Sonne	靠近太阳	Рядом с Солнцем
+Júpiter	Jupiter	Jupiter	Jupiter	木星	Юпитер
+LP	LP	LP	LP	LP	LP
+La Luna aún no ha salido: aprovecha ahora para los objetos más débiles.	The Moon hasn't risen yet: make the most of it for the faintest objects.	La Lune n'est pas encore levée : profitez-en pour les objets les plus faibles.	Der Mond ist noch nicht aufgegangen: nutze die Zeit für die schwächsten Objekte.	月亮还没升起：抓紧时间拍最暗的天体。	Луна ещё не взошла: самое время для самых слабых объектов.
+La Luna está a %.0f°%@.	The Moon is %.0f° away%@.	La Lune est à %.0f°%@.	Der Mond ist %.0f° entfernt%@.	月亮相距 %.0f°%@。	Луна в %.0f°%@.
+La duración es fotogramas × exposición configurada.	Duration is frames × configured exposure.	La durée correspond à images × exposition configurée.	Die Dauer ist Bilder × eingestellte Belichtung.	时长 = 帧数 × 设定曝光时间。	Длительность = кадры × заданная выдержка.
+La sesión automática apunta, enfoca, apila y pasa al siguiente sola.	The automatic session slews, focuses, stacks and moves on to the next one by itself.	La session automatique pointe, fait la mise au point, empile et passe seule au suivant.	Die automatische Sitzung fährt an, fokussiert, stackt und geht selbstständig zum nächsten Objekt.	自动拍摄会自动指向、对焦、叠加，然后转到下一个。	Автоматический сеанс сам наводится, фокусируется, складывает и переходит к следующему.
+La sesión se ha puesto en pausa porque se prevén nubes.	The session has paused because clouds are forecast.	La session est en pause car des nuages sont prévus.	Die Sitzung wurde pausiert, weil Wolken vorhergesagt sind.	预报有云，拍摄已暂停。	Сеанс приостановлен: ожидаются облака.
+Las Pléyades	The Pleiades	Les Pléiades	Die Plejaden	昴星团	Плеяды
+Las coordenadas son J2000; se pasan a la fecha antes de enviarlas.	Coordinates are J2000; they are converted to the current epoch before sending.	Les coordonnées sont en J2000 ; elles sont ramenées à la date avant l'envoi.	Die Koordinaten sind J2000; sie werden vor dem Senden aufs aktuelle Datum umgerechnet.	坐标为 J2000，发送前会换算到当前历元。	Координаты J2000; перед отправкой они пересчитываются на текущую эпоху.
+Latitud (°, norte positivo)	Latitude (°, north positive)	Latitude (°, nord positif)	Breite (°, Nord positiv)	纬度（°，北纬为正）	Широта (°, север положительный)
+Le quedan %.1f h por encima de %.0f°: %.0f min de apilado dan buen resultado.	It has %.1f h left above %.0f°: %.0f min of stacking will give a good result.	Il lui reste %.1f h au-dessus de %.0f° : %.0f min d'empilement donnent un bon résultat.	Es bleibt noch %.1f h über %.0f°: %.0f min Stacking liefern ein gutes Ergebnis.	还会在 %2$.0f° 以上停留 %1$.1f 小时：叠加 %3$.0f 分钟效果就不错。	Над %2$.0f° осталось %1$.1f ч: %3$.0f мин сложения дадут хороший результат.
+Leer en Wikipedia	Read on Wikipedia	Lire sur Wikipédia	Auf Wikipedia lesen	在维基百科上阅读	Читать в Википедии
+Leyenda	Legend	Légende	Legende	图例	Легенда
+Leyendo…	Reading…	Lecture…	Wird gelesen…	正在读取…	Чтение…
+Llegó a %@.	Arrived at %@.	Arrivé sur %@.	%@ erreicht.	已到达 %@。	Наведено на %@.
+Lo mejor ahora	Best right now	Le meilleur maintenant	Das Beste jetzt	当前最佳	Лучшее сейчас
+Longitud (°, este positivo)	Longitude (°, east positive)	Longitude (°, est positif)	Länge (°, Ost positiv)	经度（°，东经为正）	Долгота (°, восток положительный)
+Los anillos se distinguen incluso con el Seestar.	The rings can be made out even with the Seestar.	Les anneaux se distinguent même avec le Seestar.	Die Ringe sind sogar mit dem Seestar zu erkennen.	即使用 Seestar 也能分辨出光环。	Кольца видны даже в Seestar.
+Los avisos también salen siempre como notificación en el Mac. Solo contienen el nombre del objeto y lo ocurrido.	Alerts always appear as notifications on the Mac too. They only contain the object name and what happened.	Les alertes s'affichent aussi toujours en notification sur le Mac. Elles ne contiennent que le nom de l'objet et ce qui s'est passé.	Hinweise erscheinen außerdem immer als Mitteilung auf dem Mac. Sie enthalten nur den Objektnamen und was passiert ist.	提醒也会始终以通知的形式显示在 Mac 上，只包含天体名称和发生的情况。	Уведомления также всегда появляются на Mac. В них только название объекта и что произошло.
+Los próximos 30 días	The next 30 days	Les 30 prochains jours	Die nächsten 30 Tage	未来 30 天	Ближайшие 30 дней
+Lugar de observación	Observing site	Lieu d'observation	Beobachtungsort	观测地点	Место наблюдения
+Luna	Moon	Lune	Mond	月亮	Луна
+Luna a medias: elige objetos lejos de ella o nebulosas de emisión con el filtro LP.	Half Moon: choose objects far from it or emission nebulae with the LP filter.	Lune à moitié : choisissez des objets éloignés d'elle ou des nébuleuses en émission avec le filtre LP.	Halbmond: wähle Objekte weit weg von ihm oder Emissionsnebel mit LP-Filter.	半月：选择远离月亮的天体，或用 LP 滤镜拍发射星云。	Луна наполовину: выбирайте объекты подальше от неё или эмиссионные туманности с фильтром LP.
+Luna brillante pero bajo el horizonte: aprovecha mientras no sale.	Bright Moon but below the horizon: make the most of it before it rises.	Lune brillante mais sous l'horizon : profitez-en tant qu'elle n'est pas levée.	Heller Mond, aber unter dem Horizont: nutze die Zeit, bevor er aufgeht.	月亮很亮但在地平线以下：趁它未升起抓紧拍摄。	Яркая Луна, но под горизонтом: пользуйтесь, пока не взошла.
+Luna brillante: mejor cúmulos, estrellas dobles, planetas… o la propia Luna. Las nebulosas de emisión aguantan con el filtro LP.	Bright Moon: better clusters, double stars, planets… or the Moon itself. Emission nebulae hold up with the LP filter.	Lune brillante : plutôt des amas, des étoiles doubles, des planètes… ou la Lune elle-même. Les nébuleuses en émission tiennent avec le filtre LP.	Heller Mond: besser Sternhaufen, Doppelsterne, Planeten … oder den Mond selbst. Emissionsnebel gehen mit LP-Filter.	月亮很亮：更适合星团、双星、行星……或者月亮本身。发射星云配合 LP 滤镜也能拍。	Яркая Луна: лучше скопления, двойные звёзды, планеты… или сама Луна. Эмиссионные туманности выдерживают с фильтром LP.
+Luna llena	Full Moon	Pleine Lune	Vollmond	满月	Полнолуние
+Luna nueva	New Moon	Nouvelle Lune	Neumond	新月	Новолуние
+Luna poco iluminada: noche ideal para galaxias y nebulosas débiles.	Little moonlight: an ideal night for faint galaxies and nebulae.	Lune peu éclairée : nuit idéale pour les galaxies et nébuleuses faibles.	Wenig Mondlicht: ideale Nacht für lichtschwache Galaxien und Nebel.	月光很弱：拍暗弱星系和星云的理想夜晚。	Луна слабо освещена: идеальная ночь для слабых галактик и туманностей.
+Luna: %@	Moon: %@	Lune : %@	Mond: %@	月亮：%@	Луна: %@
+Líneas de constelaciones	Constellation lines	Lignes des constellations	Sternbildlinien	星座连线	Линии созвездий
+M42, NGC 7000, Andrómeda…	M42, NGC 7000, Andromeda…	M42, NGC 7000, Andromède…	M42, NGC 7000, Andromeda…	M42、NGC 7000、仙女座…	M42, NGC 7000, Андромеда…
+MP4 o MOV (por ejemplo, grabado con el Seestar en modo planeta) o SER de una cámara planetaria.	MP4 or MOV (for example recorded with the Seestar in planet mode) or SER from a planetary camera.	MP4 ou MOV (par exemple enregistré avec le Seestar en mode planète) ou SER d'une caméra planétaire.	MP4 oder MOV (z. B. mit dem Seestar im Planetenmodus aufgenommen) oder SER einer Planetenkamera.	MP4 或 MOV（例如用 Seestar 行星模式录制）或行星相机的 SER 文件。	MP4 или MOV (например, снятые Seestar в режиме планеты) или SER с планетной камеры.
+Magnitud %.1f · tamaño %.0f′	Magnitude %.1f · size %.0f′	Magnitude %.1f · taille %.0f′	Helligkeit %.1f · Größe %.0f′	星等 %.1f · 大小 %.0f′	Зв. вел. %.1f · размер %.0f′
+Marte	Mars	Mars	Mars	火星	Марс
+Mejor	Best	Meilleur	Beste	最佳	Лучшее
+Mejor cerca de la oposición, cuando se ve más grande.	Best near opposition, when it looks largest.	Meilleur près de l'opposition, quand elle paraît la plus grande.	Am besten um die Opposition, wenn er am größten erscheint.	冲日前后最佳，此时看起来最大。	Лучше всего около противостояния, когда он кажется крупнее.
+Mejor fotograma	Best frame	Meilleure image	Bestes Bild	最佳帧	Лучший кадр
+Mejor hora	Best time	Meilleure heure	Beste Zeit	最佳时间	Лучшее время
+Mejorar	Enhance	Améliorer	Verbessern	增强	Улучшить
+Menguante	Waning crescent	Dernier croissant	Abnehmende Sichel	残月	Убывающий серп
+Mercurio	Mercury	Mercure	Merkur	水星	Меркурий
+Mi observatorio	My observatory	Mon observatoire	Meine Sternwarte	我的天文台	Моя обсерватория
+Modo Luna	Moon mode	Mode Lune	Mondmodus	月球模式	Режим Луны
+Modo Luna del Seestar	Seestar Moon mode	Mode Lune du Seestar	Mondmodus des Seestar	Seestar 月球模式	Режим Луны Seestar
+Modo cielo profundo	Deep-sky mode	Mode ciel profond	Deep-Sky-Modus	深空模式	Режим дальнего космоса
+Modo nocturno	Night mode	Mode nuit	Nachtmodus	夜间模式	Ночной режим
+Modo nocturno (⌃⌘N): todo en rojo tenue para no perder la adaptación a la oscuridad	Night mode (⌃⌘N): everything in dim red to keep your dark adaptation	Mode nuit (⌃⌘N) : tout en rouge tamisé pour garder l'adaptation à l'obscurité	Nachtmodus (⌃⌘N): alles in gedämpftem Rot, um die Dunkeladaption zu erhalten	夜间模式（⌃⌘N）：全部显示为暗红色，保持暗适应	Ночной режим (⌃⌘N): всё в тусклом красном, чтобы не терять адаптацию к темноте
+Modo planeta	Planet mode	Mode planète	Planetenmodus	行星模式	Режим планеты
+Molinillo Austral	Southern Pinwheel	Moulinet austral	Südliche Feuerradgalaxie	南风车星系	Южная Вертушка
+Montura	Mount	Monture	Montierung	支架	Монтировка
+Mosaico	Mosaic	Mosaïque	Mosaik	拼接	Мозаика
+Mosaico %@×%@	Mosaic %@×%@	Mosaïque %@×%@	Mosaik %@×%@	%@×%@ 拼接	Мозаика %@×%@
+Mosaicos	Mosaics	Mosaïques	Mosaike	拼接	Мозаики

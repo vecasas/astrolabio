@@ -1,0 +1,150 @@
+ Se parará a los %@ min.	 It will stop after %@ min.	 Arrêt après %@ min.	 Stopp nach %@ min.	 将在 %@ 分钟后停止。	 Остановится через %@ мин.
+ · %.0f fps	 · %.0f fps	 · %.0f i/s	 · %.0f fps	 · %.0f 帧/秒	 · %.0f кадр/с
+ · cargando	 · charging	 · en charge	 · lädt	 · 充电中	 · заряжается
+% del mejor	% of best	% du meilleur	% des besten	占最佳的 %	% от лучшего
+%.0f km	%.0f km	%.0f km	%.0f km	%.0f 公里	%.0f км
+%.0f min	%.0f min	%.0f min	%.0f min	%.0f 分钟	%.0f мин
+%.0f° (acimut %.0f°)	%.0f° (azimuth %.0f°)	%.0f° (azimut %.0f°)	%.0f° (Azimut %.0f°)	%.0f°（方位角 %.0f°）	%.0f° (азимут %.0f°)
+%.1f GB	%.1f GB	%.1f Go	%.1f GB	%.1f GB	%.1f ГБ
+%.2f UA · %.0f millones de km	%.2f AU · %.0f million km	%.2f UA · %.0f millions de km	%.2f AE · %.0f Mio. km	%.2f 天文单位 · %.0f 百万公里	%.2f а. е. · %.0f млн км
+%@ (descartados %@)	%@ (%@ discarded)	%@ (%@ rejetées)	%@ (%@ verworfen)	%@（丢弃 %@）	%@ (отброшено %@)
+%@ añadido al plan de la noche.	%@ added to tonight's plan.	%@ ajouté au plan de la nuit.	%@ zum Plan der Nacht hinzugefügt.	已将 %@ 加入今晚的计划。	%@ добавлен в план на ночь.
+%@ añadido al plan.	%@ added to the plan.	%@ ajouté au plan.	%@ zum Plan hinzugefügt.	已将 %@ 加入计划。	%@ добавлен в план.
+%@ carpetas en %@ grupos. Haz clic en una foto para verla en grande.	%@ folders in %@ groups. Click a photo to view it full size.	%@ dossiers dans %@ groupes. Cliquez sur une photo pour l'agrandir.	%@ Ordner in %@ Gruppen. Klicke auf ein Foto, um es groß anzuzeigen.	%@ 个文件夹，%@ 个分组。点击照片可放大查看。	%@ папок в %@ группах. Нажмите на фото, чтобы увеличить его.
+%@ centrado. Pulsa «Modo planeta» para seguirlo.	%@ centred. Press “Planet mode” to track it.	%@ centré. Appuyez sur « Mode planète » pour le suivre.	%@ zentriert. Drücke „Planetenmodus“, um ihm zu folgen.	%@ 已居中。按“行星模式”进行跟踪。	%@ в центре. Нажмите «Режим планеты», чтобы следить за ней.
+%@ de %@	%@ of %@	%@ sur %@	%@ von %@	第 %@ / %@	%@ из %@
+%@ está a %@°; esperando a que suba.	%@ is at %@°; waiting for it to rise.	%@ est à %@° ; attente qu'il monte.	%@ steht bei %@°; warte, bis es steigt.	%@ 高度 %@°；等待其升高。	%@ на высоте %@°; ждём, пока поднимется.
+%@ está demasiado bajo (%@°). Se salta.	%@ is too low (%@°). Skipping.	%@ est trop bas (%@°). Ignoré.	%@ steht zu tief (%@°). Wird übersprungen.	%@ 太低（%@°），跳过。	%@ слишком низко (%@°). Пропускаем.
+%@ fot.	%@ fr.	%@ im.	%@ Bilder	%@ 帧	%@ кадр.
+%@ fotogramas	%@ frames	%@ images	%@ Bilder	%@ 帧	%@ кадров
+%@ fotogramas apilados	%@ frames stacked	%@ images empilées	%@ Bilder gestackt	已叠加 %@ 帧	Сложено кадров: %@
+%@ fotogramas · %@ min	%@ frames · %@ min	%@ images · %@ min	%@ Bilder · %@ min	%@ 帧 · %@ 分钟	%@ кадров · %@ мин
+%@ ha bajado a %@°. Siguiente.	%@ has dropped to %@°. Next.	%@ est descendu à %@°. Suivant.	%@ ist auf %@° gesunken. Weiter.	%@ 已降至 %@°。下一个。	%@ опустился до %@°. Следующий.
+%@ imágenes	%@ images	%@ images	%@ Bilder	%@ 张图片	%@ изображений
+%@ min	%@ min	%@ min	%@ min	%@ 分钟	%@ мин
+%@ px	%@ px	%@ px	%@ px	%@ 像素	%@ пикс.
+%@ seleccionadas	%@ selected	%@ sélectionnées	%@ ausgewählt	已选 %@	Выбрано: %@
+%@ usados	%@ used	%@ utilisées	%@ verwendet	使用 %@	использовано %@
+%@ · %@, %@ · máx. %.0f°	%@ · %@, %@ · max %.0f°	%@ · %@, %@ · max %.0f°	%@ · %@, %@ · max. %.0f°	%@ · %@，%@ · 最高 %.0f°	%@ · %@, %@ · макс. %.0f°
+%@ · mag %@ · %@′	%@ · mag %@ · %@′	%@ · mag %@ · %@′	%@ · mag %@ · %@′	%@ · 星等 %@ · %@′	%@ · зв. вел. %@ · %@′
+%@ · magnitud %@ · %@′	%@ · magnitude %@ · %@′	%@ · magnitude %@ · %@′	%@ · Helligkeit %@ · %@′	%@ · 星等 %@ · %@′	%@ · звёздная величина %@ · %@′
+%@: %@ minutos completados.	%@: %@ minutes completed.	%@ : %@ minutes terminées.	%@: %@ Minuten abgeschlossen.	%@：已完成 %@ 分钟。	%@: выполнено %@ мин.
+%@: el filtro antipolución (LP) realza el gas y oscurece el fondo.	%@: the light-pollution (LP) filter enhances the gas and darkens the background.	%@ : le filtre antipollution (LP) fait ressortir le gaz et assombrit le fond.	%@: Der Lichtverschmutzungsfilter (LP) hebt das Gas hervor und verdunkelt den Hintergrund.	%@：抗光害（LP）滤镜能突出气体并压暗背景。	%@: фильтр от засветки (LP) выделяет газ и затемняет фон.
+%@: esperando hasta %@.	%@: waiting until %@.	%@ : attente jusqu'à %@.	%@: warte bis %@.	%@：等待至 %@。	%@: ожидание до %@.
+%@: hecho.	%@: done.	%@ : fait.	%@: erledigt.	%@：完成。	%@: готово.
+%@: sin filtro LP, para conservar el color de las estrellas.	%@: no LP filter, to keep the star colours.	%@ : sans filtre LP, pour garder la couleur des étoiles.	%@: ohne LP-Filter, um die Sternfarben zu erhalten.	%@：不用 LP 滤镜，以保留恒星的颜色。	%@: без фильтра LP, чтобы сохранить цвет звёзд.
+%@×%@ · unos %@ fotogramas	%@×%@ · about %@ frames	%@×%@ · environ %@ images	%@×%@ · etwa %@ Bilder	%@×%@ · 约 %@ 帧	%@×%@ · около %@ кадров
+, demasiado cerca	, too close	, trop près	, zu nah	，太近了	, слишком близко
+, lejos	, far away	, loin	, weit entfernt	，距离很远	, далеко
+1. Instala **ntfy** en el móvil (App Store o Google Play).	1. Install **ntfy** on your phone (App Store or Google Play).	1. Installez **ntfy** sur votre téléphone (App Store ou Google Play).	1. Installiere **ntfy** auf dem Handy (App Store oder Google Play).	1. 在手机上安装 **ntfy**（App Store 或 Google Play）。	1. Установите **ntfy** на телефон (App Store или Google Play).
+12 meses	12 months	12 mois	12 Monate	12 个月	12 месяцев
+2. Elige un tema difícil de adivinar (quien lo conozca podría leer los avisos):	2. Choose a hard-to-guess topic (anyone who knows it could read the alerts):	2. Choisissez un sujet difficile à deviner (qui le connaît pourrait lire les alertes) :	2. Wähle ein schwer zu erratendes Thema (wer es kennt, könnte die Hinweise lesen):	2. 选择一个难以猜到的主题（知道它的人都能看到提醒）：	2. Выберите трудно угадываемую тему (тот, кто её знает, сможет читать уведомления):
+3. En la app ntfy pulsa «+» (suscribirse a un tema) y escribe ese mismo tema, o escanea este código con la cámara del móvil:	3. In the ntfy app tap “+” (subscribe to topic) and type the same topic, or scan this code with your phone's camera:	3. Dans l'app ntfy, touchez « + » (s'abonner à un sujet) et saisissez ce même sujet, ou scannez ce code avec l'appareil photo :	3. Tippe in der ntfy-App auf „+“ (Thema abonnieren) und gib dasselbe Thema ein oder scanne diesen Code mit der Handykamera:	3. 在 ntfy 应用中点“+”（订阅主题）并输入同一个主题，或用手机相机扫描此二维码：	3. В приложении ntfy нажмите «+» (подписаться на тему) и введите ту же тему или отсканируйте этот код камерой телефона:
+30 días	30 days	30 jours	30 Tage	30 天	30 дней
+AR	RA	AD	RA	赤经	П. в.
+AR (h m s)	RA (h m s)	AD (h m s)	RA (h m s)	赤经（时 分 秒）	П. в. (ч м с)
+AR / Dec	RA / Dec	AD / Déc	RA / Dek	赤经 / 赤纬	П. в. / Скл.
+AR / Dec (J2000)	RA / Dec (J2000)	AD / Déc (J2000)	RA / Dek (J2000)	赤经 / 赤纬（J2000）	П. в. / Скл. (J2000)
+Abriendo…	Opening…	Ouverture…	Wird geöffnet…	正在打开…	Открытие…
+Abrir brazo	Open arm	Ouvrir le bras	Arm öffnen	展开镜臂	Поднять штангу
+Abrir carpeta	Open folder	Ouvrir le dossier	Ordner öffnen	打开文件夹	Открыть папку
+Abrir con la app predeterminada	Open with default app	Ouvrir avec l'app par défaut	Mit Standard-App öffnen	用默认应用打开	Открыть в программе по умолчанию
+Abrir la carpeta	Open the folder	Ouvrir le dossier	Ordner öffnen	打开文件夹	Открыть папку
+Acimut %.0f° · %@	Azimuth %.0f° · %@	Azimut %.0f° · %@	Azimut %.0f° · %@	方位角 %.0f° · %@	Азимут %.0f° · %@
+Activado	On	Activé	Aktiviert	已开启	Включён
+Activarlo solo al anochecer (Sol por debajo de −6°)	Turn on automatically at dusk (Sun below −6°)	L'activer seul au crépuscule (Soleil sous −6°)	Automatisch bei Dämmerung aktivieren (Sonne unter −6°)	黄昏时自动开启（太阳低于 −6°）	Включать автоматически в сумерках (Солнце ниже −6°)
+Actualizar	Refresh	Actualiser	Aktualisieren	刷新	Обновить
+Actualizar sola	Auto-refresh	Actualisation auto	Automatisch aktualisieren	自动刷新	Автообновление
+Además de centrar el planeta, corrige desplazamientos de fracciones de píxel.	Besides centring the planet, corrects sub-pixel shifts.	En plus de centrer la planète, corrige les décalages inférieurs au pixel.	Zentriert den Planeten und korrigiert zusätzlich Subpixel-Verschiebungen.	除了将行星居中，还会校正亚像素级的偏移。	Помимо центрирования планеты исправляет субпиксельные сдвиги.
+Ahora	Now	Maintenant	Jetzt	现在	Сейчас
+Ahora a %.0f° de altura, acimut %.0f°	Now at %.0f° altitude, azimuth %.0f°	Actuellement à %.0f° de hauteur, azimut %.0f°	Jetzt in %.0f° Höhe, Azimut %.0f°	当前高度 %.0f°，方位角 %.0f°	Сейчас на высоте %.0f°, азимут %.0f°
+Ahora está a %.0f°, por debajo de la altura mínima (%.0f°).	It is now at %.0f°, below the minimum altitude (%.0f°).	Il est à %.0f°, sous la hauteur minimale (%.0f°).	Es steht jetzt bei %.0f°, unter der Mindesthöhe (%.0f°).	当前高度 %.0f°，低于最低高度（%.0f°）。	Сейчас на высоте %.0f°, ниже минимальной (%.0f°).
+Ahora la Luna está bajo el horizonte.	The Moon is below the horizon right now.	La Lune est actuellement sous l'horizon.	Der Mond steht gerade unter dem Horizont.	月亮目前在地平线以下。	Сейчас Луна под горизонтом.
+Ahora mismo no hay ningún objeto de este tipo lo bastante alto durante al menos 40 minutos. Prueba otro estilo o baja la altura mínima en Ajustes.	Right now no object of this kind stays high enough for at least 40 minutes. Try another style or lower the minimum altitude in Settings.	Aucun objet de ce type ne reste assez haut pendant au moins 40 minutes. Essayez un autre style ou baissez la hauteur minimale dans les Réglages.	Gerade bleibt kein Objekt dieser Art mindestens 40 Minuten hoch genug. Probiere einen anderen Stil oder senke die Mindesthöhe in den Einstellungen.	目前没有这类天体能在足够高度停留至少 40 分钟。请换一种风格，或在设置中降低最低高度。	Сейчас нет объектов этого типа, которые продержатся достаточно высоко хотя бы 40 минут. Попробуйте другой стиль или уменьшите минимальную высоту в настройках.
+Ajustar	Fit	Ajuster	Einpassen	适应窗口	Вписать
+Ajustar al tamaño del objeto	Fit to object size	Adapter à la taille de l'objet	An Objektgröße anpassen	按天体大小调整	Подогнать под размер объекта
+Ajustes de apilado	Stacking settings	Réglages d'empilement	Stacking-Einstellungen	叠加设置	Настройки сложения
+Ajustes para esta sesión	Settings for this session	Réglages pour cette session	Einstellungen für diese Sitzung	本次拍摄的设置	Настройки для этого сеанса
+Al plan	Add to plan	Au plan	Zum Plan	加入计划	В план
+Al terminar	When finished	À la fin	Danach	完成后	По окончании
+Alineación fina	Fine alignment	Alignement fin	Feinausrichtung	精细对齐	Точное выравнивание
+Alineación polar	Polar alignment	Mise en station	Polausrichtung	极轴校准	Полярное выравнивание
+Alineando y apilando (%@ de %@)…	Aligning and stacking (%@ of %@)…	Alignement et empilement (%@ sur %@)…	Ausrichten und Stacken (%@ von %@)…	正在对齐并叠加（%@ / %@）…	Выравнивание и сложение (%@ из %@)…
+Altacimutal	Alt-azimuth	Altazimutale	Azimutal	地平式	Альт-азимутальная
+Altura / acimut	Altitude / azimuth	Hauteur / azimut	Höhe / Azimut	高度 / 方位角	Высота / азимут
+Altura ahora	Altitude now	Hauteur actuelle	Höhe jetzt	当前高度	Высота сейчас
+Altura de los planetas esta noche	Planet altitudes tonight	Hauteur des planètes cette nuit	Höhe der Planeten heute Nacht	今晚各行星的高度	Высота планет этой ночью
+Altura esta noche	Altitude tonight	Hauteur cette nuit	Höhe heute Nacht	今晚的高度	Высота этой ночью
+Altura máx.	Max alt.	Haut. max.	Max. Höhe	最大高度	Макс. высота
+Altura mínima: %@°	Minimum altitude: %@°	Hauteur minimale : %@°	Mindesthöhe: %@°	最低高度：%@°	Минимальная высота: %@°
+Amanece: fin del apilado.	Dawn: stacking finished.	L'aube se lève : fin de l'empilement.	Morgendämmerung: Stacking beendet.	天亮了：叠加结束。	Рассвет: сложение завершено.
+Analizando la nitidez (%@ fotogramas)…	Analysing sharpness (%@ frames)…	Analyse de la netteté (%@ images)…	Schärfe wird analysiert (%@ Bilder)…	正在分析清晰度（%@ 帧）…	Анализ резкости (%@ кадров)…
+Antes de ir a %@	Before going to %@	Avant d'aller sur %@	Bevor es zu %@ geht	前往 %@ 之前	Перед наведением на %@
+Apagar	Shut down	Éteindre	Ausschalten	关机	Выключить
+Apagar el telescopio…	Shut down the telescope…	Éteindre le télescope…	Teleskop ausschalten…	关闭望远镜…	Выключить телескоп…
+Aparcando	Parking	Parcage	Parken	正在归位	Парковка
+Aparcando el telescopio.	Parking the telescope.	Parcage du télescope.	Teleskop wird geparkt.	望远镜正在归位。	Телескоп паркуется.
+Aparcar	Park	Parquer	Parken	归位	Парковать
+Aparcar al terminar	Park when finished	Parquer à la fin	Am Ende parken	结束后归位	Парковать по окончании
+Apilado	Stacking	Empilement	Stacking	叠加	Сложение
+Apilado terminado	Stacking finished	Empilement terminé	Stacking beendet	叠加完成	Сложение завершено
+Apilado y procesado	Stacked and processed	Empilé et traité	Gestackt und bearbeitet	叠加并处理后	Сложено и обработано
+Apilador planetario	Planetary stacker	Empileur planétaire	Planeten-Stacker	行星叠加器	Планетный стекер
+Apilados %@ de %@ fotogramas	Stacked %@ of %@ frames	%@ images empilées sur %@	%@ von %@ Bildern gestackt	已叠加 %@ / %@ 帧	Сложено %@ из %@ кадров
+Apilando	Stacking	Empilement en cours	Stacking läuft	正在叠加	Идёт сложение
+Apilando %@ durante %@ min.	Stacking %@ for %@ min.	Empilement de %@ pendant %@ min.	Stacke %@ für %@ min.	正在叠加 %@，持续 %@ 分钟。	Сложение %@ в течение %@ мин.
+Apilando %@.	Stacking %@.	Empilement de %@.	Stacke %@.	正在叠加 %@。	Сложение %@.
+Apilando…	Stacking…	Empilement…	Stacken…	正在叠加…	Сложение…
+Apilar	Stack	Empiler	Stacken	叠加	Сложить
+Aplicando exposición y ganancia…	Applying exposure and gain…	Application de l'exposition et du gain…	Belichtung und Gain werden angewendet…	正在应用曝光和增益…	Применение выдержки и усиления…
+Aplicar	Apply	Appliquer	Anwenden	应用	Применить
+Apuntando	Slewing	Pointage	Ausrichten	正在指向	Наведение
+Apuntando a %@…	Slewing to %@…	Pointage vers %@…	Fahre zu %@…	正在指向 %@…	Наведение на %@…
+Apuntar y apilar…	Slew and stack…	Pointer et empiler…	Anfahren und stacken…	指向并叠加…	Навести и сложить…
+Aquí aparecen las fotos guardadas desde la vista en directo, el apilador planetario y las descargas del álbum.	Photos saved from the live view, the planetary stacker and album downloads appear here.	Ici apparaissent les photos enregistrées depuis la vue en direct, l'empileur planétaire et les téléchargements de l'album.	Hier erscheinen Fotos aus der Live-Ansicht, dem Planeten-Stacker und Album-Downloads.	这里显示从实时画面、行星叠加器和相册下载中保存的照片。	Здесь появляются снимки, сохранённые из живого просмотра, планетного стекера и загрузок из альбома.
+Archivo	Archive	Archives	Archiv	档案	Архив
+Archivos	Files	Fichiers	Dateien	文件	Файлы
+Arrastra aquí un vídeo de un planeta o de la Luna	Drag a video of a planet or the Moon here	Glissez ici une vidéo d'une planète ou de la Lune	Ziehe ein Video eines Planeten oder des Mondes hierher	把行星或月亮的视频拖到这里	Перетащите сюда видео планеты или Луны
+Astrolabio	Astrolabio	Astrolabio	Astrolabio	Astrolabio	Astrolabio
+Astrolabio anota cada sesión de apilado mientras está conectado al Seestar: el objeto, la hora, los fotogramas y el tiempo de integración. Cuando apiles algo, aparecerá aquí. También puedes traer las sesiones anteriores con «Importar del Seestar».	Astrolabio records every stacking session while connected to the Seestar: object, time, frames and integration time. When you stack something, it will show up here. You can also bring in earlier sessions with “Import from Seestar”.	Astrolabio note chaque session d'empilement pendant qu'il est connecté au Seestar : l'objet, l'heure, les images et le temps d'intégration. Quand vous empilerez quelque chose, cela apparaîtra ici. Vous pouvez aussi récupérer les sessions précédentes avec « Importer du Seestar ».	Astrolabio protokolliert jede Stacking-Sitzung, solange es mit dem Seestar verbunden ist: Objekt, Uhrzeit, Bilder und Integrationszeit. Sobald du etwas stackst, erscheint es hier. Frühere Sitzungen holst du mit „Vom Seestar importieren“.	连接 Seestar 时，Astrolabio 会记录每次叠加：天体、时间、帧数和累计曝光时间。叠加后会显示在这里。也可以用“从 Seestar 导入”找回以前的记录。	Astrolabio записывает каждый сеанс сложения при подключении к Seestar: объект, время, кадры и время накопления. Когда вы что-нибудь сложите, это появится здесь. Прошлые сеансы можно загрузить кнопкой «Импорт из Seestar».
+Astrolabio puede avisarte en el móvil de lo que pasa durante la noche, aunque estés lejos del Mac. **No hace falta número de teléfono ni crear una cuenta**: se usa ntfy, una app gratuita para iPhone y Android.	Astrolabio can alert you on your phone about what happens during the night, even when you're away from the Mac. **No phone number or account needed**: it uses ntfy, a free app for iPhone and Android.	Astrolabio peut vous prévenir sur votre téléphone de ce qui se passe pendant la nuit, même loin du Mac. **Pas besoin de numéro de téléphone ni de compte** : il utilise ntfy, une app gratuite pour iPhone et Android.	Astrolabio kann dich auf dem Handy über die Nacht informieren, auch wenn du nicht am Mac bist. **Keine Telefonnummer und kein Konto nötig**: Es nutzt ntfy, eine kostenlose App für iPhone und Android.	Astrolabio 可以在手机上提醒你夜间发生的事情，即使你不在 Mac 旁边。**无需手机号，也无需注册账号**：它使用 ntfy，一款免费的 iPhone 和 Android 应用。	Astrolabio может присылать на телефон уведомления о том, что происходит ночью, даже когда вы далеко от Mac. **Номер телефона и учётная запись не нужны**: используется ntfy — бесплатное приложение для iPhone и Android.
+Autenticación correcta.	Authentication successful.	Authentification réussie.	Authentifizierung erfolgreich.	认证成功。	Аутентификация успешна.
+Autenticado	Authenticated	Authentifié	Authentifiziert	已认证	Аутентифицирован
+AutoGoto	AutoGoto	AutoGoto	AutoGoto	AutoGoto	AutoGoto
+Avanzado	Advanced	Avancé	Erweitert	高级	Дополнительно
+Avisos al móvil	Phone alerts	Alertes sur le téléphone	Hinweise aufs Handy	手机提醒	Уведомления на телефон
+Añade las sesiones guardadas en el álbum del telescopio (aunque se hicieran con otra app).	Adds the sessions saved in the telescope album (even if they were made with another app).	Ajoute les sessions enregistrées dans l'album du télescope (même faites avec une autre app).	Fügt die im Album des Teleskops gespeicherten Sitzungen hinzu (auch wenn sie mit einer anderen App gemacht wurden).	添加望远镜相册中保存的拍摄记录（即使是用其他应用拍的）。	Добавляет сеансы из альбома телескопа (даже снятые в другом приложении).
+Añadido al plan. Ve a «Sesión automática» para ejecutarlo.	Added to the plan. Go to “Automatic session” to run it.	Ajouté au plan. Allez dans « Session automatique » pour l'exécuter.	Zum Plan hinzugefügt. Starte ihn unter „Automatische Sitzung“.	已加入计划。前往“自动拍摄”执行。	Добавлено в план. Запустите его в разделе «Автоматический сеанс».
+Añadir	Add	Ajouter	Hinzufügen	添加	Добавить
+Añadir al plan	Add to plan	Ajouter au plan	Zum Plan hinzufügen	加入计划	Добавить в план
+Añadir al plan y abrir Sesión automática	Add to plan and open Automatic session	Ajouter au plan et ouvrir Session automatique	Zum Plan hinzufügen und Automatische Sitzung öffnen	加入计划并打开“自动拍摄”	Добавить в план и открыть «Автоматический сеанс»
+Añadir sin mosaico	Add without mosaic	Ajouter sans mosaïque	Ohne Mosaik hinzufügen	不拼接直接添加	Добавить без мозаики
+Aún no hay imágenes en %@.	There are no images in %@ yet.	Pas encore d'images dans %@.	Noch keine Bilder in %@.	%@ 中还没有图片。	В %@ пока нет изображений.
+Aún no hay sesiones	No sessions yet	Pas encore de sessions	Noch keine Sitzungen	还没有拍摄记录	Сеансов пока нет
+Bajo	Low	Bas	Tief	较低	Низко
+Bandas de nubes y las cuatro lunas galileanas.	Cloud bands and the four Galilean moons.	Bandes nuageuses et les quatre lunes galiléennes.	Wolkenbänder und die vier Galileischen Monde.	云带和四颗伽利略卫星。	Облачные полосы и четыре галилеевых спутника.
+Batería	Battery	Batterie	Akku	电量	Батарея
+Batería %@ %%	Battery %@ %%	Batterie %@ %%	Akku %@ %%	电量 %@ %%	Батарея %@ %%
+Bola de Nieve Azul	Blue Snowball	Boule de neige bleue	Blauer Schneeball	蓝雪球星云	Голубой снежок
+Borrar	Clear	Effacer	Löschen	清除	Очистить
+Borrar seleccionadas	Delete selected	Supprimer la sélection	Auswahl löschen	删除所选	Удалить выбранные
+Brillo	Brightness	Luminosité	Helligkeit	亮度	Яркость
+Brillo del fondo	Background brightness	Luminosité du fond	Hintergrundhelligkeit	背景亮度	Яркость фона
+Brillo intermedio (mag %.1f): 20 s por toma.	Medium brightness (mag %.1f): 20 s per frame.	Luminosité moyenne (mag %.1f) : 20 s par pose.	Mittlere Helligkeit (mag %.1f): 20 s pro Aufnahme.	中等亮度（星等 %.1f）：每帧 20 秒。	Средняя яркость (зв. вел. %.1f): 20 с на кадр.
+Buena noche	Good night	Bonne nuit	Gute Nacht	不错的夜晚	Хорошая ночь
+Buscando en SIMBAD…	Searching SIMBAD…	Recherche dans SIMBAD…	Suche in SIMBAD…	正在 SIMBAD 中搜索…	Поиск в SIMBAD…
+Buscando la imagen…	Fetching image…	Recherche de l'image…	Bild wird geladen…	正在获取图像…	Загрузка изображения…
+Buscar	Search	Rechercher	Suchen	搜索	Найти
+Buscar en la red	Search network	Rechercher sur le réseau	Im Netzwerk suchen	在网络中查找	Найти в сети
+Cabe bien	Fits well	Tient bien	Passt gut	大小合适	Хорошо помещается
+Cabe entero en el campo del Seestar.	It fits entirely in the Seestar's field of view.	Il tient entièrement dans le champ du Seestar.	Es passt ganz ins Bildfeld des Seestar.	完全能放进 Seestar 的视场。	Целиком помещается в поле зрения Seestar.
+Cabecera SER no válida.	Invalid SER header.	En-tête SER non valide.	Ungültiger SER-Header.	SER 文件头无效。	Недопустимый заголовок SER.
+Cada pulsación mueve el telescopio un segundo.	Each press moves the telescope for one second.	Chaque appui déplace le télescope pendant une seconde.	Jeder Klick bewegt das Teleskop eine Sekunde lang.	每按一次，望远镜移动一秒。	Каждое нажатие двигает телескоп одну секунду.
+Calculando la noche…	Calculating the night…	Calcul de la nuit…	Nacht wird berechnet…	正在计算今晚…	Расчёт ночи…
+Calentador	Dew heater	Chauffage	Heizung	除露加热	Обогрев
+Calidad de la noche	Night quality	Qualité de la nuit	Qualität der Nacht	夜空质量	Качество ночи
+Campo de visión (°)	Field of view (°)	Champ de vision (°)	Bildfeld (°)	视场 (°)	Поле зрения (°)
+Campo del Seestar	Seestar field	Champ du Seestar	Seestar-Bildfeld	Seestar 视场	Поле Seestar
+Canal de imagen cerrado; reconectando…	Image channel closed; reconnecting…	Canal d'image fermé ; reconnexion…	Bildkanal geschlossen; verbinde neu…	图像通道已关闭；正在重新连接…	Канал изображения закрыт; переподключение…
+Canal de imagen conectado	Image channel connected	Canal d'image connecté	Bildkanal verbunden	图像通道已连接	Канал изображения подключён
+Canal de imagen esperando: %@	Image channel waiting: %@	Canal d'image en attente : %@	Bildkanal wartet: %@	图像通道等待中：%@	Канал изображения ожидает: %@

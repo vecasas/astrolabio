@@ -1,0 +1,248 @@
+import Foundation
+
+enum ObjectKind: String, CaseIterable, Identifiable {
+    case galaxy = "Galaxia"
+    case nebula = "Nebulosa"
+    case planetary = "Nebulosa planetaria"
+    case snr = "Resto de supernova"
+    case globular = "Cúmulo globular"
+    case open = "Cúmulo abierto"
+    case other = "Otro"
+
+    var id: String { rawValue }
+
+    var symbol: String {
+        switch self {
+        case .galaxy: return "hurricane"
+        case .nebula: return "cloud.fill"
+        case .planetary: return "circle.circle"
+        case .snr: return "sparkles"
+        case .globular: return "circle.hexagongrid.fill"
+        case .open: return "circle.grid.3x3"
+        case .other: return "star"
+        }
+    }
+}
+
+struct DeepSkyObject: Identifiable, Hashable {
+    let id: String          // "M31", "NGC 7000"
+    let name: String        // nombre común
+    let kind: ObjectKind
+    let raHours: Double     // J2000
+    let decDeg: Double      // J2000
+    let magnitude: Double
+    let sizeArcmin: Double  // eje mayor
+
+    var displayName: String { name.isEmpty ? id : "\(id) · \(localizedName)" }
+}
+
+/// Catálogo integrado: los 110 objetos Messier y una selección de objetos NGC, IC y Sharpless
+/// populares para el Seestar. Coordenadas J2000 redondeadas al décimo de minuto.
+enum Catalog {
+    static let objects: [DeepSkyObject] = raw.compactMap(parse)
+
+    static func find(_ query: String) -> DeepSkyObject? {
+        let q = normalize(query)
+        return objects.first { normalize($0.id) == q || normalize($0.name) == q || (!$0.name.isEmpty && normalize(tr($0.name)) == q) }
+    }
+
+    static func normalize(_ s: String) -> String {
+        s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            .replacingOccurrences(of: " ", with: "")
+    }
+
+    private static func parse(_ line: String) -> DeepSkyObject? {
+        let f = line.split(separator: "|", omittingEmptySubsequences: false).map { String($0) }
+        guard f.count == 7 else { return nil }
+        let kind: ObjectKind
+        switch f[2] {
+        case "G": kind = .galaxy
+        case "N": kind = .nebula
+        case "P": kind = .planetary
+        case "S": kind = .snr
+        case "GC": kind = .globular
+        case "OC": kind = .open
+        default: kind = .other
+        }
+        let raParts = f[3].split(separator: " ").compactMap { Double($0) }
+        let decText = f[4]
+        let neg = decText.hasPrefix("-")
+        let decParts = decText.replacingOccurrences(of: "+", with: "").replacingOccurrences(of: "-", with: "")
+            .split(separator: " ").compactMap { Double($0) }
+        guard raParts.count == 2, decParts.count == 2 else { return nil }
+        let ra = raParts[0] + raParts[1] / 60
+        let dec = (decParts[0] + decParts[1] / 60) * (neg ? -1 : 1)
+        return DeepSkyObject(id: f[0], name: f[1], kind: kind, raHours: ra, decDeg: dec,
+                             magnitude: Double(f[5]) ?? 10, sizeArcmin: Double(f[6]) ?? 5)
+    }
+
+    // id|nombre|tipo|RA (h m)|Dec (° ′)|mag|tamaño′
+    private static let raw: [String] = [
+        "M1|Nebulosa del Cangrejo|S|05 34.5|+22 01|8.4|6",
+        "M2||GC|21 33.5|-00 49|6.5|16",
+        "M3||GC|13 42.2|+28 23|6.2|18",
+        "M4||GC|16 23.6|-26 32|5.6|36",
+        "M5||GC|15 18.6|+02 05|5.6|23",
+        "M6|Cúmulo de la Mariposa|OC|17 40.1|-32 13|4.2|25",
+        "M7|Cúmulo de Ptolomeo|OC|17 53.9|-34 49|3.3|80",
+        "M8|Nebulosa de la Laguna|N|18 03.8|-24 23|6.0|90",
+        "M9||GC|17 19.2|-18 31|7.7|12",
+        "M10||GC|16 57.1|-04 06|6.6|20",
+        "M11|Cúmulo del Pato Salvaje|OC|18 51.1|-06 16|5.8|14",
+        "M12||GC|16 47.2|-01 57|6.7|16",
+        "M13|Gran Cúmulo de Hércules|GC|16 41.7|+36 28|5.8|20",
+        "M14||GC|17 37.6|-03 15|7.6|11",
+        "M15||GC|21 30.0|+12 10|6.2|18",
+        "M16|Nebulosa del Águila|N|18 18.8|-13 47|6.0|35",
+        "M17|Nebulosa Omega|N|18 20.8|-16 11|6.0|46",
+        "M18||OC|18 19.9|-17 08|7.5|9",
+        "M19||GC|17 02.6|-26 16|6.8|17",
+        "M20|Nebulosa Trífida|N|18 02.6|-23 02|6.3|28",
+        "M21||OC|18 04.6|-22 30|6.5|13",
+        "M22||GC|18 36.4|-23 54|5.1|32",
+        "M23||OC|17 56.8|-19 01|6.9|27",
+        "M24|Nube estelar de Sagitario|O|18 16.9|-18 29|4.6|90",
+        "M25||OC|18 31.6|-19 15|4.6|32",
+        "M26||OC|18 45.2|-09 24|8.0|15",
+        "M27|Nebulosa Dumbbell|P|19 59.6|+22 43|7.5|8",
+        "M28||GC|18 24.5|-24 52|6.8|11",
+        "M29||OC|20 23.9|+38 31|7.1|7",
+        "M30||GC|21 40.4|-23 11|7.2|12",
+        "M31|Galaxia de Andrómeda|G|00 42.7|+41 16|3.4|178",
+        "M32||G|00 42.7|+40 52|8.1|8",
+        "M33|Galaxia del Triángulo|G|01 33.9|+30 39|5.7|73",
+        "M34||OC|02 42.0|+42 47|5.5|35",
+        "M35||OC|06 08.9|+24 20|5.3|28",
+        "M36||OC|05 36.1|+34 08|6.3|12",
+        "M37||OC|05 52.4|+32 33|6.2|24",
+        "M38||OC|05 28.7|+35 50|7.4|21",
+        "M39||OC|21 32.2|+48 26|4.6|32",
+        "M40|Winnecke 4|O|12 22.4|+58 05|8.4|1",
+        "M41||OC|06 46.0|-20 44|4.5|38",
+        "M42|Gran Nebulosa de Orión|N|05 35.4|-05 27|4.0|85",
+        "M43|Nebulosa de De Mairan|N|05 35.6|-05 16|9.0|20",
+        "M44|El Pesebre|OC|08 40.1|+19 59|3.7|95",
+        "M45|Las Pléyades|OC|03 47.0|+24 07|1.6|110",
+        "M46||OC|07 41.8|-14 49|6.1|27",
+        "M47||OC|07 36.6|-14 30|4.2|30",
+        "M48||OC|08 13.8|-05 48|5.5|54",
+        "M49||G|12 29.8|+08 00|8.4|9",
+        "M50||OC|07 03.2|-08 20|5.9|16",
+        "M51|Galaxia del Remolino|G|13 29.9|+47 12|8.4|11",
+        "M52||OC|23 24.2|+61 35|7.3|13",
+        "M53||GC|13 12.9|+18 10|7.6|13",
+        "M54||GC|18 55.1|-30 29|7.6|12",
+        "M55||GC|19 40.0|-30 58|6.3|19",
+        "M56||GC|19 16.6|+30 11|8.3|9",
+        "M57|Nebulosa del Anillo|P|18 53.6|+33 02|8.8|1.4",
+        "M58||G|12 37.7|+11 49|9.7|6",
+        "M59||G|12 42.0|+11 39|9.6|5",
+        "M60||G|12 43.7|+11 33|8.8|7",
+        "M61||G|12 21.9|+04 28|9.7|6",
+        "M62||GC|17 01.2|-30 07|6.5|15",
+        "M63|Galaxia del Girasol|G|13 15.8|+42 02|8.6|13",
+        "M64|Galaxia del Ojo Negro|G|12 56.7|+21 41|8.5|10",
+        "M65||G|11 18.9|+13 05|9.3|10",
+        "M66||G|11 20.2|+12 59|8.9|9",
+        "M67||OC|08 51.3|+11 49|6.1|30",
+        "M68||GC|12 39.5|-26 45|7.8|12",
+        "M69||GC|18 31.4|-32 21|7.6|10",
+        "M70||GC|18 43.2|-32 18|7.9|8",
+        "M71||GC|19 53.8|+18 47|8.2|7",
+        "M72||GC|20 53.5|-12 32|9.3|7",
+        "M73||O|20 59.0|-12 38|9.0|3",
+        "M74|Galaxia Fantasma|G|01 36.7|+15 47|9.4|10",
+        "M75||GC|20 06.1|-21 55|8.5|7",
+        "M76|Pequeña Dumbbell|P|01 42.4|+51 34|10.1|3",
+        "M77||G|02 42.7|-00 01|8.9|7",
+        "M78||N|05 46.7|+00 03|8.3|8",
+        "M79||GC|05 24.5|-24 33|7.7|10",
+        "M80||GC|16 17.0|-22 59|7.3|10",
+        "M81|Galaxia de Bode|G|09 55.6|+69 04|6.9|27",
+        "M82|Galaxia del Cigarro|G|09 55.8|+69 41|8.4|11",
+        "M83|Molinillo Austral|G|13 37.0|-29 52|7.5|13",
+        "M84||G|12 25.1|+12 53|9.1|6",
+        "M85||G|12 25.4|+18 11|9.1|7",
+        "M86||G|12 26.2|+12 57|8.9|9",
+        "M87|Virgo A|G|12 30.8|+12 23|8.6|8",
+        "M88||G|12 32.0|+14 25|9.6|7",
+        "M89||G|12 35.7|+12 33|9.8|5",
+        "M90||G|12 36.8|+13 10|9.5|10",
+        "M91||G|12 35.4|+14 30|10.2|5",
+        "M92||GC|17 17.1|+43 08|6.4|14",
+        "M93||OC|07 44.6|-23 52|6.2|22",
+        "M94||G|12 50.9|+41 07|8.2|11",
+        "M95||G|10 44.0|+11 42|9.7|7",
+        "M96||G|10 46.8|+11 49|9.2|8",
+        "M97|Nebulosa del Búho|P|11 14.8|+55 01|9.9|3",
+        "M98||G|12 13.8|+14 54|10.1|10",
+        "M99||G|12 18.8|+14 25|9.9|5",
+        "M100||G|12 22.9|+15 49|9.3|7",
+        "M101|Galaxia del Molinillo|G|14 03.2|+54 21|7.9|29",
+        "M102|Galaxia del Huso|G|15 06.5|+55 46|9.9|6",
+        "M103||OC|01 33.2|+60 42|7.4|6",
+        "M104|Galaxia del Sombrero|G|12 40.0|-11 37|8.0|9",
+        "M105||G|10 47.8|+12 35|9.3|5",
+        "M106||G|12 19.0|+47 18|8.4|19",
+        "M107||GC|16 32.5|-13 03|7.9|13",
+        "M108||G|11 11.5|+55 40|10.0|8",
+        "M109||G|11 57.6|+53 23|9.8|7",
+        "M110||G|00 40.4|+41 41|8.5|17",
+        "NGC 7000|Nebulosa Norteamérica|N|20 59.3|+44 31|4.0|120",
+        "IC 5070|Nebulosa del Pelícano|N|20 50.8|+44 21|8.0|60",
+        "NGC 6992|Velo Este|S|20 56.4|+31 43|7.0|60",
+        "NGC 6960|Velo Oeste (Escoba de Bruja)|S|20 45.7|+30 43|7.0|70",
+        "NGC 6888|Nebulosa Creciente|N|20 12.0|+38 21|7.4|18",
+        "IC 1396|Trompa de Elefante|N|21 39.1|+57 30|3.5|170",
+        "NGC 7635|Nebulosa de la Burbuja|N|23 20.7|+61 12|10.0|15",
+        "NGC 281|Nebulosa Pacman|N|00 52.8|+56 37|7.4|35",
+        "IC 1805|Nebulosa del Corazón|N|02 33.4|+61 26|6.5|60",
+        "IC 1848|Nebulosa del Alma|N|02 51.2|+60 26|6.5|60",
+        "NGC 1499|Nebulosa California|N|04 03.3|+36 25|5.0|145",
+        "IC 434|Nebulosa Cabeza de Caballo|N|05 41.0|-02 27|7.3|60",
+        "NGC 2024|Nebulosa de la Llama|N|05 41.9|-01 51|10.0|30",
+        "NGC 2237|Nebulosa Roseta|N|06 32.3|+05 03|9.0|80",
+        "NGC 2264|Cono y Árbol de Navidad|N|06 41.1|+09 53|3.9|20",
+        "IC 443|Nebulosa de la Medusa|S|06 17.0|+22 31|12.0|50",
+        "IC 405|Estrella Flameante|N|05 16.2|+34 16|6.0|37",
+        "IC 410|Nebulosa de los Renacuajos|N|05 22.6|+33 31|7.5|40",
+        "NGC 1977|Nebulosa del Hombre Corriendo|N|05 35.3|-04 50|7.0|20",
+        "NGC 869|Doble Cúmulo de Perseo|OC|02 20.7|+57 08|4.3|60",
+        "NGC 7293|Nebulosa de la Hélice|P|22 29.6|-20 50|7.6|16",
+        "NGC 253|Galaxia del Escultor|G|00 47.6|-25 17|7.1|27",
+        "NGC 891||G|02 22.6|+42 21|10.0|13",
+        "NGC 2403||G|07 36.9|+65 36|8.9|22",
+        "NGC 4565|Galaxia de la Aguja|G|12 36.3|+25 59|10.0|16",
+        "NGC 4631|Galaxia de la Ballena|G|12 42.1|+32 32|9.8|15",
+        "NGC 6543|Nebulosa Ojo de Gato|P|17 58.6|+66 38|8.1|0.4",
+        "NGC 7331||G|22 37.1|+34 25|9.5|10",
+        "NGC 6946|Galaxia de los Fuegos Artificiales|G|20 34.9|+60 09|8.8|11",
+        "NGC 2392|Nebulosa del Esquimal|P|07 29.2|+20 55|9.1|0.8",
+        "NGC 7789|Rosa de Caroline|OC|23 57.0|+56 43|6.7|16",
+        "NGC 457|Cúmulo de la Lechuza|OC|01 19.1|+58 20|6.4|13",
+        "NGC 6826|Nebulosa Parpadeante|P|19 44.8|+50 31|8.8|0.5",
+        "NGC 1333||N|03 29.2|+31 25|5.6|6",
+        "IC 2177|Nebulosa de la Gaviota|N|07 04.4|-10 27|9.0|120",
+        "NGC 2359|Casco de Thor|N|07 18.6|-13 13|11.0|10",
+        "IC 1318|Nebulosa de Sadr|N|20 22.2|+40 15|7.0|50",
+        "IC 5146|Nebulosa del Capullo|N|21 53.5|+47 16|7.2|12",
+        "NGC 7380|Nebulosa del Mago|N|22 47.0|+58 06|7.2|25",
+        "IC 63|Fantasma de Casiopea|N|00 59.5|+60 53|10.0|10",
+        "Sh2-155|Nebulosa de la Cueva|N|22 56.8|+62 37|7.7|50",
+        "NGC 7023|Nebulosa del Iris|N|21 01.6|+68 10|6.8|18",
+        "NGC 6914||N|20 24.7|+42 29|9.0|8",
+        "NGC 2174|Nebulosa Cabeza de Mono|N|06 09.7|+20 30|6.8|40",
+        "NGC 4038|Galaxias Antena|G|12 01.9|-18 52|10.3|5",
+        "NGC 5128|Centaurus A|G|13 25.5|-43 01|6.8|26",
+        "NGC 5139|Omega Centauri|GC|13 26.8|-47 29|3.9|36",
+        "NGC 3628|Galaxia de la Hamburguesa|G|11 20.3|+13 35|9.5|15",
+        "NGC 2903||G|09 32.2|+21 30|9.0|13",
+        "NGC 4244||G|12 17.5|+37 48|10.4|16",
+        "NGC 7662|Bola de Nieve Azul|P|23 25.9|+42 33|8.3|0.5",
+        "NGC 2244|Cúmulo de la Roseta|OC|06 32.4|+04 52|4.8|24",
+        "NGC 7129||N|21 42.8|+66 06|11.5|7",
+        "Sh2-101|Nebulosa del Tulipán|N|20 00.0|+35 17|9.0|16",
+        "Sh2-240|Simeis 147|S|05 39.1|+27 59|10.0|180",
+        "Sh2-129|Nebulosa del Murciélago Volador|N|21 11.8|+59 59|9.0|140",
+    ]
+}

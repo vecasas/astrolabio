@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.Core.Model;
 

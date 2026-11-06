@@ -16,6 +16,8 @@ struct PlanItem: Identifiable, Codable, Hashable {
     var notBefore: Date?
     var status: Status = .pending
     var stackedFrames = 0
+    /// Segundos ya apilados (para retomar el plan tras un reinicio).
+    var doneSeconds: Double?
 
     var isMosaic: Bool { mosaicColumns * mosaicRows > 1 }
 }
@@ -47,7 +49,7 @@ final class PlanStore: ObservableObject {
     }
 
     func resetStatuses() {
-        for i in items.indices { items[i].status = .pending; items[i].stackedFrames = 0 }
+        for i in items.indices { items[i].status = .pending; items[i].stackedFrames = 0; items[i].doneSeconds = nil }
     }
 
     private func save() {
@@ -60,7 +62,7 @@ final class PlanStore: ObservableObject {
 @MainActor
 final class SessionRunner: ObservableObject {
     enum Phase: Equatable {
-        case idle, waitingDark, waitingTarget, slewing, focusing, stacking, pausedClouds, parking, finished, stopped
+        case idle, waitingDark, waitingTarget, slewing, focusing, stacking, pausedClouds, darks, parking, finished, stopped
         var label: String {
             switch self {
             case .idle: return tr("En espera")
@@ -70,6 +72,7 @@ final class SessionRunner: ObservableObject {
             case .focusing: return tr("Enfocando")
             case .stacking: return tr("Apilando")
             case .pausedClouds: return tr("En pausa por nubes")
+            case .darks: return tr("Creando oscuros")
             case .parking: return tr("Aparcando")
             case .finished: return tr("Plan terminado")
             case .stopped: return tr("Detenido")
@@ -77,11 +80,30 @@ final class SessionRunner: ObservableObject {
         }
     }
 
-    struct Options {
+    struct Options: Codable, Equatable {
         var waitForDark = true
-        var parkAtEnd = true
         var pauseForClouds = true
         var stopAtDawn = true
+    }
+
+    /// Lo que se guarda para retomar el plan si la app o el ordenador se reinician.
+    struct SavedState: Codable, Equatable {
+        var startedAt: Date
+        var options: Options
+    }
+
+    static let stateKey = "sessionRunnerState"
+
+    /// Plan interrumpido que se puede retomar (como mucho 16 horas después de empezar).
+    static func pendingResume(defaults: UserDefaults = .standard, now: Date = Date()) -> SavedState? {
+        guard let data = defaults.data(forKey: stateKey),
+              let st = try? JSONDecoder().decode(SavedState.self, from: data) else { return nil }
+        return now.timeIntervalSince(st.startedAt) < 16 * 3600 ? st : nil
+    }
+
+    private func saveState(_ st: SavedState?) {
+        if let st, let data = try? JSONEncoder().encode(st) { UserDefaults.standard.set(data, forKey: Self.stateKey) }
+        else { UserDefaults.standard.removeObject(forKey: Self.stateKey) }
     }
 
     @Published private(set) var phase: Phase = .idle
@@ -101,19 +123,28 @@ final class SessionRunner: ObservableObject {
     private var weather: [WeatherHour] = []
     private var weatherFetched = Date.distantPast
 
-    func start(client: SeestarClient, settings: AppSettings, plan: PlanStore) {
+    func start(client: SeestarClient, settings: AppSettings, plan: PlanStore, resuming: SavedState? = nil) {
         guard task == nil else { return }
         self.client = client
         self.settings = settings
         self.plan = plan
         messages.removeAll()
+        if let resuming { options = resuming.options }
+        // Un objeto que estaba en marcha cuando se cerró la app vuelve a la cola (con su tiempo hecho).
+        for i in plan.items.indices where plan.items[i].status == .running { plan.items[i].status = .pending }
+        saveState(SavedState(startedAt: resuming?.startedAt ?? Date(), options: options))
+        if resuming != nil {
+            say(tr("Se retoma el plan interrumpido."))
+            settings.notify("Astrolabio", tr("Se retoma el plan de la noche tras un reinicio."))
+        }
         task = Task { [weak self] in
-            await self?.run()
+            await SeestarClient.$unattended.withValue(true) { await self?.run() }
             self?.task = nil
         }
     }
 
     func stop() {
+        saveState(nil)
         task?.cancel()
         say(tr("Detenido por el usuario."))
         phase = .stopped
@@ -203,11 +234,26 @@ final class SessionRunner: ObservableObject {
 
         currentItemID = nil
         currentPanel = ""
-        if options.parkAtEnd {
+        saveState(nil)
+        try? await client.stopStack()
+        if settings.darksAtEnd {
+            phase = .darks
+            say(tr("Creando los oscuros…"))
+            say(await client.createDarksAndWait() ? tr("Oscuros creados.") : tr("No se pudieron crear los oscuros."))
+        }
+        switch settings.endAction {
+        case .park:
             phase = .parking
             say(tr("Aparcando el telescopio."))
-            try? await client.stopStack()
             try? await client.park()
+        case .shutdown:
+            phase = .parking
+            say(tr("Aparcando y apagando el telescopio."))
+            try? await client.park()
+            try? await Task.sleep(for: .seconds(40))
+            try? await client.shutdown()
+        case .nothing:
+            break
         }
         phase = .finished
         say(tr("Plan terminado."))
@@ -221,8 +267,9 @@ final class SessionRunner: ObservableObject {
             ? Planner.mosaicPanels(centerRA: item.raHours, centerDec: item.decDeg, columns: item.mosaicColumns,
                                    rows: item.mosaicRows, overlapPercent: item.overlapPercent, fov: fov)
             : [(label: "", ra: item.raHours, dec: item.decDeg)]
-        let secondsPerPanel = item.minutes * 60 / Double(panels.count)
-        var anyPanelDone = false
+        let remainingByPanel = PlanProgress.remainingPerPanel(totalSeconds: item.minutes * 60, panels: panels.count,
+                                                              done: item.doneSeconds ?? 0)
+        var anyPanelDone = (item.doneSeconds ?? 0) > 0
 
         if let nb = item.notBefore, nb > Date() {
             phase = .waitingTarget
@@ -230,8 +277,9 @@ final class SessionRunner: ObservableObject {
             while Date() < nb { if !(await sleep(30)) { return false }; if skipRequested { return false } }
         }
 
-        for panel in panels {
+        for (panelIndex, panel) in panels.enumerated() {
             if Task.isCancelled || skipRequested { return anyPanelDone }
+            if remainingByPanel[panelIndex] < 5 { continue }   // ya hecho antes del reinicio
             let label = panel.label.isEmpty ? item.name : "\(item.name)_\(panel.label)"
             currentPanel = panel.label
 
@@ -257,7 +305,7 @@ final class SessionRunner: ObservableObject {
                 }
             }
 
-            var remaining = secondsPerPanel
+            var remaining = remainingByPanel[panelIndex]
             var needGoto = true
             while remaining > 5 {
                 if Task.isCancelled || skipRequested { return anyPanelDone }
@@ -317,7 +365,10 @@ final class SessionRunner: ObservableObject {
                     if skipRequested { try? await client.stopStack(); return anyPanelDone }
                     remaining -= 5
                     remainingSeconds = remaining
-                    if index < plan.items.count { plan.items[index].stackedFrames = client.stackedFrames }
+                    if index < plan.items.count {
+                        plan.items[index].stackedFrames = client.stackedFrames
+                        plan.items[index].doneSeconds = (plan.items[index].doneSeconds ?? 0) + 5
+                    }
                 }
                 anyPanelDone = true
                 if options.stopAtDawn && !isDarkNow() {

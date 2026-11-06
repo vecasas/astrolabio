@@ -170,3 +170,25 @@ public sealed class GotoConfirmWindow : Window
         };
     }
 }
+
+/// <summary>Diálogo Sí/No modal sobre la ventana principal.</summary>
+public static class Ask
+{
+    public static async Task<bool> YesNo(string title, string text, string yes, string no)
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime { MainWindow: { } owner })
+            return true;
+        var result = false;
+        var w = new Window
+        {
+            Title = title, Width = 460, SizeToContent = SizeToContent.Height, Background = Ui.Navy,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner, CanResize = false,
+        };
+        var ok = Ui.Button(yes, () => { result = true; w.Close(); }, true);
+        var cancel = Ui.Button(no, () => w.Close());
+        var buttons = Ui.H(ok, cancel); buttons.HorizontalAlignment = HorizontalAlignment.Right;
+        w.Content = new Border { Padding = new Thickness(20), Child = Ui.V(Ui.Text(title, 15, FontWeight.SemiBold), Ui.Text(text, 13, wrap: true), buttons) };
+        await w.ShowDialog(owner);
+        return result;
+    }
+}

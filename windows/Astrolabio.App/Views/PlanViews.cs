@@ -78,12 +78,44 @@ public sealed class SessionView : UserControl
         }
         r.PropertyChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(Update);
         r.Messages.CollectionChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(Update);
-        var start = Ui.Button(Ui.T("Empezar"), () => r.Start(c, st.Settings, st.Plan), true);
+        var s = st.Settings;
+        bool Charging() => c.ChargerStatus is "Charging" or "Full";
+        (double Hours, double Drain, double End)? Estimate()
+        {
+            if (c.Battery is not int b) return null;
+            var hours = BatteryEstimate.PlanHours(st.Plan.Items);
+            var drain = BatteryEstimate.DrainPerHour(st.History.All);
+            return (hours, drain, BatteryEstimate.ExpectedAtEnd(b, hours, drain));
+        }
+        var battery = Ui.Caption("");
+        void UpdateBattery()
+        {
+            var e = Estimate();
+            battery.Text = e is not { } x || x.Hours <= 0 ? "" : Charging() ? Ui.T("Batería: el telescopio está cargando.")
+                : Ui.T("Batería prevista al terminar: %@ %% (plan de %@ h, consumo medio %@ %%/h).", Math.Max(0, (int)x.End), x.Hours.ToString("F1", System.Globalization.CultureInfo.InvariantCulture), (int)x.Drain);
+            battery.Foreground = e is { } y && !Charging() && y.End < BatteryEstimate.Reserve ? Ui.Warn : Ui.Secondary;
+        }
+        var start = Ui.Button(Ui.T("Empezar"), async () =>
+        {
+            if (c.Battery is int b && Estimate() is { } e && !BatteryEstimate.IsEnough(b, Charging(), e.Hours, e.Drain) &&
+                !await Ask.YesNo(Ui.T("Puede que la batería no aguante el plan"),
+                    Ui.T("El Seestar tiene un %@ %% y el plan dura unas %@ h; con tu consumo medio (%@ %%/h) terminaría sin batería. Conecta el cargador o acorta el plan.",
+                        b, e.Hours.ToString("F1", System.Globalization.CultureInfo.InvariantCulture), (int)e.Drain),
+                    Ui.T("Empezar igualmente"), Ui.T("Cancelar")))
+                return;
+            r.Start(c, s, st.Plan);
+        }, true);
+        var endAction = new ComboBox { ItemsSource = Enum.GetValues<EndAction>().Select(a => a.Label()).ToList(), SelectedIndex = (int)s.EndAction, Width = 260 };
+        endAction.SelectionChanged += (_, _) => { if (endAction.SelectedIndex >= 0) { s.EndAction = (EndAction)endAction.SelectedIndex; s.Save(); } };
+        c.PropertyChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(UpdateBattery);
+        UpdateBattery();
         var run = Ui.Card(Ui.T("Ejecutar el plan"),
             Cb(Ui.T("Esperar a la noche astronómica"), r.WaitForDark, v => r.WaitForDark = v),
             Cb(Ui.T("Pausar si se prevén nubes (más de %@ %%)", (int)st.Settings.MaxCloudCover), r.PauseForClouds, v => r.PauseForClouds = v),
             Cb(Ui.T("Parar al amanecer"), r.StopAtDawn, v => r.StopAtDawn = v),
-            Cb(Ui.T("Aparcar al terminar"), r.ParkAtEnd, v => r.ParkAtEnd = v),
+            Ui.Row(Ui.T("Al terminar"), endAction),
+            Cb(Ui.T("Crear los oscuros antes de terminar"), s.DarksAtEnd, v => { s.DarksAtEnd = v; s.Save(); }),
+            battery,
             Ui.H(start, Ui.Button(Ui.T("Saltar objeto"), () => r.Skip(c)), Ui.Button(Ui.T("Detener"), () => r.Stop(c))),
             Ui.Row(Ui.T("Estado"), phase),
             Ui.Caption(Ui.T("Deja el Mac encendido y la app abierta durante la sesión. Activa los avisos al móvil en Ajustes.").Replace("Mac", "PC")));

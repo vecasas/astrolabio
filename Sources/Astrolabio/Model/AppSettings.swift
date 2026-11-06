@@ -25,6 +25,21 @@ final class AppSettings: ObservableObject {
     @Published var ditherPixels: Int { didSet { d.set(ditherPixels, forKey: "ditherPixels") } }
     @Published var ditherInterval: Int { didSet { d.set(ditherInterval, forKey: "ditherInterval") } }
     @Published var autoFocusBeforeStack: Bool { didSet { d.set(autoFocusBeforeStack, forKey: "autoFocusBeforeStack") } }
+    /// Seguridad del apuntado y recentrado tras el GoTo.
+    @Published var gotoMinAltitude: Double { didSet { d.set(gotoMinAltitude, forKey: "gotoMinAltitude") } }
+    @Published var sunSafetyDeg: Double { didSet { d.set(max(GotoSafety.sunSeparationFloor, sunSafetyDeg), forKey: "sunSafetyDeg") } }
+    @Published var recenterEnabled: Bool { didSet { d.set(recenterEnabled, forKey: "recenterEnabled") } }
+    @Published var recenterToleranceArcmin: Double { didSet { d.set(recenterToleranceArcmin, forKey: "recenterToleranceArcmin") } }
+    /// Avisos de batería baja, telescopio sin respuesta y memoria llena.
+    @Published var healthAlerts: Bool { didSet { d.set(healthAlerts, forKey: "healthAlerts") } }
+    /// Al terminar el plan.
+    @Published var endAction: EndAction { didSet { d.set(endAction.rawValue, forKey: "endAction") } }
+    @Published var darksAtEnd: Bool { didSet { d.set(darksAtEnd, forKey: "darksAtEnd") } }
+
+    var gotoLimits: GotoSafety.Limits {
+        GotoSafety.Limits(latitude: latitude, longitude: longitude, minAltitude: gotoMinAltitude,
+                          minSunSeparation: max(GotoSafety.sunSeparationFloor, sunSafetyDeg))
+    }
     /// Modo nocturno manual, automático al anochecer y brillo (0,3–1).
     @Published var nightMode: Bool { didSet { d.set(nightMode, forKey: "nightMode"); nightOverride = nil } }
     @Published var nightModeAuto: Bool { didSet { d.set(nightModeAuto, forKey: "nightModeAuto") } }
@@ -62,6 +77,13 @@ final class AppSettings: ObservableObject {
         ditherPixels = int("ditherPixels", 50)
         ditherInterval = int("ditherInterval", 10)
         autoFocusBeforeStack = d.object(forKey: "autoFocusBeforeStack") == nil ? false : d.bool(forKey: "autoFocusBeforeStack")
+        gotoMinAltitude = dbl("gotoMinAltitude", 15)
+        sunSafetyDeg = max(GotoSafety.sunSeparationFloor, dbl("sunSafetyDeg", 30))
+        recenterEnabled = d.object(forKey: "recenterEnabled") == nil ? true : d.bool(forKey: "recenterEnabled")
+        recenterToleranceArcmin = dbl("recenterToleranceArcmin", 2)
+        healthAlerts = d.object(forKey: "healthAlerts") == nil ? true : d.bool(forKey: "healthAlerts")
+        endAction = d.string(forKey: "endAction").flatMap(EndAction.init(rawValue:)) ?? .park
+        darksAtEnd = d.bool(forKey: "darksAtEnd")
         nightMode = d.bool(forKey: "nightMode")
         nightModeAuto = d.bool(forKey: "nightModeAuto")
         nightBrightness = dbl("nightBrightness", 0.7)

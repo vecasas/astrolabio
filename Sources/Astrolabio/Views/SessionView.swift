@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 @MainActor
 struct SessionView: View {
@@ -6,6 +7,7 @@ struct SessionView: View {
     @EnvironmentObject var settings: AppSettings
     @EnvironmentObject var plan: PlanStore
     @EnvironmentObject var runner: SessionRunner
+    @EnvironmentObject var history: ObservationLog
 
     @State private var editing: PlanItem.ID?
 
@@ -77,13 +79,17 @@ struct SessionView: View {
             Toggle(tr("Esperar a la noche astronómica"), isOn: $runner.options.waitForDark)
             Toggle(tr("Pausar si se prevén nubes (más de %@ %%)", "\(Int(settings.maxCloudCover))"), isOn: $runner.options.pauseForClouds)
             Toggle(tr("Parar al amanecer"), isOn: $runner.options.stopAtDawn)
-            Toggle(tr("Aparcar al terminar"), isOn: $runner.options.parkAtEnd)
+            Picker(tr("Al terminar"), selection: $settings.endAction) {
+                ForEach(EndAction.allCases) { Text($0.label).tag($0) }
+            }
+            Toggle(tr("Crear los oscuros antes de terminar"), isOn: $settings.darksAtEnd)
+            batteryLine
             HStack {
                 if runner.isRunning {
                     Button(tr("Saltar objeto")) { runner.skip() }
                     Button(tr("Detener"), role: .destructive) { runner.stop() }
                 } else {
-                    Button(tr("Empezar")) { runner.start(client: client, settings: settings, plan: plan) }
+                    Button(tr("Empezar")) { startWithBatteryCheck() }
                         .buttonStyle(.borderedProminent)
                         .disabled(!client.isConnected || !plan.items.contains { $0.status == .pending })
                 }
@@ -100,6 +106,43 @@ struct SessionView: View {
             Text(tr("Deja el Mac encendido y la app abierta durante la sesión. Activa los avisos al móvil en Ajustes."))
                 .font(.caption2).foregroundStyle(.tertiary)
         }
+    }
+
+    /// Estimación de batería: consumo medio de tus sesiones anteriores.
+    private var batteryEstimate: (hours: Double, drain: Double, end: Double)? {
+        guard let b = client.battery else { return nil }
+        let hours = BatteryEstimate.planHours(plan.items)
+        let drain = BatteryEstimate.drainPerHour(history.allRecords)
+        return (hours, drain, BatteryEstimate.expectedAtEnd(battery: b, hours: hours, drainPerHour: drain))
+    }
+
+    private var charging: Bool { client.chargerStatus == "Charging" || client.chargerStatus == "Full" }
+
+    @ViewBuilder private var batteryLine: some View {
+        if let e = batteryEstimate, e.hours > 0 {
+            let low = !charging && e.end < BatteryEstimate.reserve
+            Label(charging
+                  ? tr("Batería: el telescopio está cargando.")
+                  : tr("Batería prevista al terminar: %@ %% (plan de %@ h, consumo medio %@ %%/h).",
+                       "\(max(0, Int(e.end)))", String(format: "%.1f", e.hours), String(format: "%.0f", e.drain)),
+                  systemImage: low ? "battery.25percent" : "battery.75percent")
+                .font(.caption).foregroundStyle(low ? Theme.warn : .secondary)
+        }
+    }
+
+    private func startWithBatteryCheck() {
+        if let b = client.battery, let e = batteryEstimate,
+           !BatteryEstimate.isEnough(battery: b, charging: charging, hours: e.hours, drainPerHour: e.drain) {
+            let a = NSAlert()
+            a.messageText = tr("Puede que la batería no aguante el plan")
+            a.informativeText = tr("El Seestar tiene un %@ %% y el plan dura unas %@ h; con tu consumo medio (%@ %%/h) terminaría sin batería. Conecta el cargador o acorta el plan.",
+                                   "\(b)", String(format: "%.1f", e.hours), String(format: "%.0f", e.drain))
+            a.addButton(withTitle: tr("Empezar igualmente"))
+            a.addButton(withTitle: tr("Cancelar"))
+            a.alertStyle = .warning
+            guard a.runModal() == .alertFirstButtonReturn else { return }
+        }
+        runner.start(client: client, settings: settings, plan: plan)
     }
 
     private var messages: some View {

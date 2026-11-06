@@ -38,6 +38,19 @@ public sealed class SeestarClient : Observable
     private bool _userDisconnect;
 
     public Func<SeestarSigner?> SignerProvider { get; set; } = () => null;
+    /// <summary>Límites de seguridad del apuntado (los pone la app con los ajustes).</summary>
+    public Func<Model.GotoSafety.Limits?> GotoLimitsProvider { get; set; } = () => null;
+    /// <summary>Tolerancia del recentrado en minutos de arco, o null si está desactivado.</summary>
+    public Func<double?> RecenterToleranceProvider { get; set; } = () => null;
+    /// <summary>Pregunta antes de interrumpir un apilado (la pone la interfaz).</summary>
+    public Func<string, Task<bool>> ConfirmInterrupt { get; set; } = _ => Task.FromResult(true);
+
+    private static readonly AsyncLocal<bool> _unattended = new();
+    /// <summary>Verdadero dentro de la sesión automática: no se pide confirmación.</summary>
+    public static bool Unattended { get => _unattended.Value; set => _unattended.Value = value; }
+
+    private string? _stackState; public string? StackState { get => _stackState; private set => Set(ref _stackState, value); }
+    public bool IsStacking => StackState is "working" or "start";
 
     // Estado publicado
     private ConnectionState _state; public ConnectionState State { get => _state; private set { if (Set(ref _state, value)) OnPropertyChanged(nameof(IsConnected)); } }
@@ -277,6 +290,7 @@ public sealed class SeestarClient : Observable
         switch (e.Name)
         {
             case "Stack":
+                if (e.State is string st) StackState = st;
                 if (d.Int("stacked_frame") is int s) StackedFrames = s;
                 if (d.Int("dropped_frame") is int x) DroppedFrames = x;
                 break;

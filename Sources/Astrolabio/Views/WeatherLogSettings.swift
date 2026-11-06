@@ -212,8 +212,25 @@ struct SettingsView: View {
                 }
                 Text(tr("Seestar S50: 0,73° × 1,29°.")).font(.caption2).foregroundStyle(.tertiary)
             }
+            SwiftUI.Section(tr("Seguridad del apuntado")) {
+                Stepper(value: $settings.sunSafetyDeg, in: GotoSafety.sunSeparationFloor...90, step: 5) {
+                    Text(tr("No apuntar a menos de %@° del Sol", "\(Int(settings.sunSafetyDeg))"))
+                }
+                Stepper(value: $settings.gotoMinAltitude, in: 0...45, step: 5) {
+                    Text(tr("No apuntar por debajo de %@° de altura", "\(Int(settings.gotoMinAltitude))"))
+                }
+                Text(tr("Se aplica a todos los GoTo: telescopio, planes, mosaicos, carta estelar, Luna, planetas y sugerencias. La protección solar no se puede desactivar (mínimo %@°).", "\(Int(GotoSafety.sunSeparationFloor))"))
+                    .font(.caption).foregroundStyle(.secondary)
+                Toggle(tr("Recentrar si el objeto queda descentrado tras el GoTo"), isOn: $settings.recenterEnabled)
+                if settings.recenterEnabled {
+                    Stepper(value: $settings.recenterToleranceArcmin, in: 1...15, step: 1) {
+                        Text(tr("Tolerancia: %@′", "\(Int(settings.recenterToleranceArcmin))"))
+                    }
+                }
+            }
             SwiftUI.Section(tr("Avisos al móvil")) {
                 PhoneAlertsSettings(testMessage: $testMessage)
+                Toggle(tr("Avisar de batería baja, poca memoria o telescopio sin respuesta"), isOn: $settings.healthAlerts)
             }
             SwiftUI.Section(tr("Modo nocturno")) {
                 Toggle(tr("Activado"), isOn: $settings.nightMode)

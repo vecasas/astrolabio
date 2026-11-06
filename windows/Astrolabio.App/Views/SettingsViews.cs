@@ -56,6 +56,14 @@ public sealed class SettingsView : UserControl
         NumericUpDown Num(double v, double min, double max, double step, Action<double> set, string fmt = "0.####")
         { var n = new NumericUpDown { Value = (decimal)v, Minimum = (decimal)min, Maximum = (decimal)max, Increment = (decimal)step, FormatString = fmt, Width = 160 }; n.ValueChanged += (_, _) => { set((double)(n.Value ?? 0)); s.Save(); }; return n; }
         CheckBox Cb(string t, bool v, Action<bool> set) { var c = new CheckBox { Content = t, IsChecked = v }; c.IsCheckedChanged += (_, _) => { set(c.IsChecked == true); s.Save(); }; return c; }
+        Control Labeled(string key, double v, double min, double max, double step, Action<double> set)
+        {
+            var label = Ui.Text(Ui.T(key, (int)v), 12, color: Ui.Secondary);
+            var n = Num(v, min, max, step, x => { set(x); label.Text = Ui.T(key, (int)x); }, "0");
+            var g = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+            g.Children.Add(label); Grid.SetColumn(n, 1); g.Children.Add(n);
+            return g;
+        }
 
         var lang = new ComboBox { ItemsSource = Strings.Languages.Select(l => l.Native).ToList(), SelectedIndex = (int)Strings.Language, Width = 200 };
         lang.SelectionChanged += (_, _) => { var l = (AppLanguage)lang.SelectedIndex; s.Language = l.ToString(); s.Save(); Strings.SetLanguage(l); };
@@ -98,7 +106,14 @@ public sealed class SettingsView : UserControl
                 Ui.Caption(Ui.T("El firmware reciente del Seestar exige que el cliente firme un reto con una clave privada. Indica aquí el archivo .pem que uses con seestar_alp (opción interop_pem).")),
                 Ui.Row(Ui.T("Campo de visión (°)"), Ui.H(Num(s.FovWidthDeg, 0.1, 5, 0.01, v => s.FovWidthDeg = v), Ui.Text("×"), Num(s.FovHeightDeg, 0.1, 5, 0.01, v => s.FovHeightDeg = v))),
                 Ui.Caption(Ui.T("Seestar S50: 0,73° × 1,29°."))),
+            Ui.Card(Ui.T("Seguridad del apuntado"),
+                Labeled("No apuntar a menos de %@° del Sol", s.SunSafetyDeg, GotoSafety.SunSeparationFloor, 90, 5, v => s.SunSafetyDeg = v),
+                Labeled("No apuntar por debajo de %@° de altura", s.GotoMinAltitude, 0, 45, 5, v => s.GotoMinAltitude = v),
+                Ui.Caption(Ui.T("Se aplica a todos los GoTo: telescopio, planes, mosaicos, carta estelar, Luna, planetas y sugerencias. La protección solar no se puede desactivar (mínimo %@°).", (int)GotoSafety.SunSeparationFloor)),
+                Cb(Ui.T("Recentrar si el objeto queda descentrado tras el GoTo"), s.RecenterEnabled, v => s.RecenterEnabled = v),
+                Labeled("Tolerancia: %@′", s.RecenterToleranceArcmin, 1, 15, 1, v => s.RecenterToleranceArcmin = v)),
             Ui.Card(Ui.T("Avisos al móvil"),
+                Cb(Ui.T("Avisar de batería baja, poca memoria o telescopio sin respuesta"), s.HealthAlerts, v => s.HealthAlerts = v),
                 Ui.Text(Ui.T("Astrolabio puede avisarte en el móvil de lo que pasa durante la noche, aunque estés lejos del Mac. **No hace falta número de teléfono ni crear una cuenta**: se usa ntfy, una app gratuita para iPhone y Android.").Replace("**", "").Replace("Mac", "PC"), 12, wrap: true),
                 Ui.Caption(Ui.T("Cómo funciona: eliges un «tema», que es como el nombre de un canal privado. Astrolabio publica los avisos en ese tema y la app ntfy del móvil, suscrita a él, te los muestra como notificaciones.")),
                 Ui.Text(Ui.T("Qué se avisa"), 13, FontWeight.SemiBold),

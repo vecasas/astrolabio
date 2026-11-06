@@ -91,6 +91,18 @@ final class SeestarClient: ObservableObject {
 
     /// La app le da aquí el firmador cuando hay una clave PEM configurada.
     var signerProvider: @MainActor () -> SeestarSigner? = { nil }
+    /// Límites de seguridad del apuntado (lugar, altura mínima, distancia al Sol).
+    var gotoLimitsProvider: @MainActor () -> GotoSafety.Limits? = { nil }
+    /// Recentrado tras el GoTo: nil si está desactivado; si no, la tolerancia en minutos de arco.
+    var recenterToleranceProvider: @MainActor () -> Double? = { nil }
+    /// Pregunta al usuario antes de interrumpir un apilado (la pone la interfaz).
+    var confirmInterrupt: @MainActor (String) async -> Bool = { _ in true }
+
+    /// Las órdenes de la sesión automática se marcan con esto para no pedir confirmación.
+    @TaskLocal static var unattended = false
+
+    /// ¿Hay un apilado en marcha?
+    var isStacking: Bool { stackState == "working" || stackState == "start" }
 
     private var connection: NWConnection?
     private var buffer = Data()
@@ -328,6 +340,7 @@ final class SeestarClient: ObservableObject {
         let d = event.data
         switch event.name {
         case "Stack":
+            if let st = event.state { stackState = st }
             if let s = d.int("stacked_frame") { stackedFrames = s }
             if let s = d.int("dropped_frame") { droppedFrames = s }
         case "PiStatus":

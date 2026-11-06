@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Text.Json;
 using Astrolabio.Core.Astronomy;
 using Astrolabio.Core.Protocol;
 using Astrolabio.Core.Services;
@@ -11,13 +12,13 @@ namespace Astrolabio.Core.Model;
 /// </summary>
 public sealed class SessionRunner : Observable
 {
-    public enum RunPhase { Idle, WaitingDark, WaitingTarget, Slewing, Focusing, Stacking, PausedClouds, Parking, Finished, Stopped }
+    public enum RunPhase { Idle, WaitingDark, WaitingTarget, Slewing, Focusing, Stacking, PausedClouds, Darks, Parking, Finished, Stopped }
 
     public static string PhaseKey(RunPhase p) => p switch
     {
         RunPhase.Idle => "En espera", RunPhase.WaitingDark => "Esperando a que oscurezca", RunPhase.WaitingTarget => "Esperando a que el objeto suba",
         RunPhase.Slewing => "Apuntando", RunPhase.Focusing => "Enfocando", RunPhase.Stacking => "Apilando", RunPhase.PausedClouds => "En pausa por nubes",
-        RunPhase.Parking => "Aparcando", RunPhase.Finished => "Plan terminado", _ => "Detenido",
+        RunPhase.Darks => "Creando oscuros", RunPhase.Parking => "Aparcando", RunPhase.Finished => "Plan terminado", _ => "Detenido",
     };
 
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
@@ -26,7 +27,6 @@ public sealed class SessionRunner : Observable
     private double _remaining; public double RemainingSeconds { get => _remaining; private set => Set(ref _remaining, value); }
     public ObservableCollection<string> Messages { get; } = new();
     public bool WaitForDark { get; set; } = true;
-    public bool ParkAtEnd { get; set; } = true;
     public bool PauseForClouds { get; set; } = true;
     public bool StopAtDawn { get; set; } = true;
     public bool IsRunning => _cts is not null;
@@ -45,15 +45,52 @@ public sealed class SessionRunner : Observable
         c.AddLog(Strings.T("[Sesión] %@", text));
     }
 
-    public void Start(SeestarClient client, AppSettings settings, PlanStore plan)
+    /// <summary>Lo que se guarda para retomar el plan tras cerrar la app o reiniciar el PC.</summary>
+    public sealed record SavedState(DateTime StartedAt, bool WaitForDark, bool PauseForClouds, bool StopAtDawn);
+
+    public static string StatePath { get; set; } = Path.Combine(AppPaths.Data, "runner.json");
+
+    /// <summary>Plan interrumpido que se puede retomar (como mucho 16 horas después de empezar).</summary>
+    public static SavedState? PendingResume(DateTime? now = null)
+    {
+        try
+        {
+            if (!File.Exists(StatePath)) return null;
+            var st = JsonSerializer.Deserialize<SavedState>(File.ReadAllText(StatePath));
+            return st is not null && ((now ?? DateTime.UtcNow) - st.StartedAt).TotalHours < 16 ? st : null;
+        }
+        catch { return null; }
+    }
+
+    public static void SaveState(SavedState? st)
+    {
+        try
+        {
+            if (st is null) { if (File.Exists(StatePath)) File.Delete(StatePath); }
+            else File.WriteAllText(StatePath, JsonSerializer.Serialize(st));
+        }
+        catch { }
+    }
+
+    public void Start(SeestarClient client, AppSettings settings, PlanStore plan, SavedState? resuming = null)
     {
         if (_cts is not null) return;
         Messages.Clear();
+        if (resuming is not null) { WaitForDark = resuming.WaitForDark; PauseForClouds = resuming.PauseForClouds; StopAtDawn = resuming.StopAtDawn; }
+        foreach (var i in plan.Items.Where(i => i.Status == PlanItem.ItemStatus.Running)) i.Status = PlanItem.ItemStatus.Pending;
+        plan.Save();
+        SaveState(new SavedState(resuming?.StartedAt ?? DateTime.UtcNow, WaitForDark, PauseForClouds, StopAtDawn));
+        if (resuming is not null)
+        {
+            Say(client, Strings.T("Se retoma el plan interrumpido."));
+            settings.Notify("Astrolabio", Strings.T("Se retoma el plan de la noche tras un reinicio."));
+        }
         _cts = new CancellationTokenSource();
         OnPropertyChanged(nameof(IsRunning));
         var ct = _cts.Token;
         _ = Task.Run(async () =>
         {
+            SeestarClient.Unattended = true;
             try { await Run(client, settings, plan, ct); }
             catch (OperationCanceledException) { }
             Ui(() => { _cts = null; OnPropertyChanged(nameof(IsRunning)); });
@@ -62,6 +99,7 @@ public sealed class SessionRunner : Observable
 
     public void Stop(SeestarClient client)
     {
+        SaveState(null);
         _cts?.Cancel();
         Say(client, Strings.T("Detenido por el usuario."));
         Ui(() => Phase = RunPhase.Stopped);
@@ -111,11 +149,26 @@ public sealed class SessionRunner : Observable
             Ui(plan.Save);
             if (!ok && !_skip) s.Notify("Astrolabio", Strings.T("No se pudo completar %@.", item.Name));
         }
-        if (ParkAtEnd)
+        SaveState(null);
+        try { await c.StopStack(); } catch { }
+        if (s.DarksAtEnd)
         {
-            SetPhase(RunPhase.Parking);
-            Say(c, Strings.T("Aparcando el telescopio."));
-            try { await c.StopStack(); await c.Park(); } catch { }
+            SetPhase(RunPhase.Darks);
+            Say(c, Strings.T("Creando los oscuros…"));
+            Say(c, await c.CreateDarksAndWait() ? Strings.T("Oscuros creados.") : Strings.T("No se pudieron crear los oscuros."));
+        }
+        switch (s.EndAction)
+        {
+            case EndAction.Park:
+                SetPhase(RunPhase.Parking);
+                Say(c, Strings.T("Aparcando el telescopio."));
+                try { await c.Park(); } catch { }
+                break;
+            case EndAction.Shutdown:
+                SetPhase(RunPhase.Parking);
+                Say(c, Strings.T("Aparcando y apagando el telescopio."));
+                try { await c.Park(); await Task.Delay(40_000, ct); await c.Shutdown(); } catch { }
+                break;
         }
         SetPhase(RunPhase.Finished);
         Say(c, Strings.T("Plan terminado."));
@@ -127,8 +180,9 @@ public sealed class SessionRunner : Observable
         var panels = item.IsMosaic
             ? Planner.MosaicPanels(item.RaHours, item.DecDeg, item.MosaicColumns, item.MosaicRows, item.OverlapPercent, s.Fov)
             : [("", item.RaHours, item.DecDeg)];
-        var secondsPerPanel = item.Minutes * 60 / panels.Count;
-        var any = false;
+        var remainingByPanel = PlanProgress.RemainingPerPanel(item.Minutes * 60, panels.Count, item.DoneSeconds ?? 0);
+        var any = (item.DoneSeconds ?? 0) > 0;
+        var panelIndex = -1;
         if (item.NotBefore is DateTime nb && nb > DateTime.Now)
         {
             SetPhase(RunPhase.WaitingTarget);
@@ -137,7 +191,9 @@ public sealed class SessionRunner : Observable
         }
         foreach (var (plabel, pra, pdec) in panels)
         {
+            panelIndex++;
             if (_skip) return (any, lastFocus);
+            if (remainingByPanel[panelIndex] < 5) continue;
             var label = plabel.Length == 0 ? item.Name : $"{item.Name}_{plabel}";
             var now = Astro.PrecessFromJ2000(pra, pdec, DateTime.UtcNow);
             double AltAt(DateTime t) => Astro.AltAz(now.Ra, now.Dec, t, s.Latitude, s.Longitude).Alt;
@@ -150,7 +206,7 @@ public sealed class SessionRunner : Observable
                 Say(c, Strings.T("%@ está a %@°; esperando a que suba.", label, (int)alt));
                 while (alt < s.MinAltitude) { await Task.Delay(60_000, ct); if (_skip) return (any, lastFocus); alt = AltAt(DateTime.UtcNow); }
             }
-            var remaining = secondsPerPanel;
+            var remaining = remainingByPanel[panelIndex];
             var needGoto = true;
             while (remaining > 5)
             {
@@ -202,6 +258,8 @@ public sealed class SessionRunner : Observable
                     remaining -= 5;
                     var r = remaining; Ui(() => RemainingSeconds = r);
                     item.StackedFrames = c.StackedFrames;
+                    item.DoneSeconds = (item.DoneSeconds ?? 0) + 5;
+                    if ((int)remaining % 60 == 0) Ui(plan.Save);
                 }
                 any = true;
                 if (StopAtDawn && !IsDark(s)) { Say(c, Strings.T("Amanece: fin del apilado.")); try { await c.StopStack(); } catch { } return (true, lastFocus); }

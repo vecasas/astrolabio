@@ -7,7 +7,18 @@ extension SeestarClient {
     // MARK: Apuntado
 
     /// GoTo con resolución de placa a unas coordenadas del día (RA en horas, Dec en grados).
+    /// Se niega si el objetivo está cerca del Sol o demasiado bajo, y pide confirmación si
+    /// interrumpe un apilado en curso (salvo en la sesión automática).
     func gotoTarget(name: String, raHours: Double, decDeg: Double, lpFilter: Bool = false) async throws {
+        if let limits = gotoLimitsProvider(), let reason = GotoSafety.check(raHours: raHours, decDeg: decDeg, limits: limits) {
+            addLog(reason, .warning)
+            throw GotoBlockedError(reason: reason)
+        }
+        if isStacking && !Self.unattended {
+            guard await confirmInterrupt(tr("Hay un apilado en curso. Si apuntas a %@ se detendrá. ¿Continuar?", name)) else {
+                throw GotoBlockedError(reason: tr("Cancelado: el apilado sigue en marcha."))
+            }
+        }
         try await send("iscope_start_view", params: [
             "mode": "star",
             "target_ra_dec": [raHours, decDeg],
@@ -22,7 +33,49 @@ extension SeestarClient {
         let start = Date()
         try await gotoTarget(name: name, raHours: raHours, decDeg: decDeg, lpFilter: lpFilter)
         let state = await waitForEvent("AutoGoto", since: start, timeout: timeout)
-        return state == "complete"
+        guard state == "complete" else { return false }
+        if let tolerance = recenterToleranceProvider() {
+            await recenter(name: name, raHours: raHours, decDeg: decDeg, lpFilter: lpFilter, tolerance: tolerance)
+        }
+        return true
+    }
+
+    /// Posición actual del telescopio en coordenadas del día (tras el GoTo ya está ajustada
+    /// con la resolución de placa del propio Seestar).
+    func currentPointing() async -> (ra: Double, dec: Double)? {
+        guard let r = try? await send("scope_get_equ_coord", timeout: 10),
+              let ra = r.double("result.ra"), let dec = r.double("result.dec") else { return nil }
+        return (ra, dec)
+    }
+
+    /// Si el objeto quedó a más de `tolerance` minutos de arco del centro, vuelve a apuntar (dos veces como mucho).
+    func recenter(name: String, raHours: Double, decDeg: Double, lpFilter: Bool, tolerance: Double, maxTries: Int = 2) async {
+        for attempt in 0...maxTries {
+            try? await Task.sleep(for: .seconds(2))
+            guard let p = await currentPointing() else { return }
+            let off = RecenterPolicy.offsetArcmin(targetRA: raHours, targetDec: decDeg, actualRA: p.ra, actualDec: p.dec)
+            switch RecenterPolicy.decide(offsetArcmin: off, tolerance: tolerance) {
+            case .centered:
+                if attempt > 0 { addLog(tr("%@ centrado (desvío %@′).", name, String(format: "%.1f", off))) }
+                return
+            case .unreliable:
+                addLog(tr("No se pudo comprobar el centrado (lectura de %@′).", String(format: "%.0f", off)), .warning)
+                return
+            case .recenter:
+                guard attempt < maxTries else {
+                    addLog(tr("%@ sigue a %@′ del centro tras %@ intentos.", name, String(format: "%.1f", off), "\(maxTries)"), .warning)
+                    return
+                }
+                addLog(tr("%@ quedó a %@′ del centro: se vuelve a apuntar.", name, String(format: "%.1f", off)))
+                let start = Date()
+                do {
+                    try await Self.$unattended.withValue(true) {
+                        try await gotoTarget(name: name, raHours: raHours, decDeg: decDeg, lpFilter: lpFilter)
+                    }
+                } catch { return }
+                guard await waitForEvent("AutoGoto", since: start, timeout: 300) == "complete" else { return }
+            }
+        }
     }
 
     func stopGoto() async throws {
@@ -91,6 +144,9 @@ extension SeestarClient {
     }
 
     func startStack(restart: Bool = true) async throws {
+        if restart && isStacking && !Self.unattended {
+            guard await confirmInterrupt(tr("Hay un apilado en curso. Si empiezas otro, el actual se detendrá. ¿Continuar?")) else { return }
+        }
         try await send("iscope_start_stack", params: ["restart": restart])
     }
 
@@ -121,6 +177,15 @@ extension SeestarClient {
 
     func createDarks() async throws {
         try await send("start_create_dark")
+    }
+
+    /// Crea los oscuros y espera a que el telescopio termine (evento DarkLibrary).
+    func createDarksAndWait(timeout: Double = 1800) async -> Bool {
+        let start = Date()
+        try? await send("iscope_stop_view")
+        try? await Task.sleep(for: .seconds(1))
+        do { try await createDarks() } catch { return false }
+        return await waitForEvent("DarkLibrary", since: start, timeout: timeout) == "complete"
     }
 
     // MARK: Modos especiales

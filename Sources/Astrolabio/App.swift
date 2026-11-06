@@ -37,6 +37,7 @@ struct AstrolabioApp: App {
     @StateObject private var history = ObservationLog(storage: ProcessInfo.processInfo.environment["ASTROLABIO_HISTORY"]
         .map { URL(fileURLWithPath: $0) })
     @ObservedObject private var loc = Loc.shared
+    @State private var health = HealthMonitor()
 
     var body: some Scene {
         WindowGroup("Astrolabio", id: "main") {
@@ -112,6 +113,17 @@ struct AstrolabioApp: App {
         DebugSnapshot.runIfRequested()
         let s = settings
         client.signerProvider = { s.makeSigner() }
+        client.gotoLimitsProvider = { s.gotoLimits }
+        client.recenterToleranceProvider = { s.recenterEnabled ? s.recenterToleranceArcmin : nil }
+        client.confirmInterrupt = { text in
+            let a = NSAlert()
+            a.messageText = tr("¿Interrumpir el apilado?")
+            a.informativeText = text
+            a.addButton(withTitle: tr("Continuar"))
+            a.addButton(withTitle: tr("Cancelar"))
+            return a.runModal() == .alertFirstButtonReturn
+        }
+        health.start(client: client, settings: settings, runner: runner, plan: plan)
         live.attach(to: client)
         history.attach(to: client, exposureMs: { s.exposureMs })
         let sky = self.sky, live = self.live

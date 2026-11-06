@@ -231,3 +231,87 @@ public class ReportTests
         finally { Strings.SetLanguage(original); }
     }
 }
+
+[Collection("Idioma")]
+public class SafetyTests
+{
+    private static readonly GotoSafety.Limits Madrid = new(40.48, -3.36, 15, 30);
+
+    [Fact]
+    public void BlocksTheSun()
+    {
+        var t = new DateTime(2026, 11, 6, 12, 0, 0, DateTimeKind.Utc);
+        var sun = Astro.Sun(t);
+        Assert.NotNull(GotoSafety.Check(sun.Ra, sun.Dec, t, Madrid));
+        Assert.NotNull(GotoSafety.Check(sun.Ra, sun.Dec + 10, t, Madrid with { MinSunSeparation = 0, MinAltitude = -90 }));
+    }
+
+    [Fact]
+    public void BlocksLowTargetsAndAllowsHighOnes()
+    {
+        var t = new DateTime(2026, 11, 6, 22, 0, 0, DateTimeKind.Utc);
+        var polaris = Astro.PrecessFromJ2000(2.53, 89.26, t);
+        Assert.Null(GotoSafety.Check(polaris.Ra, polaris.Dec, t, Madrid));
+        Assert.NotNull(GotoSafety.Check(polaris.Ra, polaris.Dec, t, Madrid with { MinAltitude = 50 }));
+        Assert.NotNull(GotoSafety.Check(6.4, -70, t, Madrid));
+    }
+
+    [Fact]
+    public void BatteryEstimate_()
+    {
+        var t0 = DateTime.UtcNow;
+        ObservationRecord Rec(double minutes, int b1, int b2) =>
+            new(Guid.NewGuid(), "M 31", t0, t0.AddMinutes(minutes), 100, 10_000) { BatteryStart = b1, BatteryEnd = b2 };
+        Assert.Equal(BatteryEstimate.DefaultDrainPerHour, BatteryEstimate.DrainPerHour([]));
+        Assert.Equal(12, BatteryEstimate.DrainPerHour([Rec(60, 90, 78), Rec(120, 80, 56), Rec(10, 50, 40)]), 3);
+        Assert.True(BatteryEstimate.IsEnough(80, false, 4, 12));
+        Assert.False(BatteryEstimate.IsEnough(50, false, 4, 12));
+        Assert.True(BatteryEstimate.IsEnough(5, true, 8, 12));
+        var a = new PlanItem { Name = "M 31", Minutes = 120, DoneSeconds = 3600 };
+        var b = new PlanItem { Name = "M 45", Minutes = 60, Status = PlanItem.ItemStatus.Done };
+        Assert.Equal(66.0 / 60, BatteryEstimate.PlanHours([a, b]), 3);
+    }
+
+    [Fact]
+    public void AlertLimiterAndHealth()
+    {
+        var l = new AlertLimiter(TimeSpan.FromMinutes(30));
+        var t = DateTime.Now;
+        Assert.True(l.ShouldSend("battery", t));
+        Assert.False(l.ShouldSend("battery", t.AddMinutes(10)));
+        Assert.True(l.ShouldSend("storage", t.AddMinutes(10)));
+        Assert.True(l.ShouldSend("battery", t.AddMinutes(31)));
+        Assert.Empty(HealthCheck.Issues(true, 80, false, 20_000, true, 0));
+        Assert.Equal(new[] { "battery", "storage" }, HealthCheck.Issues(true, 15, false, 500, false, 0).Select(i => i.Kind));
+        Assert.Empty(HealthCheck.Issues(true, 15, true, null, false, 0));
+        Assert.Equal(new[] { "silent" }, HealthCheck.Issues(false, null, false, null, true, 240).Select(i => i.Kind));
+    }
+
+    [Fact]
+    public void RecenterAndProgress()
+    {
+        var off = RecenterPolicy.OffsetArcmin(5, 20, 5, 20.05);
+        Assert.Equal(3, off, 2);
+        Assert.Equal(RecenterPolicy.Decision.Recenter, RecenterPolicy.Decide(off, 2));
+        Assert.Equal(RecenterPolicy.Decision.Centered, RecenterPolicy.Decide(1.2, 2));
+        Assert.Equal(RecenterPolicy.Decision.Unreliable, RecenterPolicy.Decide(600, 2));
+        Assert.Equal(new double[] { 0, 600, 900, 900 }, PlanProgress.RemainingPerPanel(3600, 4, 1200));
+    }
+
+    [Fact]
+    public void ResumeStateExpires()
+    {
+        var old = SessionRunner.StatePath;
+        SessionRunner.StatePath = Path.Combine(Path.GetTempPath(), $"runner-{Guid.NewGuid()}.json");
+        try
+        {
+            var st = new SessionRunner.SavedState(DateTime.UtcNow.AddHours(-1), true, true, true);
+            SessionRunner.SaveState(st);
+            Assert.Equal(st, SessionRunner.PendingResume());
+            Assert.Null(SessionRunner.PendingResume(DateTime.UtcNow.AddHours(20)));
+            SessionRunner.SaveState(null);
+            Assert.Null(SessionRunner.PendingResume());
+        }
+        finally { SessionRunner.StatePath = old; }
+    }
+}

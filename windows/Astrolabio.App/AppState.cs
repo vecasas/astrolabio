@@ -39,7 +39,12 @@ public sealed class AppState
                 h is null ? null : new WeatherSnapshot(h.CloudCover, h.Temperature, h.DewPoint, h.Humidity, h.Wind),
                 path => { if (Live.Image is not { } img) return false; img.Save(path); return true; });
         };
+        Client.GotoLimitsProvider = () => Settings.GotoLimits;
+        Client.RecenterToleranceProvider = () => Settings.RecenterEnabled ? Settings.RecenterToleranceArcmin : null;
+        Client.ConfirmInterrupt = text => Dispatcher.UIThread.InvokeAsync(() =>
+            Views.Ask.YesNo(Strings.T("¿Interrumpir el apilado?"), text, Strings.T("Continuar"), Strings.T("Cancelar")));
         _ = WeatherLoop();
+        _ = HealthLoop();
         if (Settings.AutoConnect) Dispatcher.UIThread.Post(async () => await Connect());
     }
 
@@ -50,6 +55,38 @@ public sealed class AppState
     }
 
     public void Disconnect() { Live.Disconnect(); Client.Disconnect(); }
+
+    private readonly AlertLimiter _alerts = new(TimeSpan.FromMinutes(30));
+    private DateTime? _disconnectedSince;
+    private bool _resumeChecked;
+
+    /// <summary>Cada minuto: retoma un plan interrumpido y avisa de batería baja, poca memoria o telescopio mudo.</summary>
+    private async Task HealthLoop()
+    {
+        while (true)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(60));
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                if (!_resumeChecked && Client.IsConnected)
+                {
+                    _resumeChecked = true;
+                    if (!Runner.IsRunning && SessionRunner.PendingResume() is { } saved &&
+                        Plan.Items.Any(i => i.Status is PlanItem.ItemStatus.Pending or PlanItem.ItemStatus.Running))
+                        Runner.Start(Client, Settings, Plan, saved);
+                }
+                if (Client.IsConnected) _disconnectedSince = null; else _disconnectedSince ??= DateTime.Now;
+                if (!Settings.HealthAlerts) return;
+                var issues = HealthCheck.Issues(Client.IsConnected, Client.Battery, Client.ChargerStatus == "Charging", Client.FreeStorageMB,
+                    Runner.IsRunning, _disconnectedSince is DateTime d ? (DateTime.Now - d).TotalSeconds : 0);
+                foreach (var i in issues.Where(i => _alerts.ShouldSend(i.Kind, DateTime.Now)))
+                {
+                    Client.AddLog(i.Message, LogLevel.Warning);
+                    Settings.Notify("Astrolabio", i.Message);
+                }
+            });
+        }
+    }
 
     private async Task WeatherLoop()
     {

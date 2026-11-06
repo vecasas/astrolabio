@@ -5,17 +5,70 @@ namespace Astrolabio.Core.Protocol;
 /// <summary>Órdenes de alto nivel del Seestar (nombres de método documentados por la comunidad).</summary>
 public static class SeestarCommands
 {
-    public static Task GotoTarget(this SeestarClient c, string name, double raHours, double decDeg, bool lp = false) =>
-        c.Send("iscope_start_view", new JsonObject
+    /// <summary>GoTo con resolución de placa (coordenadas de la fecha). Se niega cerca del Sol o
+    /// demasiado bajo y pregunta antes de interrumpir un apilado (salvo en la sesión automática).</summary>
+    public static async Task GotoTarget(this SeestarClient c, string name, double raHours, double decDeg, bool lp = false)
+    {
+        if (c.GotoLimitsProvider() is { } limits && Model.GotoSafety.Check(raHours, decDeg, DateTime.UtcNow, limits) is string reason)
+        {
+            c.AddLog(reason, LogLevel.Warning);
+            throw new Model.GotoBlockedException(reason);
+        }
+        if (c.IsStacking && !SeestarClient.Unattended &&
+            !await c.ConfirmInterrupt(Strings.T("Hay un apilado en curso. Si apuntas a %@ se detendrá. ¿Continuar?", name)))
+            throw new Model.GotoBlockedException(Strings.T("Cancelado: el apilado sigue en marcha."));
+        await c.Send("iscope_start_view", new JsonObject
         {
             ["mode"] = "star", ["target_ra_dec"] = new JsonArray(raHours, decDeg), ["target_name"] = name, ["lp_filter"] = lp,
         });
+    }
 
     public static async Task<bool> GotoAndWait(this SeestarClient c, string name, double raHours, double decDeg, bool lp = false, double timeout = 300)
     {
         var start = DateTime.Now;
         await c.GotoTarget(name, raHours, decDeg, lp);
-        return await c.WaitForEvent("AutoGoto", start, timeout) == "complete";
+        if (await c.WaitForEvent("AutoGoto", start, timeout) != "complete") return false;
+        if (c.RecenterToleranceProvider() is double tol) await c.Recenter(name, raHours, decDeg, lp, tol);
+        return true;
+    }
+
+    /// <summary>Posición actual en coordenadas de la fecha (ya ajustada por la resolución de placa del Seestar).</summary>
+    public static async Task<(double Ra, double Dec)?> CurrentPointing(this SeestarClient c)
+    {
+        try
+        {
+            var r = await c.Send("scope_get_equ_coord", timeout: 10);
+            return r.Num("result.ra") is double ra && r.Num("result.dec") is double dec ? (ra, dec) : null;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>Vuelve a apuntar (dos veces como mucho) si el objeto quedó a más de <paramref name="tolerance"/>′ del centro.</summary>
+    public static async Task Recenter(this SeestarClient c, string name, double ra, double dec, bool lp, double tolerance, int maxTries = 2)
+    {
+        for (var attempt = 0; attempt <= maxTries; attempt++)
+        {
+            await Task.Delay(2000);
+            if (await c.CurrentPointing() is not { } p) return;
+            var off = Model.RecenterPolicy.OffsetArcmin(ra, dec, p.Ra, p.Dec);
+            var offText = off.ToString("F1", System.Globalization.CultureInfo.InvariantCulture);
+            switch (Model.RecenterPolicy.Decide(off, tolerance))
+            {
+                case Model.RecenterPolicy.Decision.Centered:
+                    if (attempt > 0) c.AddLog(Strings.T("%@ centrado (desvío %@′).", name, offText));
+                    return;
+                case Model.RecenterPolicy.Decision.Unreliable:
+                    c.AddLog(Strings.T("No se pudo comprobar el centrado (lectura de %@′).", (int)off), LogLevel.Warning);
+                    return;
+            }
+            if (attempt == maxTries) { c.AddLog(Strings.T("%@ sigue a %@′ del centro tras %@ intentos.", name, offText, maxTries), LogLevel.Warning); return; }
+            c.AddLog(Strings.T("%@ quedó a %@′ del centro: se vuelve a apuntar.", name, offText));
+            var start = DateTime.Now;
+            var prev = SeestarClient.Unattended;
+            SeestarClient.Unattended = true;
+            try { await c.GotoTarget(name, ra, dec, lp); } catch { return; } finally { SeestarClient.Unattended = prev; }
+            if (await c.WaitForEvent("AutoGoto", start, 300) != "complete") return;
+        }
     }
 
     public static Task StopGoto(this SeestarClient c) => c.Send("iscope_stop_view", new JsonObject { ["stage"] = "AutoGoto" });
@@ -46,7 +99,12 @@ public static class SeestarCommands
 
     public static Task SetTargetName(this SeestarClient c, string name) =>
         c.Send("set_sequence_setting", new JsonArray(new JsonObject { ["group_name"] = name }));
-    public static Task StartStack(this SeestarClient c, bool restart = true) => c.Send("iscope_start_stack", new JsonObject { ["restart"] = restart });
+    public static async Task StartStack(this SeestarClient c, bool restart = true)
+    {
+        if (restart && c.IsStacking && !SeestarClient.Unattended &&
+            !await c.ConfirmInterrupt(Strings.T("Hay un apilado en curso. Si empiezas otro, el actual se detendrá. ¿Continuar?"))) return;
+        await c.Send("iscope_start_stack", new JsonObject { ["restart"] = restart });
+    }
     public static Task StopStack(this SeestarClient c) => c.Send("iscope_stop_view", new JsonObject { ["stage"] = "Stack" });
     public static Task SetGain(this SeestarClient c, int gain) => c.Send("set_control_value", new JsonArray("gain", gain));
     public static Task SetExposure(this SeestarClient c, int ms) => c.Send("set_setting", new JsonObject { ["exp_ms"] = new JsonObject { ["stack_l"] = ms } });
@@ -55,6 +113,16 @@ public static class SeestarCommands
     public static Task SetDither(this SeestarClient c, bool enabled, int pixels = 50, int interval = 10) =>
         c.Send("set_setting", new JsonObject { ["stack_dither"] = new JsonObject { ["pix"] = pixels, ["interval"] = interval, ["enable"] = enabled } });
     public static Task CreateDarks(this SeestarClient c) => c.Send("start_create_dark");
+
+    /// <summary>Crea los oscuros y espera al evento DarkLibrary.</summary>
+    public static async Task<bool> CreateDarksAndWait(this SeestarClient c, double timeout = 1800)
+    {
+        var start = DateTime.Now;
+        try { await c.StopView(); } catch { }
+        await Task.Delay(1000);
+        try { await c.CreateDarks(); } catch { return false; }
+        return await c.WaitForEvent("DarkLibrary", start, timeout) == "complete";
+    }
 
     public static Task StartMoonView(this SeestarClient c) => c.Send("iscope_start_view", new JsonObject { ["mode"] = "moon" });
     public static Task StartPlanetScan(this SeestarClient c) => c.Send("start_scan_planet");

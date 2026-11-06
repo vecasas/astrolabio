@@ -48,6 +48,16 @@ public sealed class AppSettings : Observable
     public bool NightModeAuto { get; set; }
     public double NightBrightness { get; set; } = 0.7;
     public string? Language { get; set; }
+    public double GotoMinAltitude { get; set; } = 15;
+    private double _sun = 30;
+    public double SunSafetyDeg { get => _sun; set => _sun = Math.Max(GotoSafety.SunSeparationFloor, value); }
+    public bool RecenterEnabled { get; set; } = true;
+    public double RecenterToleranceArcmin { get; set; } = 2;
+    public bool HealthAlerts { get; set; } = true;
+    public EndAction EndAction { get; set; } = EndAction.Park;
+    public bool DarksAtEnd { get; set; }
+
+    [JsonIgnore] public GotoSafety.Limits GotoLimits => new(Latitude, Longitude, GotoMinAltitude, Math.Max(GotoSafety.SunSeparationFloor, SunSafetyDeg));
 
     [JsonIgnore] public (double W, double H) Fov => (FovWidthDeg, FovHeightDeg);
 
@@ -98,6 +108,8 @@ public sealed class PlanItem
     public DateTime? NotBefore { get; set; }
     public ItemStatus Status { get; set; }
     public int StackedFrames { get; set; }
+    /// <summary>Segundos ya apilados, para retomar el plan tras un reinicio.</summary>
+    public double? DoneSeconds { get; set; }
     [JsonIgnore] public bool IsMosaic => MosaicColumns * MosaicRows > 1;
 }
 

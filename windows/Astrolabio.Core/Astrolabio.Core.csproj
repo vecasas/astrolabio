@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Astrolabio.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Datos generados desde el proyecto de macOS (scripts/windows_data.py) -->
+    <EmbeddedResource Include="Data\*.json;Data\*.txt;Data\*.jpg" />
+  </ItemGroup>
+</Project>

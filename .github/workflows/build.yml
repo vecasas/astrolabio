@@ -1,0 +1,69 @@
+# Compila y prueba las versiones de Windows y macOS y genera sus instaladores.
+# Se ejecuta en cada push a main y, al publicar una etiqueta vX.Y.Z, adjunta el instalador
+# y el ZIP portable a la versión (Release) de GitHub.
+name: Compilación
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Pruebas
+        run: dotnet test windows/Astrolabio.Tests -c Release
+      - name: Publicar (win-x64, autónomo)
+        run: dotnet publish windows/Astrolabio.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o windows/publish/win-x64
+      - name: Versión
+        id: ver
+        shell: bash
+        run: echo "v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+      - name: ZIP portable
+        shell: pwsh
+        run: Compress-Archive -Path windows/publish/win-x64/* -DestinationPath "windows/publish/Astrolabio-${{ startsWith(github.ref, 'refs/tags/v') && steps.ver.outputs.v || 'dev' }}-Windows-portable.zip"
+      - name: Instalador (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DAppVersion=${{ startsWith(github.ref, 'refs/tags/v') && steps.ver.outputs.v || '0.0.0-dev' }}" windows/installer/Astrolabio.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Astrolabio-Windows
+          path: |
+            windows/publish/*.exe
+            windows/publish/*.zip
+      - name: Adjuntar a la versión
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            windows/publish/*.exe
+            windows/publish/*.zip
+
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pruebas
+        run: swift test
+      - name: DMG
+        run: ./scripts/make_dmg.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Astrolabio-macOS
+          path: dist/*.dmg
+      - name: Adjuntar a la versión
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.dmg

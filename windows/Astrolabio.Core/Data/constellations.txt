@@ -1,0 +1,89 @@
+0.75,43.00,1,Andrómeda|Andromeda|Andromède|Andromeda|仙女座|Андромеда
+156.00,-36.00,3,Máquina Neumática|Air Pump|Machine Pneumatique|Luftpumpe|唧筒座|Насос
+240.00,-74.00,3,Ave del Paraíso|Bird of Paradise|Oiseau de Paradis|Paradiesvogel|天燕座|Райская Птица
+337.50,-5.00,2,Acuario|Aquarius|Verseau|Wassermann|宝瓶座|Водолей
+291.00,8.00,1,Águila|Eagle|Aigle|Adler|天鹰座|Орёл
+258.00,-56.00,3,Altar|Altar|Autel|Altar|天坛座|Жертвенник
+42.00,22.00,1,Carnero|Ram|Bélier|Widder|白羊座|Овен
+82.50,37.00,1,Cochero|Charioteer|Cocher|Fuhrmann|御夫座|Возничий
+223.50,35.00,1,Boyero|Herdsman|Bouvier|Bärenhüter|牧夫座|Волопас
+73.50,-42.00,3,Cincel|Graving tool|Burin|Grabstichel|雕具座|Резец
+84.00,72.00,2,Jirafa|Giraffe|Girafe|Giraffe|鹿豹座|Жираф
+128.25,27.00,2,Cangrejo|Crab|Cancer|Krebs|巨蟹座|Рак
+192.00,43.00,2,Lebreles|Hunting Dogs|Chiens de Chasse|Jagdhunde|猎犬座|Гончие Псы
+97.50,-26.00,1,Perro Mayor|Great Dog|Grand Chien|Großer Hund|大犬座|Большой Пёс
+109.50,5.00,2,Perro Menor|Little Dog|Petit Chien|Kleiner Hund|小犬座|Малый Пёс
+315.00,-22.00,2,Capricornio|Capricorn|Capricorne|Steinbock|摩羯座|Козерог
+144.00,-66.00,1,Carina|Keel|Carène|Kiel des Schiffs|船底座|Киль
+354.00,55.50,1,Casiopea|Cassiopeia|Cassiopée|Kassiopeia|仙后座|Кассиопея
+199.50,-40.00,1,Centauro|Centaur|Centaure|Zentaur|半人马座|Центавр
+337.50,71.00,2,Cefeo|Cepheus|Céphée|Kepheus|仙王座|Цефей
+28.50,-5.00,1,Ballena|Whale|Baleine|Walfisch|鲸鱼座|Кит
+189.00,-81.00,3,Camaleón|Chamaeleon|Caméléon|Chamäleon|蝘蜒座|Хамелеон
+217.50,-67.00,3,Compás|Compass|Compas|Zirkel|圆规座|Циркуль
+85.50,-39.00,3,Paloma|Dove|Colombe|Taube|天鸽座|Голубь
+193.50,24.00,3,Pelo de Berenice|Berenice's Hair|Chevelure de Bérénice|Haar der Berenike|后发座|Волосы Вероники
+282.00,-40.00,3,Corona Austral|Southern Crown|Couronne Australe|Südliche Krone|南冕座|Южная Корона
+238.50,32.00,2,Corona Boreal|Northern Crown|Couronne Boréale|Nördliche Krone|北冕座|Северная Корона
+186.00,-19.50,3,Cuervo|Crow|Corbeau|Rabe|乌鸦座|Ворон
+174.75,-15.00,3,Copa|Cup|Coupe|Becher|巨爵座|Чаша
+193.50,-62.00,2,Cruz del Sur|Cross|Croix du Sud|Kreuz des Südens|南十字座|Южный Крест
+307.50,50.00,1,Cisne|Swan|Cygne|Schwan|天鹅座|Лебедь
+309.00,6.00,3,Delfín|Dolphin|Dauphin|Delphin|海豚座|Дельфин
+76.50,-64.00,3,Pez dorado|Goldfish|Dorade|Goldfisch|剑鱼座|Золотая Рыба
+268.50,64.00,2,Dragón|Dragon|Dragon|Drache|天龙座|Дракон
+320.25,11.50,3,Caballito|Colt|Petit Cheval|Füllen|小马座|Малый Конь
+52.50,-18.00,1,Erídano|Eridanus|Eridan|Eridanus|波江座|Эридан
+40.50,-28.00,3,Horno|Furnace|Fourneau|Chemischer Ofen|天炉座|Печь
+107.25,23.50,1,Gemelos|Twins|Gémeaux|Zwillinge|双子座|Близнецы
+342.00,-41.50,3,Grulla|Crane|Grue|Kranich|天鹤座|Журавль
+253.50,35.00,2,Hércules|Hercules|Hercule|Herkules|武仙座|Геркулес
+51.00,-52.00,3,Reloj|Clock|Horloge|Pendeluhr|时钟座|Часы
+150.00,-22.00,2,Hidra|Sea Serpent|Hydre Femelle|Wasserschlange|长蛇座|Гидра
+34.50,-72.00,3,Hidra Macho|Hydrus|Hydre Mâle|Kleine Männliche Wasserschlange|水蛇座|Южная Гидра
+318.00,-55.50,3,Indio|Indian|Indien|Inder|印第安座|Индеец
+342.00,47.00,3,Lagarto|Lizard|Lézard|Eidechse|蝎虎座|Ящерица
+159.00,15.00,1,León|Lion|Lion|Löwe|狮子座|Лев
+157.50,30.00,3,León Menor|Little Lion|Petit Lion|Kleiner Löwe|小狮座|Малый Лев
+88.50,-25.00,3,Conejo|Hare|Lièvre|Hase|天兔座|Заяц
+231.00,-26.00,2,Balanza|Balance|Balance|Waage|天秤座|Весы
+228.75,-35.00,3,Lobo|Wolf|Loup|Wolf|豺狼座|Волк
+121.50,49.00,3,Lince|Lynx|Lynx|Luchs|天猫座|Рысь
+279.00,30.00,2,Lira|Lyre|Lyre|Leier|天琴座|Лира
+82.50,-80.00,3,Mesa|Mensa|Table|Tafelberg|山案座|Столовая Гора
+316.50,-37.00,3,Microscopio|Microscope|Microscope|Mikroskop|显微镜座|Микроскоп
+114.75,-6.00,2,Unicornio|Unicorn|Licorne|Einhorn|麒麟座|Единорог
+195.00,-73.00,3,Mosca|Fly|Mouche|Fliege|苍蝇座|Муха
+243.00,-52.00,3,Escuadra|Level|Règle|Winkelmaß|矩尺座|Наугольник
+300.00,-80.00,3,Bastón|Octant|Octant|Oktant|南极座|Октант
+258.00,3.00,2,Ofiuco|Ophiuchus|Ophiuchus|Schlangenträger|蛇夫座|Змееносец
+84.00,13.00,1,Orión|Orion|Orion|Orion|猎户座|Орион
+297.00,-62.00,2,Pavo|Peacock|Paon|Pfau|孔雀座|Павлин
+334.50,16.00,1,Pegaso|Pegasus|Pégase|Pegasus|飞马座|Пегас
+66.00,45.00,1,Perseo|Perseus|Persée|Perseus|英仙座|Персей
+16.50,-43.00,2,Fénix|Phoenix|Phénix|Phoenix|凤凰座|Феникс
+82.50,-50.00,3,Paleta del Pintor|Painter|Peintre|Maler|绘架座|Живописец
+19.50,15.00,2,Peces|Fishes|Poissons|Fische|双鱼座|Рыбы
+333.00,-29.00,2,Pez Austral|Southern Fish|Poisson Austral|Südlicher Fisch|南鱼座|Южная Рыба
+111.00,-46.00,2,Popa|Poop Deck|Poupe|Achterdeck|船尾座|Корма
+132.00,-24.00,3,Brújula|Compass|Boussole|Schiffskompass|罗盘座|Компас
+55.50,-61.00,3,Retículo|Net|Réticule|Netz|网罟座|Сетка
+291.00,18.00,3,Flecha|Arrow|Flèche|Pfeil|天箭座|Стрела
+292.50,-34.00,1,Sagitario|Archer|Sagittaire|Schütze|人马座|Стрелец
+249.00,-38.00,1,Escorpión|Scorpion|Scorpion|Skorpion|天蝎座|Скорпион
+1.50,-33.00,3,Escultor|Sculptor|Sculpteur|Bildhauer|玉夫座|Скульптор
+282.00,-12.50,3,Escudo|Shield|Écu de Sobieski|Schild|盾牌座|Щит
+232.50,5.00,3,Serpiente|Serpent|Serpent|Schlange|巨蛇座|Змея
+280.50,3.00,3,Serpiente|Serpent|Serpent|Schlange|巨蛇座|Змея
+157.50,-7.00,3,Sextante|Sextant|Sextant|Sextant|六分仪座|Секстант
+54.00,15.00,1,Toro|Bull|Taureau|Stier|金牛座|Телец
+277.50,-54.00,3,Telescopio|Telescope|Télescope|Teleskop|望远镜座|Телескоп
+27.00,34.00,3,Triángulo|Triangle|Triangle|Dreieck|三角座|Треугольник
+240.00,-67.50,2,Triángulo Austral|Southern Triangle|Triangle Austral|Südliches Dreieck|南三角座|Южный Треугольник
+348.00,-64.00,3,Tucán|Toucan|Toucan|Tukan|杜鹃座|Тукан
+165.00,48.00,1,Osa Mayor|Big Dipper|Grande Ourse|Großer Bär|大熊座|Большая Медведица
+226.50,68.00,2,Osa Menor|Little Dipper|Petite Ourse|Kleiner Bär|小熊座|Малая Медведица
+143.25,-46.00,2,Vela|Sails|Voiles|Segel|船帆座|Паруса
+199.50,-4.00,1,Virgen|Virgin|Vierge|Jungfrau|处女座|Дева
+111.00,-73.00,3,Pez Volador|Flying Fish|Poisson Volant|Fliegender Fisch|飞鱼座|Летучая Рыба
+295.50,21.00,3,Zorro|Little Fox|Petit Renard|Fuchs|狐狸座|Лисичка

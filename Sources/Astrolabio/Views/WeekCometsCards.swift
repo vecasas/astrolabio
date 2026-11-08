@@ -76,8 +76,8 @@ struct CometsTonightCard: View {
         .task(id: "\(store.orbits.count)|\(night?.duskStart?.timeIntervalSince1970 ?? 0)") {
             await store.refreshIfNeeded()
             guard let night else { return }
-            let orbits = store.orbits, lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude
-            list = await Task.detached { Comets.visible(orbits, night: night, lat: lat, lon: lon, minAltitude: minAlt) }.value
+            let orbits = store.orbits, lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude, hz = settings.horizon
+            list = await Task.detached { Comets.visible(orbits, night: night, lat: lat, lon: lon, minAltitude: minAlt, horizon: hz) }.value
         }
     }
 

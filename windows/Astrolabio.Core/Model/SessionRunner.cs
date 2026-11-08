@@ -240,14 +240,21 @@ public sealed class SessionRunner : Observable
             var label = plabel.Length == 0 ? item.Name : $"{item.Name}_{plabel}";
             var now = Astro.PrecessFromJ2000(pra, pdec, DateTime.UtcNow);
             double AltAt(DateTime t) => Astro.AltAz(now.Ra, now.Dec, t, s.Latitude, s.Longitude).Alt;
+            var limit = s.SkyLimit;
+            bool Visible(DateTime t) => limit.Clear(now.Ra, now.Dec, t, s.Latitude, s.Longitude);
             var alt = AltAt(DateTime.UtcNow);
-            if (alt < s.MinAltitude)
+            if (!Visible(DateTime.UtcNow))
             {
-                var rising = Enumerable.Range(1, 9).Any(k => { var t = DateTime.UtcNow.AddMinutes(10 * k); return AltAt(t) >= s.MinAltitude && Astro.SunAltitude(t, s.Latitude, s.Longitude) < -18; });
-                if (!rising) { Say(c, Strings.T("%@ está demasiado bajo (%@°). Se salta.", label, (int)alt)); continue; }
+                var rising = Enumerable.Range(1, 9).Any(k => { var t = DateTime.UtcNow.AddMinutes(10 * k); return Visible(t) && Astro.SunAltitude(t, s.Latitude, s.Longitude) < -18; });
+                var hidden = alt >= s.MinAltitude;     // alto, pero detrás del horizonte propio
+                if (!rising)
+                {
+                    Say(c, hidden ? Strings.T("%@ está tapado por tu horizonte. Se salta.", label) : Strings.T("%@ está demasiado bajo (%@°). Se salta.", label, (int)alt));
+                    continue;
+                }
                 SetPhase(RunPhase.WaitingTarget);
-                Say(c, Strings.T("%@ está a %@°; esperando a que suba.", label, (int)alt));
-                while (alt < s.MinAltitude) { await Task.Delay(60_000, ct); if (_skip) return (any, lastFocus); alt = AltAt(DateTime.UtcNow); }
+                Say(c, hidden ? Strings.T("%@ está detrás de tu horizonte; esperando a que salga.", label) : Strings.T("%@ está a %@°; esperando a que suba.", label, (int)alt));
+                while (!Visible(DateTime.UtcNow)) { await Task.Delay(60_000, ct); if (_skip) return (any, lastFocus); }
             }
             var remaining = remainingByPanel[panelIndex];
             var needGoto = true;
@@ -362,8 +369,9 @@ public sealed class SessionRunner : Observable
                     SetPhase(RunPhase.Stacking);
                 }
                 if (StopAtDawn && !IsDark(s)) { Say(c, Strings.T("Amanece: fin del apilado.")); try { await c.StopStack(); } catch { } return (true, lastFocus); }
-                var altNow = AltAt(DateTime.UtcNow);
-                if (altNow < s.MinAltitude - 5) { Say(c, Strings.T("%@ ha bajado a %@°. Siguiente.", label, (int)altNow)); break; }
+                var aaNow = Astro.AltAz(now.Ra, now.Dec, DateTime.UtcNow, s.Latitude, s.Longitude);
+                if (aaNow.Alt < s.MinAltitude - 5) { Say(c, Strings.T("%@ ha bajado a %@°. Siguiente.", label, (int)aaNow.Alt)); break; }
+                if (aaNow.Alt < s.Horizon.AltitudeAt(aaNow.Az) - 2) { Say(c, Strings.T("%@ se ha escondido tras tu horizonte. Siguiente.", label)); break; }
             }
             try { await c.StopStack(); } catch { }
             Say(c, Strings.T("Terminado %@.", label));

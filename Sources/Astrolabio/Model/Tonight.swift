@@ -19,18 +19,19 @@ final class TonightModel: ObservableObject {
 
     /// Recalcula si ha cambiado el lugar, los ajustes, la previsión o ha pasado más de media hora.
     func update(settings: AppSettings, weather: [WeatherHour], force: Bool = false) async {
-        let newKey = "\(settings.latitude),\(settings.longitude),\(settings.minAltitude),\(settings.fovWidthDeg),\(settings.fovHeightDeg),\(weather.count),\(weather.first?.time.timeIntervalSince1970 ?? 0)"
+        let newKey = "\(settings.latitude),\(settings.longitude),\(settings.minAltitude),\(settings.fovWidthDeg),\(settings.fovHeightDeg),\(settings.horizon.altitudes),\(weather.count),\(weather.first?.time.timeIntervalSince1970 ?? 0)"
         if !force, newKey == key, let c = computedAt, Date().timeIntervalSince(c) < 1800 { return }
         key = newKey
         isComputing = true
         defer { isComputing = false }
         let lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude
         let fov = (w: settings.fovWidthDeg, h: settings.fovHeightDeg)
+        let horizon = settings.horizon
         let n = Astro.night(for: Date(), lat: lat, lon: lon)
         night = n
         forecasts = await Task.detached(priority: .userInitiated) {
             Planner.evaluate(objects: Catalog.featured, night: n, lat: lat, lon: lon,
-                             minAltitude: minAlt, fov: fov, weather: weather)
+                             minAltitude: minAlt, fov: fov, weather: weather, horizon: horizon)
         }.value
         computedAt = Date()
     }
@@ -86,7 +87,7 @@ enum PickStyle: String, CaseIterable, Identifiable {
 enum Picker4Me {
     /// Devuelve las sugerencias ordenadas para el estilo pedido.
     static func suggestions(from forecasts: [TargetForecast], night: Astro.Night?, style: PickStyle,
-                            lat: Double, lon: Double, minAltitude: Double, now: Date = Date()) -> [Suggestion] {
+                            lat: Double, lon: Double, minAltitude: Double, horizon: Horizon = .flat, now: Date = Date()) -> [Suggestion] {
         // Si aún no es de noche, se sugiere para el inicio de la noche cerrada.
         var start = now
         if let dusk = night?.duskStart, now < dusk { start = dusk }
@@ -96,14 +97,15 @@ enum Picker4Me {
         var out: [Suggestion] = []
         for f in forecasts where f.score > 0 {
             let alt = Ephemeris.altitudeOfFixed(raJ2000: f.object.raHours, decJ2000: f.object.decDeg, lat: lat, lon: lon)
+            let clear = SkyLimit(minAltitude: minAltitude, horizon: horizon).clearFixed(raJ2000: f.object.raHours, decJ2000: f.object.decDeg, lat: lat, lon: lon)
             let a0 = alt(start)
-            guard a0 >= minAltitude else { continue }
+            guard clear(start) else { continue }
             var remaining = 0.0
             var t = start
             var peak = a0, peakTime = start
             while t < end {
                 let a = alt(t)
-                if a < minAltitude { break }
+                if !clear(t) { break }
                 if a > peak { peak = a; peakTime = t }
                 remaining += 10
                 t = t.addingTimeInterval(600)
@@ -154,7 +156,7 @@ enum Picker4Me {
     /// Plan sencillo para el resto de la noche: reparte el tiempo entre objetos que estén altos
     /// en cada tramo, sin repetir.
     static func shortPlan(from forecasts: [TargetForecast], night: Astro.Night?, lat: Double, lon: Double,
-                          minAltitude: Double, maxTargets: Int = 3, now: Date = Date()) -> [PlanItem] {
+                          minAltitude: Double, horizon: Horizon = .flat, maxTargets: Int = 3, now: Date = Date()) -> [PlanItem] {
         var start = now
         if let dusk = night?.duskStart, now < dusk { start = dusk }
         guard let end = night?.dawnEnd, end > start.addingTimeInterval(1800) else { return [] }
@@ -170,8 +172,9 @@ enum Picker4Me {
                 .filter { !used.contains($0.id) && $0.score > 0 }
                 .compactMap { f -> (TargetForecast, Double)? in
                     let alt = Ephemeris.altitudeOfFixed(raJ2000: f.object.raHours, decJ2000: f.object.decDeg, lat: lat, lon: lon)
+                    let clear = SkyLimit(minAltitude: minAltitude, horizon: horizon).clearFixed(raJ2000: f.object.raHours, decJ2000: f.object.decDeg, lat: lat, lon: lon)
                     let a1 = alt(s), a2 = alt(s.addingTimeInterval(slot / 2)), a3 = alt(e)
-                    guard min(a1, a2, a3) >= minAltitude else { return nil }
+                    guard clear(s), clear(s.addingTimeInterval(slot / 2)), clear(e) else { return nil }
                     return (f, f.score + (a1 + a2 + a3) / 9)
                 }
                 .max { $0.1 < $1.1 }

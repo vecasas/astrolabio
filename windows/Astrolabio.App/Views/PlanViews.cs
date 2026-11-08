@@ -122,6 +122,9 @@ public sealed class SessionView : UserControl
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,380"), ColumnSpacing = 14 };
         var left = Ui.V(Ui.Card(Ui.T("Planificar la noche"), list, Ui.H(Ui.Button(Ui.T("Reiniciar estados"), () => { foreach (var i in st.Plan.Items) { i.Status = PlanItem.ItemStatus.Pending; i.StackedFrames = 0; } st.Plan.Save(); FillPlan(); }),
             Ui.Button(Ui.T("Vaciar"), () => { st.Plan.Items.Clear(); st.Plan.Save(); FillPlan(); }))));
+        var timeline = new TimelineCard(FillPlan);
+        r.PropertyChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(timeline.Redraw);
+        left.Children.Add(timeline);
         var right = Ui.V(run, Ui.Card(Ui.T("Qué está pasando"), log));
         Grid.SetColumn(right, 1);
         grid.Children.Add(left); grid.Children.Add(right);

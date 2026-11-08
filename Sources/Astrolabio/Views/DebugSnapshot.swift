@@ -28,6 +28,9 @@ enum DebugSnapshot {
             if only?.contains("settings") == true {
                 if let s = settings, let c = client {
                     let host = NSHostingView(rootView: SettingsView().environmentObject(s).environmentObject(c)
+                        .environmentObject(PlanStore(url: FileManager.default.temporaryDirectory.appendingPathComponent("snap-plan.json")))
+                        .environmentObject(ObservationLog(storage: FileManager.default.temporaryDirectory.appendingPathComponent("snap-history.json")))
+                        .environmentObject(ProjectStore(url: FileManager.default.temporaryDirectory.appendingPathComponent("snap-projects.json")))
                         .preferredColorScheme(.dark).tint(Theme.accent).frame(width: 640, height: 1500))
                     let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 640, height: 1500), styleMask: [.titled], backing: .buffered, defer: false)
                     w.contentView = host

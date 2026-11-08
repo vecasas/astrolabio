@@ -17,13 +17,14 @@ struct CaptureAdvice: Equatable {
     ///   30 s para los débiles o cuando se usa el filtro LP, que quita luz.
     /// - Filtro LP: nebulosas de emisión, planetarias y restos de supernova.
     static func make(for obj: DeepSkyObject, lat: Double, lon: Double, minAltitude: Double,
-                     night: Astro.Night?, gain: Int, maxExposureMs: Int = 30_000, now: Date = Date()) -> CaptureAdvice {
+                     night: Astro.Night?, gain: Int, maxExposureMs: Int = 30_000, horizon: Horizon = .flat, now: Date = Date()) -> CaptureAdvice {
         let alt = Ephemeris.altitudeOfFixed(raJ2000: obj.raHours, decJ2000: obj.decDeg, lat: lat, lon: lon)
+        let clear = SkyLimit(minAltitude: minAltitude, horizon: horizon).clearFixed(raJ2000: obj.raHours, decJ2000: obj.decDeg, lat: lat, lon: lon)
         let a0 = alt(now)
         let end = night?.dawnEnd.flatMap { $0 > now ? $0 : nil } ?? now.addingTimeInterval(8 * 3600)
         var remaining = 0.0
         var t = now
-        while t < end, alt(t) >= minAltitude { remaining += 5; t = t.addingTimeInterval(300) }
+        while t < end, clear(t) { remaining += 5; t = t.addingTimeInterval(300) }
 
         let lp = [.nebula, .snr, .planetary].contains(obj.kind)
         var exp: Int
@@ -186,7 +187,7 @@ struct GotoConfirmSheet: View {
     private func compute() {
         let g = client.currentGain ?? settings.gain
         let a = CaptureAdvice.make(for: object, lat: settings.latitude, lon: settings.longitude,
-                                   minAltitude: settings.minAltitude, night: tonight.night, gain: g)
+                                   minAltitude: settings.minAltitude, night: tonight.night, gain: g, horizon: settings.horizon)
         advice = a
         minutes = a.minutes
         exposureMs = a.exposureMs
@@ -232,7 +233,7 @@ struct AdviceSummary: View {
     var body: some View {
         let a = CaptureAdvice.make(for: object, lat: settings.latitude, lon: settings.longitude,
                                    minAltitude: settings.minAltitude, night: tonight.night,
-                                   gain: client.currentGain ?? settings.gain)
+                                   gain: client.currentGain ?? settings.gain, horizon: settings.horizon)
         HStack(spacing: 6) {
             Pill(text: tr("%.0f min", a.minutes), systemImage: "timer", color: Theme.accentSoft)
             Pill(text: "\(a.exposureMs / 1000) s", systemImage: "camera.shutter.button", color: Theme.accentSoft)

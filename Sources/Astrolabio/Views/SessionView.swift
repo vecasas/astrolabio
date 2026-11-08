@@ -13,10 +13,15 @@ struct SessionView: View {
 
     var body: some View {
         HSplitView {
-            VStack(alignment: .leading, spacing: 0) {
-                planList
-                Divider()
-                planFooter.padding(12)
+            VSplitView {
+                VStack(alignment: .leading, spacing: 0) {
+                    planList
+                    Divider()
+                    planFooter.padding(12)
+                }
+                .frame(minHeight: 200)
+                ScrollView { PlanTimelineView().padding(12) }
+                    .frame(minHeight: 180)
             }
             .frame(minWidth: 400, idealWidth: 600)
             VStack(alignment: .leading, spacing: 12) {

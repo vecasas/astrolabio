@@ -241,6 +241,13 @@ final class ObservationLog: ObservableObject {
     }
 
     /// Añade un registro a mano (por ejemplo, de una sesión hecha con otra app).
+    /// Sustituye todo el historial (al restaurar una copia de seguridad).
+    func replaceAll(_ list: [ObservationRecord]) {
+        current = nil
+        records = list.sorted { $0.start < $1.start }
+        save()
+    }
+
     func add(_ r: ObservationRecord) {
         records.append(r)
         records.sort { $0.start < $1.start }

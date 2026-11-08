@@ -39,6 +39,7 @@ struct AstrolabioApp: App {
     @ObservedObject private var loc = Loc.shared
     @State private var health = HealthMonitor()
     @StateObject private var nightGuard = NightGuard()
+    @StateObject private var projects = ProjectStore()
 
     var body: some Scene {
         WindowGroup("Astrolabio", id: "main") {
@@ -55,6 +56,7 @@ struct AstrolabioApp: App {
                 .environmentObject(nav)
                 .environmentObject(history)
                 .environmentObject(nightGuard)
+                .environmentObject(projects)
                 .preferredColorScheme(.dark)
                 .nightMode(settings)
                 .frame(minWidth: 1180, minHeight: 760)
@@ -100,6 +102,9 @@ struct AstrolabioApp: App {
                 .id(loc.revision)
                 .environmentObject(settings)
                 .environmentObject(client)
+                .environmentObject(plan)
+                .environmentObject(history)
+                .environmentObject(projects)
                 .preferredColorScheme(.dark)
                 .tint(Theme.accent)
                 .nightMode(settings)

@@ -118,11 +118,11 @@ public sealed class PickView : UserControl
     private void Recompute()
     {
         var st = AppState.Instance; var s = st.Settings;
-        _list = PickForMe.Suggestions(st.Forecasts, st.Night, _style, s.Latitude, s.Longitude, s.MinAltitude);
+        _list = PickForMe.Suggestions(st.Forecasts, st.Night, _style, s.Latitude, s.Longitude, s.MinAltitude, horizon: s.Horizon);
         _hero.Content = _list.Count == 0
             ? Ui.Card(Ui.T("Sin sugerencias"), Ui.Caption(st.Forecasts.Count == 0 ? Ui.T("Calculando la noche…") : Ui.T("Ahora mismo no hay ningún objeto de este tipo lo bastante alto durante al menos 40 minutos. Prueba otro estilo o baja la altura mínima en Ajustes.")))
             : Hero(_list[_index % _list.Count]);
-        var plan = PickForMe.ShortPlan(st.Forecasts, st.Night, s.Latitude, s.Longitude, s.MinAltitude);
+        var plan = PickForMe.ShortPlan(st.Forecasts, st.Night, s.Latitude, s.Longitude, s.MinAltitude, horizon: s.Horizon);
         var rows = plan.Select((p, i) => (Control)Ui.Text($"{i + 1}. {Catalog.Find(p.Name)?.DisplayName ?? p.Name} · {(p.NotBefore is DateTime nb ? Ui.T("desde las %@", nb.ToLocalTime().ToString("t", Strings.Culture)) : Ui.T("Ahora"))} · {p.Minutes:F0} min{(p.LpFilter ? " · LP" : "")}", 13)).ToList();
         if (plan.Count > 0) rows.Add(Ui.Button(Ui.T("Añadir al plan y abrir Sesión automática"), () => { st.Plan.Items.AddRange(plan); st.Plan.Save(); _main.Navigate(Section.Session); }, true));
         else rows.Add(Ui.Caption(Ui.T("No queda suficiente noche para un plan (o aún se está calculando).")));

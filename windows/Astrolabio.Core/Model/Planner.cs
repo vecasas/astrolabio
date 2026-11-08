@@ -20,8 +20,9 @@ public sealed record TargetForecast(DeepSkyObject Object, double MinutesUsable, 
 public static class Planner
 {
     public static List<TargetForecast> Evaluate(IEnumerable<DeepSkyObject> objects, Astro.Night night, double lat, double lon,
-        double minAltitude, (double W, double H) fov, IReadOnlyList<WeatherHour> weather)
+        double minAltitude, (double W, double H) fov, IReadOnlyList<WeatherHour> weather, Horizon? horizon = null)
     {
+        horizon ??= Horizon.Flat;
         if (night.DuskStart is not DateTime start || night.DawnEnd is not DateTime end || end <= start) return [];
         const double step = 600;
         var times = new List<DateTime>();
@@ -38,9 +39,10 @@ public static class Planner
             DateTime? best = null, first = null, last = null;
             for (var i = 0; i < times.Count; i++)
             {
-                var alt = Astro.AltAz(now.Ra, now.Dec, times[i], lat, lon).Alt;
+                var aa = Astro.AltAz(now.Ra, now.Dec, times[i], lat, lon);
+                var alt = aa.Alt;
                 if (alt > maxAlt) { maxAlt = alt; best = times[i]; }
-                if (alt >= minAltitude)
+                if (horizon.IsVisible(alt, aa.Az, minAltitude))
                 {
                     usable += step / 60;
                     first ??= times[i]; last = times[i];

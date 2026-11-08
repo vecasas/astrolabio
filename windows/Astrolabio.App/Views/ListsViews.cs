@@ -59,7 +59,7 @@ public sealed class CometsTonightCard : UserControl
             await store.RefreshIfNeeded();
             var n = st.Night ?? Astro.NightFor(DateTime.Now, st.Settings.Latitude, st.Settings.Longitude);
             var s = st.Settings;
-            var list = await Task.Run(() => Comets.Visible(store.Orbits, n, s.Latitude, s.Longitude, s.MinAltitude));
+            var list = await Task.Run(() => Comets.Visible(store.Orbits, n, s.Latitude, s.Longitude, s.MinAltitude, horizon: s.Horizon));
             body.Children.Clear();
             if (list.Count == 0)
                 body.Children.Add(Ui.Caption(store.Orbits.Count == 0 ? store.Error ?? Ui.T("Descargando las órbitas de los cometas…")
@@ -101,7 +101,7 @@ public sealed class ListsView : UserControl
 
     public ListsView()
     {
-        var tabs = Ui.H(Ui.Button(Ui.T("Messier"), () => Show(ObservingList.Messier)), Ui.Button(Ui.T("Caldwell"), () => Show(ObservingList.Caldwell)),
+        var tabs = Ui.H(Ui.Button(Ui.T("Proyectos"), () => _body.Content = new ProjectsPanel(_msg)), Ui.Button(Ui.T("Messier"), () => Show(ObservingList.Messier)), Ui.Button(Ui.T("Caldwell"), () => Show(ObservingList.Caldwell)),
             Ui.Button(Ui.T("Maratón Messier"), ShowMarathon));
         Content = Ui.Scroll(Ui.V(tabs, _msg, _body));
         _ = Init();
@@ -116,7 +116,7 @@ public sealed class ListsView : UserControl
             var d = new Dictionary<string, double>();
             foreach (var l in new[] { ObservingList.Messier, ObservingList.Caldwell })
                 foreach (var e in ObservingLists.Entries(l))
-                    if (e.Object is { } o) d[o.Id] = ObservingLists.UsableTonight(o, n, s.Latitude, s.Longitude, s.MinAltitude);
+                    if (e.Object is { } o) d[o.Id] = ObservingLists.UsableTonight(o, n, s.Latitude, s.Longitude, s.MinAltitude, s.Horizon);
             return d;
         });
         Show(ObservingList.Messier);
@@ -169,7 +169,7 @@ public sealed class ListsView : UserControl
         {
             var n = Astro.NightFor(date.SelectedDate ?? DateTime.Today, s.Latitude, s.Longitude);
             var m = (double)(minutes.Value ?? 4);
-            result = await Task.Run(() => Marathon.Plan(n, s.Latitude, s.Longitude, minutesPerObject: m));
+            result = await Task.Run(() => Marathon.Plan(n, s.Latitude, s.Longitude, minutesPerObject: m, horizon: s.Horizon));
             summary.Text = Ui.T("%@ de 110 objetos en orden · %@ no se pueden ver esa noche desde tu lugar", result.Steps.Count, result.Missed.Count);
             list.Children.Clear();
             foreach (var st2 in result.Steps)

@@ -138,6 +138,7 @@ public sealed class SettingsView : UserControl
                 Ui.Row(Ui.T("Zona de avisos"), zone),
                 Ui.Caption(Ui.T("La lista muestra las zonas con avisos en los últimos días; si la tuya no aparece, vuelve a mirar otro día.")),
                 Ui.Caption(Ui.T("Con la guardia activada, la sesión automática aparca el telescopio y espera 30 minutos sin avisos antes de seguir."))),
+            Ui.Card(Ui.T("Copia de seguridad"), new BackupPanel()),
             Ui.Card(Ui.T("Avisos al móvil"),
                 Cb(Ui.T("Avisar de batería baja, poca memoria o telescopio sin respuesta"), s.HealthAlerts, v => s.HealthAlerts = v),
                 Ui.Text(Ui.T("Astrolabio puede avisarte en el móvil de lo que pasa durante la noche, aunque estés lejos del Mac. **No hace falta número de teléfono ni crear una cuenta**: se usa ntfy, una app gratuita para iPhone y Android.").Replace("**", "").Replace("Mac", "PC"), 12, wrap: true),

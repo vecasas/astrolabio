@@ -35,7 +35,8 @@ enum Planner {
                          lat: Double, lon: Double,
                          minAltitude: Double,
                          fov: (w: Double, h: Double),
-                         weather: [WeatherHour]) -> [TargetForecast] {
+                         weather: [WeatherHour],
+                         horizon: Horizon = .flat) -> [TargetForecast] {
         guard let start = night.duskStart, let end = night.dawnEnd, end > start else { return [] }
         let step: TimeInterval = 600
         var times: [Date] = []
@@ -54,9 +55,10 @@ enum Planner {
             var first: Date?, last: Date?
             var cloudSum = 0.0, cloudN = 0.0
             for (i, tm) in times.enumerated() {
-                let alt = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: tm, lat: lat, lon: lon).alt
+                let aa = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: tm, lat: lat, lon: lon)
+                let alt = aa.alt
                 if alt > maxAlt { maxAlt = alt; best = tm }
-                if alt >= minAltitude {
+                if horizon.isVisible(altitude: alt, azimuth: aa.az, minAltitude: minAltitude) {
                     usable += step / 60
                     if first == nil { first = tm }
                     last = tm

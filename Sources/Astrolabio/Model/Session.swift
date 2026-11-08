@@ -345,23 +345,27 @@ final class SessionRunner: ObservableObject {
 
             // ¿Está el objeto lo bastante alto?
             let now = Astro.precessFromJ2000(raHours: panel.ra, decDeg: panel.dec, to: Date())
-            var alt = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: settings.latitude, lon: settings.longitude).alt
-            if alt < settings.minAltitude {
-                // Si va a subir en menos de 90 minutos, se espera; si no, se salta.
+            // Altura mínima y horizonte propio (árboles, tejados…).
+            let limit = settings.skyLimit
+            func visible(_ t: Date) -> Bool { limit.clear(raHours: now.ra, decDeg: now.dec, date: t, lat: settings.latitude, lon: settings.longitude) }
+            let alt = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: settings.latitude, lon: settings.longitude).alt
+            if !visible(Date()) {
+                // Si va a salir en menos de 90 minutos, se espera; si no, se salta.
                 let rising = (1...9).contains { k in
                     let tm = Date().addingTimeInterval(Double(k) * 600)
-                    return Astro.altAz(raHours: now.ra, decDeg: now.dec, date: tm, lat: settings.latitude, lon: settings.longitude).alt >= settings.minAltitude
-                        && Astro.isDark(tm, lat: settings.latitude, lon: settings.longitude)
+                    return visible(tm) && Astro.isDark(tm, lat: settings.latitude, lon: settings.longitude)
                 }
+                let hidden = alt >= settings.minAltitude     // alto, pero detrás del horizonte propio
                 if !rising {
-                    say(tr("%@ está demasiado bajo (%@°). Se salta.", "\(label)", "\(Int(alt))"))
+                    say(hidden ? tr("%@ está tapado por tu horizonte. Se salta.", "\(label)")
+                               : tr("%@ está demasiado bajo (%@°). Se salta.", "\(label)", "\(Int(alt))"))
                     continue
                 }
                 phase = .waitingTarget
-                say(tr("%@ está a %@°; esperando a que suba.", "\(label)", "\(Int(alt))"))
-                while alt < settings.minAltitude {
+                say(hidden ? tr("%@ está detrás de tu horizonte; esperando a que salga.", "\(label)")
+                           : tr("%@ está a %@°; esperando a que suba.", "\(label)", "\(Int(alt))"))
+                while !visible(Date()) {
                     if !(await sleep(60)) || skipRequested { return anyPanelDone }
-                    alt = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: settings.latitude, lon: settings.longitude).alt
                 }
             }
 
@@ -489,9 +493,13 @@ final class SessionRunner: ObservableObject {
                     try? await client.stopStack()
                     return true
                 }
-                let altNow = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: settings.latitude, lon: settings.longitude).alt
-                if altNow < settings.minAltitude - 5 {
-                    say(tr("%@ ha bajado a %@°. Siguiente.", "\(label)", "\(Int(altNow))"))
+                let aaNow = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: Date(), lat: settings.latitude, lon: settings.longitude)
+                if aaNow.alt < settings.minAltitude - 5 {
+                    say(tr("%@ ha bajado a %@°. Siguiente.", "\(label)", "\(Int(aaNow.alt))"))
+                    break
+                }
+                if aaNow.alt < settings.horizon.altitude(atAzimuth: aaNow.az) - 2 {
+                    say(tr("%@ se ha escondido tras tu horizonte. Siguiente.", "\(label)"))
                     break
                 }
             }

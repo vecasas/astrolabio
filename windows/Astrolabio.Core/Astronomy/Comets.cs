@@ -114,8 +114,9 @@ public static class Comets
 
     public sealed record Forecast(CometOrbit Orbit, CometPosition Position, double MaxAltitude, DateTime? Best, double UsableMinutes);
 
-    public static List<Forecast> Visible(IEnumerable<CometOrbit> orbits, Astro.Night night, double lat, double lon, double minAltitude, double maxMagnitude = 12)
+    public static List<Forecast> Visible(IEnumerable<CometOrbit> orbits, Astro.Night night, double lat, double lon, double minAltitude, double maxMagnitude = 12, Model.Horizon? horizon = null)
     {
+        var hz = horizon ?? Model.Horizon.Flat;
         if (night.DuskStart is not DateTime s || night.DawnEnd is not DateTime e || e <= s) return [];
         var mid = s + (e - s) / 2;
         var times = new List<DateTime>();
@@ -129,9 +130,9 @@ public static class Comets
             double maxAlt = -90, usable = 0; DateTime? best = null;
             foreach (var t in times)
             {
-                var alt = Astro.AltAz(now.Ra, now.Dec, t, lat, lon).Alt;
-                if (alt > maxAlt) { maxAlt = alt; best = t; }
-                if (alt >= minAltitude) usable += 15;
+                var aa = Astro.AltAz(now.Ra, now.Dec, t, lat, lon);
+                if (aa.Alt > maxAlt) { maxAlt = aa.Alt; best = t; }
+                if (hz.IsVisible(aa.Alt, aa.Az, minAltitude)) usable += 15;
             }
             if (usable > 0) o.Add(new Forecast(orb, p, maxAlt, best, usable));
         }

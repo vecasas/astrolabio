@@ -12,7 +12,7 @@ using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.App;
 
-public enum Section { Tonight, Pick, SkyChart, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Album, Stats, Reports, Weather, Log, Settings }
+public enum Section { Tonight, Pick, SkyChart, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Stats, Reports, Weather, Log, Settings }
 
 public sealed class MainWindow : Window
 {
@@ -21,7 +21,7 @@ public sealed class MainWindow : Window
         ("Esta noche", [(Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺")]),
         ("Observar", [(Section.Telescope, "Telescopio", "🎯"), (Section.Live, "Vista en directo", "📷")]),
         ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐"), (Section.Stacker, "Apilador planetario", "🎞")]),
-        ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑")]),
+        ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑"), (Section.Horizon, "Mi horizonte", "⛰")]),
         ("Archivo", [(Section.Album, "Álbum", "🖼"), (Section.Stats, "Estadísticas", "📊"), (Section.Reports, "Informes", "📄")]),
         ("Sistema", [(Section.Weather, "Tiempo", "⛅"), (Section.Log, "Registro", "📜"), (Section.Settings, "Ajustes", "⚙")]),
     ];
@@ -134,6 +134,7 @@ public sealed class MainWindow : Window
             Section.Album => new AlbumView(),
             Section.Stats => new StatsView(),
             Section.Lists => new ListsView(),
+            Section.Horizon => new HorizonView(),
             Section.Reports => new ReportsView(),
             Section.Weather => new WeatherView(),
             Section.Log => new LogView(),

@@ -270,6 +270,20 @@ struct SkyChartView: View {
                 if az == 0 { p.move(to: pt) } else { p.addLine(to: pt) }
             }
             sky.stroke(p, with: .color(Theme.warn.opacity(0.25)), style: StrokeStyle(lineWidth: 0.8, dash: [2, 4]))
+            // Horizonte propio: silueta de árboles y tejados.
+            let hz = settings.horizon
+            if !hz.isFlat {
+                var top = Path(), fill = Path()
+                for az in stride(from: 0.0, through: 360.0, by: 2.5) {
+                    let pt = proj.point(alt: hz.altitude(atAzimuth: az), az: az)
+                    if az == 0 { top.move(to: pt) } else { top.addLine(to: pt) }
+                }
+                fill.addPath(top)
+                for az in stride(from: 360.0, through: 0.0, by: -5) { fill.addLine(to: proj.point(alt: 0, az: az)) }
+                fill.closeSubpath()
+                sky.fill(fill, with: .color(Color(red: 0.05, green: 0.12, blue: 0.08).opacity(0.75)))
+                sky.stroke(top, with: .color(Color.green.opacity(0.55)), lineWidth: 1.2)
+            }
         }
 
         if showLines {

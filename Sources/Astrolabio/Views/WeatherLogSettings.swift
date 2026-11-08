@@ -258,6 +258,9 @@ struct SettingsView: View {
                 Text(tr("Con la guardia activada, la sesión automática aparca el telescopio y espera 30 minutos sin avisos antes de seguir."))
                     .font(.caption).foregroundStyle(.secondary)
             }
+            SwiftUI.Section(tr("Copia de seguridad")) {
+                BackupSettings()
+            }
             SwiftUI.Section(tr("Avisos al móvil")) {
                 PhoneAlertsSettings(testMessage: $testMessage)
                 Toggle(tr("Avisar de batería baja, poca memoria o telescopio sin respuesta"), isOn: $settings.healthAlerts)
@@ -432,5 +435,63 @@ struct AlertZonePicker: View {
         }
         Text(tr("La lista muestra las zonas con avisos en los últimos días; si la tuya no aparece, vuelve a mirar otro día."))
             .font(.caption2).foregroundStyle(.tertiary)
+    }
+}
+
+/// Copia de seguridad y restauración de ajustes, horizontes, plan, proyectos e historial (nunca la clave PEM).
+@MainActor
+struct BackupSettings: View {
+    @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var plan: PlanStore
+    @EnvironmentObject var history: ObservationLog
+    @EnvironmentObject var projects: ProjectStore
+    @State private var message = ""
+
+    var body: some View {
+        HStack {
+            Button(tr("Guardar una copia…")) { export() }
+            Button(tr("Restaurar una copia…")) { restore() }
+        }
+        Text(tr("Incluye los ajustes, tus horizontes, el plan, los proyectos y el historial de sesiones. La clave PEM no se copia nunca: tendrás que volver a elegirla."))
+            .font(.caption).foregroundStyle(.secondary)
+        if !message.isEmpty { Text(message).font(.caption).foregroundStyle(Theme.accentSoft) }
+    }
+
+    private func export() {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.json]
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd"
+        panel.nameFieldStringValue = "Astrolabio-copia-\(f.string(from: Date())).json"
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let b = BackupFile.make(defaults: .standard, plan: plan.items, projects: projects.projects, history: history.records)
+            try b.encoded().write(to: url, options: .atomic)
+            message = tr("Copia guardada: %@ sesiones, %@ objetos en el plan y %@ proyectos.", "\(b.history.count)", "\(b.plan.count)", "\(b.projects.count)")
+        } catch { message = error.localizedDescription }
+    }
+
+    private func restore() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+            guard size <= BackupFile.maxBytes else { throw BackupFile.RestoreError.tooBig }
+            let b = try BackupFile.decode(try Data(contentsOf: url))
+            let a = NSAlert()
+            a.messageText = tr("¿Restaurar esta copia?")
+            a.informativeText = tr("Copia del %@ con %@ sesiones, %@ objetos en el plan y %@ proyectos. Sustituirá lo que tienes ahora. Astrolabio se cerrará para cargarla.",
+                                   b.created.formatted(Date.FormatStyle(date: .long, time: .shortened, locale: Loc.shared.locale)),
+                                   "\(b.history.count)", "\(b.plan.count)", "\(b.projects.count)")
+            a.addButton(withTitle: tr("Restaurar"))
+            a.addButton(withTitle: tr("Cancelar"))
+            guard a.runModal() == .alertFirstButtonReturn else { return }
+            b.applySettings(to: .standard)
+            plan.items = b.plan
+            projects.projects = b.projects
+            history.replaceAll(b.history)
+            UserDefaults.standard.synchronize()
+            NSApp.terminate(nil)
+        } catch { message = error.localizedDescription }
     }
 }

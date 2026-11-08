@@ -632,3 +632,69 @@ public class ListsAndCometsTests
         Assert.Contains("\"sí\",\"300\"", csv);
     }
 }
+
+public class HorizonPlanTests
+{
+    [Fact]
+    public void HorizonInterpolatesAndParses()
+    {
+        var h = new Horizon();
+        Assert.True(h.IsFlat);
+        h.Set(180, 40);
+        Assert.Equal(40, h.AltitudeAt(180));
+        Assert.Equal(20, h.AltitudeAt(185), 6);
+        Assert.False(h.IsVisible(30, 180, 15));
+        Assert.True(h.IsVisible(30, 90, 15));
+        Assert.Equal(h.Altitudes, Horizon.Parse(h.Text())!.Altitudes);
+        var other = Horizon.Parse("# x\n0;10\n90,30\n180\t10\n270 30\n")!;
+        Assert.Equal(20, other.AltitudeAt(45), 6);
+        Assert.Null(Horizon.Parse("10 20"));
+    }
+
+    [Fact]
+    public void PlannerAndTimelineUseTheHorizon()
+    {
+        var night = Astro.NightFor(new DateTime(2026, 11, 8, 18, 0, 0), 40.48, -3.36);
+        var m42 = Catalog.Find("M42")!;
+        var open = Planner.Evaluate([m42], night, 40.48, -3.36, 15, (0.73, 1.29), []);
+        var wall = new Horizon(Enumerable.Range(0, 36).Select(i => i is >= 9 and <= 27 ? 60.0 : 0));
+        var blocked = Planner.Evaluate([m42], night, 40.48, -3.36, 15, (0.73, 1.29), [], wall);
+        Assert.True(blocked[0].MinutesUsable < open[0].MinutesUsable / 2);
+        var dusk = night.DuskStart!.Value;
+        var a = new PlanItem { Name = "M31", RaHours = 0.71, DecDeg = 41.27, Minutes = 60, DoneSeconds = 1800 };
+        var b = new PlanItem { Name = "M42", RaHours = 5.59, DecDeg = -5.39, Minutes = 30, NotBefore = dusk.AddHours(3) };
+        var c = new PlanItem { Name = "M33", RaHours = 1.56, DecDeg = 30.66, Minutes = 900 };
+        var slots = PlanTimeline.Schedule([a, b, c], night, dusk.AddHours(-1), new SkyLimit(15, Horizon.Flat), 40.48, -3.36);
+        Assert.Equal(3, slots.Count);
+        Assert.Equal(dusk, slots[0].Start);
+        Assert.Equal(35, (slots[0].End - dusk).TotalMinutes, 3);
+        Assert.True(slots[1].WaitMinutes > 60);
+        Assert.True(slots[2].AfterDawn);
+    }
+
+    [Fact]
+    public void ProjectsAndBackup()
+    {
+        var t = DateTime.UtcNow;
+        var recs = new List<ObservationRecord>
+        {
+            new(Guid.NewGuid(), "M 31", t.AddDays(-3), t.AddDays(-3).AddHours(1), 360, 10_000),
+            new(Guid.NewGuid(), "M31", t.AddHours(-1), t, 180, 10_000),
+        };
+        var p = ProjectStore.Progress("M31", recs);
+        Assert.Equal(1.5, p.Hours, 3);
+        Assert.Equal(2, p.Nights);
+        Assert.Equal(120, ProjectStore.MinutesForTonight(10, 1.5));
+        var s = new AppSettings { SiteName = "Casa", PemPath = "/yo/clave.pem" };
+        s.Horizons["x"] = new Horizon(Enumerable.Repeat(12.0, 36));
+        var json = BackupFile.Make(s, [new PlanItem { Name = "M42" }], [new Project { ObjectId = "M31" }], recs).Encoded();
+        Assert.DoesNotContain("clave.pem", json);
+        var back = BackupFile.Decode(json);
+        Assert.Equal(2, back.History.Count);
+        var restored = back.RestoredSettings(new AppSettings { PemPath = "/otra.pem" });
+        Assert.Equal("Casa", restored.SiteName);
+        Assert.Equal("/otra.pem", restored.PemPath);
+        Assert.Equal(12, restored.Horizons["x"].Altitudes[0]);
+        Assert.Throws<InvalidDataException>(() => BackupFile.Decode("{}"));
+    }
+}

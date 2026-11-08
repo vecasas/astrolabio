@@ -128,7 +128,7 @@ struct PlannerView: View {
                     Text(tr("%@ · magnitud %@ · %@′", "\(f.object.kind.label)", "\(String(format: "%.1f", f.object.magnitude))", "\(String(format: "%.0f", f.object.sizeArcmin))"))
                         .foregroundStyle(.secondary)
                     AltitudeChart(object: f.object, start: start, end: end, night: n,
-                                  lat: settings.latitude, lon: settings.longitude, minAlt: settings.minAltitude)
+                                  lat: settings.latitude, lon: settings.longitude, minAlt: settings.minAltitude, horizon: settings.horizon)
                         .frame(height: 220)
                     InfoRow(label: tr("AR / Dec (J2000)"), value: "\(Astro.formatRA(f.object.raHours))  \(Astro.formatDec(f.object.decDeg))")
                     InfoRow(label: tr("Ventana útil"), value: "\(f.windowStart?.shortTime ?? "—") – \(f.windowEnd?.shortTime ?? "—")")
@@ -168,10 +168,10 @@ struct PlannerView: View {
         }
         let lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude
         let fov = (w: settings.fovWidthDeg, h: settings.fovHeightDeg)
-        let w = weather
+        let w = weather, hz = settings.horizon
         forecasts = await Task.detached {
             Planner.evaluate(objects: Catalog.objects, night: n, lat: lat, lon: lon,
-                             minAltitude: minAlt, fov: fov, weather: w)
+                             minAltitude: minAlt, fov: fov, weather: w, horizon: hz)
         }.value
     }
 }
@@ -185,6 +185,7 @@ struct AltitudeChart: View {
     let lat: Double
     let lon: Double
     let minAlt: Double
+    var horizon: Horizon = .flat
 
     struct Point: Identifiable { let id = UUID(); let t: Date; let alt: Double; let series: String }
 
@@ -193,7 +194,10 @@ struct AltitudeChart: View {
         var t = start
         while t <= end {
             let now = Astro.precessFromJ2000(raHours: object.raHours, decDeg: object.decDeg, to: t)
-            out.append(Point(t: t, alt: Astro.altAz(raHours: now.ra, decDeg: now.dec, date: t, lat: lat, lon: lon).alt, series: tr("Objeto")))
+            let aa = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: t, lat: lat, lon: lon)
+            out.append(Point(t: t, alt: aa.alt, series: tr("Objeto")))
+            // Altura de tu horizonte en la dirección del objeto: por debajo de esta línea queda tapado.
+            if !horizon.isFlat { out.append(Point(t: t, alt: horizon.altitude(atAzimuth: aa.az), series: tr("Tu horizonte"))) }
             let m = Astro.moon(t)
             out.append(Point(t: t, alt: Astro.altAz(raHours: m.ra, decDeg: m.dec, date: t, lat: lat, lon: lon).alt, series: tr("Luna")))
             t = t.addingTimeInterval(900)
@@ -217,7 +221,7 @@ struct AltitudeChart: View {
         }
         .chartYScale(domain: 0...90)
         .chartPlotStyle { $0.clipped() }
-        .chartForegroundStyleScale([tr("Objeto"): Color.accentColor, tr("Luna"): Color.gray])
+        .chartForegroundStyleScale([tr("Objeto"): Color.accentColor, tr("Luna"): Color.gray, tr("Tu horizonte"): Color.green.opacity(0.7)])
         .chartXAxis { AxisMarks(values: .stride(by: .hour, count: 2)) { _ in AxisGridLine(); AxisValueLabel(format: .dateTime.hour()) } }
     }
 }

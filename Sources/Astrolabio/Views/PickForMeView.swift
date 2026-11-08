@@ -74,10 +74,10 @@ struct PickForMeView: View {
     private func recompute() {
         suggestions = Picker4Me.suggestions(from: tonight.forecasts, night: tonight.night, style: style,
                                             lat: settings.latitude, lon: settings.longitude,
-                                            minAltitude: settings.minAltitude)
+                                            minAltitude: settings.minAltitude, horizon: settings.horizon)
         shortPlan = Picker4Me.shortPlan(from: tonight.forecasts, night: tonight.night,
                                         lat: settings.latitude, lon: settings.longitude,
-                                        minAltitude: settings.minAltitude)
+                                        minAltitude: settings.minAltitude, horizon: settings.horizon)
     }
 
     private func hero(_ s: Suggestion) -> some View {
@@ -110,7 +110,7 @@ struct PickForMeView: View {
             }
             let adv = CaptureAdvice.make(for: obj, lat: settings.latitude, lon: settings.longitude,
                                          minAltitude: settings.minAltitude, night: tonight.night,
-                                         gain: client.currentGain ?? settings.gain, now: s.start)
+                                         gain: client.currentGain ?? settings.gain, horizon: settings.horizon, now: s.start)
             HStack(spacing: 14) {
                 StatTile(title: tr("Duración sugerida"), value: tr("%.0f min", adv.minutes), systemImage: "timer")
                 StatTile(title: tr("Exposición"), value: "\(adv.exposureMs / 1000) s", systemImage: "camera.shutter.button",

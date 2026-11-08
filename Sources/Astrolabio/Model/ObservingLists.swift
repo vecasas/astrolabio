@@ -93,11 +93,12 @@ enum ObservingLists {
     }
 
     /// Minutos útiles esta noche por encima de la altura mínima.
-    static func usableTonight(_ o: DeepSkyObject, night: Astro.Night, lat: Double, lon: Double, minAltitude: Double) -> Double {
+    static func usableTonight(_ o: DeepSkyObject, night: Astro.Night, lat: Double, lon: Double, minAltitude: Double,
+                              horizon: Horizon = .flat) -> Double {
         guard let s = night.duskStart, let e = night.dawnEnd, e > s else { return 0 }
-        let f = Ephemeris.altitudeOfFixed(raJ2000: o.raHours, decJ2000: o.decDeg, lat: lat, lon: lon)
+        let clear = SkyLimit(minAltitude: minAltitude, horizon: horizon).clearFixed(raJ2000: o.raHours, decJ2000: o.decDeg, lat: lat, lon: lon)
         var t = s, minutes = 0.0
-        while t <= e { if f(t) >= minAltitude { minutes += 15 }; t = t.addingTimeInterval(900) }
+        while t <= e { if clear(t) { minutes += 15 }; t = t.addingTimeInterval(900) }
         return minutes
     }
 
@@ -133,7 +134,7 @@ enum Marathon {
     /// visibles, el que antes deja de verse (los que se ponen por el oeste al anochecer primero; los
     /// que salen por el este al amanecer, al final). Devuelve el orden y los que no se pueden ver.
     static func plan(night: Astro.Night, lat: Double, lon: Double, minAltitude: Double = 10,
-                     minutesPerObject: Double = 4) -> (steps: [MarathonStep], missed: [DeepSkyObject]) {
+                     minutesPerObject: Double = 4, horizon: Horizon = .flat) -> (steps: [MarathonStep], missed: [DeepSkyObject]) {
         let objects = (1...110).compactMap { Catalog.find("M\($0)") }
         // Para el maratón vale el crepúsculo náutico (el Sol a −12°): los primeros y los últimos están en él.
         guard let start = night.nauticalDusk ?? night.duskStart,
@@ -145,9 +146,13 @@ enum Marathon {
         var t = start
         while t <= end { times.append(t); t = t.addingTimeInterval(step) }
         // Altura de cada objeto en cada instante.
+        // Altura útil: la real, o −90 si está detrás del horizonte propio.
         let alts: [[Double]] = objects.map { o in
-            let f = Ephemeris.altitudeOfFixed(raJ2000: o.raHours, decJ2000: o.decDeg, lat: lat, lon: lon)
-            return times.map { f($0) }
+            let now = Astro.precessFromJ2000(raHours: o.raHours, decDeg: o.decDeg, to: start)
+            return times.map { t in
+                let aa = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: t, lat: lat, lon: lon)
+                return aa.alt >= horizon.altitude(atAzimuth: aa.az) ? aa.alt : -90
+            }
         }
         func lastVisible(_ i: Int, from k: Int) -> Int {
             var j = k

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Astrolabio.Core.Astronomy;
@@ -63,6 +64,19 @@ public sealed class AppSettings : Observable
     public bool StormGuard { get; set; } = true;
     public string AlertCountry { get; set; } = "spain";
     public string AlertZone { get; set; } = "";
+    /// <summary>Horizontes dibujados, uno por lugar (clave: latitud y longitud redondeadas).</summary>
+    public Dictionary<string, Horizon> Horizons { get; set; } = new();
+
+    public static string SiteKey(double lat, double lon) => string.Create(CultureInfo.InvariantCulture, $"{lat:F3},{lon:F3}");
+
+    [JsonIgnore]
+    public Horizon Horizon
+    {
+        get => Horizons.TryGetValue(SiteKey(Latitude, Longitude), out var h) ? h : Horizon.Flat;
+        set { if (value.IsFlat) Horizons.Remove(SiteKey(Latitude, Longitude)); else Horizons[SiteKey(Latitude, Longitude)] = value; }
+    }
+
+    [JsonIgnore] public SkyLimit SkyLimit => new(MinAltitude, Horizon);
 
     [JsonIgnore] public GotoSafety.Limits GotoLimits => new(Latitude, Longitude, GotoMinAltitude, Math.Max(GotoSafety.SunSeparationFloor, SunSafetyDeg));
 

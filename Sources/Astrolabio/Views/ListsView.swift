@@ -10,7 +10,7 @@ struct ListsView: View {
     @EnvironmentObject var plan: PlanStore
 
     enum Tab: String, CaseIterable, Identifiable {
-        case messier = "Messier", caldwell = "Caldwell", marathon = "Maratón Messier"
+        case projects = "Proyectos", messier = "Messier", caldwell = "Caldwell", marathon = "Maratón Messier"
         var id: String { rawValue }
     }
 
@@ -33,15 +33,16 @@ struct ListsView: View {
             case .messier: listView(.messier)
             case .caldwell: listView(.caldwell)
             case .marathon: MarathonView(message: $message)
+            case .projects: ProjectsView(message: $message)
             }
         }
         .padding(20)
-        .task(id: "\(settings.latitude),\(settings.longitude),\(settings.minAltitude)") {
-            let n = night, lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude
+        .task(id: "\(settings.latitude),\(settings.longitude),\(settings.minAltitude),\(settings.horizon.altitudes)") {
+            let n = night, lat = settings.latitude, lon = settings.longitude, minAlt = settings.minAltitude, hz = settings.horizon
             tonight = await Task.detached {
                 var d: [String: Double] = [:]
                 for l in ObservingList.allCases {
-                    for e in l.entries { if let o = e.object { d[o.id] = ObservingLists.usableTonight(o, night: n, lat: lat, lon: lon, minAltitude: minAlt) } }
+                    for e in l.entries { if let o = e.object { d[o.id] = ObservingLists.usableTonight(o, night: n, lat: lat, lon: lon, minAltitude: minAlt, horizon: hz) } }
                 }
                 return d
             }.value
@@ -158,8 +159,70 @@ struct MarathonView: View {
         }
         .task(id: "\(date.timeIntervalSince1970)|\(minutes)") {
             let n = Astro.night(for: date, lat: settings.latitude, lon: settings.longitude)
-            let lat = settings.latitude, lon = settings.longitude, m = minutes
-            result = await Task.detached { Marathon.plan(night: n, lat: lat, lon: lon, minutesPerObject: m) }.value
+            let lat = settings.latitude, lon = settings.longitude, m = minutes, hz = settings.horizon
+            result = await Task.detached { Marathon.plan(night: n, lat: lat, lon: lon, minutesPerObject: m, horizon: hz) }.value
         }
+    }
+}
+
+/// Proyectos de varias noches: horas objetivo por objeto y avance según el historial.
+@MainActor
+struct ProjectsView: View {
+    @EnvironmentObject var projects: ProjectStore
+    @EnvironmentObject var history: ObservationLog
+    @EnvironmentObject var plan: PlanStore
+    @Binding var message: String
+    @State private var newObject = ""
+    @State private var newHours = 10.0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                TextField(tr("Objeto (p. ej. M31, NGC 7000)"), text: $newObject).textFieldStyle(.roundedBorder).frame(width: 260)
+                Stepper(value: $newHours, in: 1...200, step: 1) { Text(tr("Objetivo: %@ h", "\(Int(newHours))")) }
+                Button(tr("Nuevo proyecto")) { add() }.disabled(newObject.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+            Text(tr("Un proyecto acumula horas sobre un objeto a lo largo de varias noches. El avance sale de tu historial, incluido lo importado del álbum."))
+                .font(.caption).foregroundStyle(.secondary)
+            if projects.projects.isEmpty {
+                Text(tr("Aún no tienes proyectos.")).foregroundStyle(.secondary).padding(.top, 8)
+            }
+            ForEach(projects.projects) { p in
+                let prog = ProjectStore.progress(of: p.objectID, in: history.allRecords)
+                let obj = Catalog.find(p.objectID)
+                Card(title: obj?.displayName ?? p.objectID, systemImage: "target") {
+                    ProgressView(value: prog.fraction(of: p.goalHours))
+                    HStack {
+                        Text(tr("%@ de %@ h · %@ noches", String(format: "%.1f", prog.hours), "\(Int(p.goalHours))", "\(prog.nights)"))
+                            .monospacedDigit()
+                        if let last = prog.last {
+                            Text(tr("Última sesión: %@", last.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted, locale: Loc.shared.locale))))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if prog.hours >= p.goalHours {
+                            Label(tr("Completado"), systemImage: "checkmark.seal.fill").foregroundStyle(Theme.good)
+                        } else if let obj {
+                            Button(tr("Al plan de esta noche")) {
+                                let minutes = ProjectStore.minutesForTonight(goalHours: p.goalHours, doneHours: prog.hours)
+                                plan.add(obj, minutes: max(15, minutes))
+                                message = tr("%@ añadido al plan.", obj.id)
+                            }
+                        }
+                        Button(role: .destructive) { projects.projects.removeAll { $0.id == p.id } } label: { Image(systemName: "trash") }
+                            .buttonStyle(.borderless)
+                    }
+                    .font(.callout)
+                }
+            }
+        }
+    }
+
+    private func add() {
+        let q = newObject.trimmingCharacters(in: .whitespaces)
+        guard let o = Catalog.find(q) else { message = tr("No encuentro «%@» en el catálogo.", q); return }
+        projects.projects.append(Project(objectID: o.id, goalHours: newHours))
+        newObject = ""
+        message = tr("Proyecto creado: %@ h en %@.", "\(Int(newHours))", o.id)
     }
 }

@@ -18,8 +18,9 @@ public sealed record Suggestion(TargetForecast Forecast, double AltitudeNow, dou
 public static class PickForMe
 {
     public static List<Suggestion> Suggestions(IReadOnlyList<TargetForecast> forecasts, Astro.Night? night, PickStyle style,
-        double lat, double lon, double minAltitude, DateTime? nowUtc = null)
+        double lat, double lon, double minAltitude, DateTime? nowUtc = null, Horizon? horizon = null)
     {
+        var limit = new SkyLimit(minAltitude, horizon ?? Horizon.Flat);
         var start = nowUtc ?? DateTime.UtcNow;
         if (night?.DuskStart is DateTime dusk && start < dusk) start = dusk;
         var end = night?.DawnEnd ?? start.AddHours(6);
@@ -28,13 +29,14 @@ public static class PickForMe
         foreach (var f in forecasts.Where(f => f.Score > 0))
         {
             var alt = Ephemeris.FixedAltitude(f.Object.RaHours, f.Object.DecDeg, lat, lon);
+            var clear = limit.ClearFixed(f.Object.RaHours, f.Object.DecDeg, lat, lon);
             var a0 = alt(start);
-            if (a0 < minAltitude) continue;
+            if (!clear(start)) continue;
             double remaining = 0, peak = a0; var peakTime = start;
             for (var t = start; t < end; t = t.AddMinutes(10))
             {
                 var a = alt(t);
-                if (a < minAltitude) break;
+                if (!clear(t)) break;
                 if (a > peak) { peak = a; peakTime = t; }
                 remaining += 10;
             }
@@ -70,8 +72,9 @@ public static class PickForMe
     }
 
     public static List<PlanItem> ShortPlan(IReadOnlyList<TargetForecast> forecasts, Astro.Night? night, double lat, double lon,
-        double minAltitude, int maxTargets = 3, DateTime? nowUtc = null)
+        double minAltitude, int maxTargets = 3, DateTime? nowUtc = null, Horizon? horizon = null)
     {
+        var limit = new SkyLimit(minAltitude, horizon ?? Horizon.Flat);
         var start = nowUtc ?? DateTime.UtcNow;
         if (night?.DuskStart is DateTime dusk && start < dusk) start = dusk;
         if (night?.DawnEnd is not DateTime end || end <= start.AddMinutes(30)) return [];
@@ -88,7 +91,8 @@ public static class PickForMe
                 {
                     var alt = Ephemeris.FixedAltitude(f.Object.RaHours, f.Object.DecDeg, lat, lon);
                     double a1 = alt(s), a2 = alt(s.AddSeconds(slot / 2)), a3 = alt(e);
-                    return (f, ok: Math.Min(a1, Math.Min(a2, a3)) >= minAltitude, score: f.Score + (a1 + a2 + a3) / 9);
+                    var clear = limit.ClearFixed(f.Object.RaHours, f.Object.DecDeg, lat, lon);
+                    return (f, ok: clear(s) && clear(s.AddSeconds(slot / 2)) && clear(e), score: f.Score + (a1 + a2 + a3) / 9);
                 })
                 .Where(x => x.ok).OrderByDescending(x => x.score).FirstOrDefault();
             if (best.f is null) continue;

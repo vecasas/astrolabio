@@ -44,6 +44,18 @@ final class AppSettings: ObservableObject {
     @Published var stormGuard: Bool { didSet { d.set(stormGuard, forKey: "stormGuard") } }
     @Published var alertCountry: String { didSet { d.set(alertCountry, forKey: "alertCountry") } }
     @Published var alertZone: String { didSet { d.set(alertZone, forKey: "alertZone") } }
+    /// Horizontes dibujados, uno por lugar de observación (clave: latitud y longitud redondeadas).
+    @Published var horizons: [String: Horizon] {
+        didSet { if let data = try? JSONEncoder().encode(horizons) { d.set(data, forKey: "horizons") } }
+    }
+
+    static func siteKey(lat: Double, lon: Double) -> String { String(format: "%.3f,%.3f", lat, lon) }
+
+    /// Horizonte del lugar actual (plano si no se ha dibujado).
+    var horizon: Horizon {
+        get { horizons[Self.siteKey(lat: latitude, lon: longitude)] ?? .flat }
+        set { horizons[Self.siteKey(lat: latitude, lon: longitude)] = newValue.isFlat ? nil : newValue }
+    }
 
     var gotoLimits: GotoSafety.Limits {
         GotoSafety.Limits(latitude: latitude, longitude: longitude, minAltitude: gotoMinAltitude,
@@ -102,6 +114,7 @@ final class AppSettings: ObservableObject {
         stormGuard = d.object(forKey: "stormGuard") == nil ? true : d.bool(forKey: "stormGuard")
         alertCountry = d.string(forKey: "alertCountry") ?? "spain"
         alertZone = d.string(forKey: "alertZone") ?? ""
+        horizons = d.data(forKey: "horizons").flatMap { try? JSONDecoder().decode([String: Horizon].self, from: $0) } ?? [:]
         nightMode = d.bool(forKey: "nightMode")
         nightModeAuto = d.bool(forKey: "nightModeAuto")
         nightBrightness = dbl("nightBrightness", 0.7)

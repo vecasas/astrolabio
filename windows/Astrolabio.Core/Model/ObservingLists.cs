@@ -63,12 +63,12 @@ public static class ObservingLists
     public static HashSet<string> Imaged(IEnumerable<ObservationRecord> records) =>
         records.Select(r => Catalog.Find(r.Target)?.Id).OfType<string>().ToHashSet();
 
-    public static double UsableTonight(DeepSkyObject o, Astro.Night night, double lat, double lon, double minAltitude)
+    public static double UsableTonight(DeepSkyObject o, Astro.Night night, double lat, double lon, double minAltitude, Horizon? horizon = null)
     {
         if (night.DuskStart is not DateTime s || night.DawnEnd is not DateTime e || e <= s) return 0;
-        var f = Ephemeris.FixedAltitude(o.RaHours, o.DecDeg, lat, lon);
+        var clear = new SkyLimit(minAltitude, horizon ?? Horizon.Flat).ClearFixed(o.RaHours, o.DecDeg, lat, lon);
         double minutes = 0;
-        for (var t = s; t <= e; t = t.AddMinutes(15)) if (f(t) >= minAltitude) minutes += 15;
+        for (var t = s; t <= e; t = t.AddMinutes(15)) if (clear(t)) minutes += 15;
         return minutes;
     }
 
@@ -93,8 +93,9 @@ public sealed record MarathonStep(DeepSkyObject Object, DateTime Time, double Al
 /// <summary>Orden del maratón Messier: en cada momento, de los visibles, el que antes deja de verse.</summary>
 public static class Marathon
 {
-    public static (List<MarathonStep> Steps, List<DeepSkyObject> Missed) Plan(Astro.Night night, double lat, double lon, double minAltitude = 10, double minutesPerObject = 4)
+    public static (List<MarathonStep> Steps, List<DeepSkyObject> Missed) Plan(Astro.Night night, double lat, double lon, double minAltitude = 10, double minutesPerObject = 4, Horizon? horizon = null)
     {
+        var hz = horizon ?? Horizon.Flat;
         var objects = Enumerable.Range(1, 110).Select(n => Catalog.Find($"M{n}")).OfType<DeepSkyObject>().ToList();
         if (night.Sunset is not DateTime sunset || night.Sunrise is not DateTime sunrise) return ([], objects);
         // Crepúsculo náutico (Sol a −12°): los primeros y los últimos objetos están en él.
@@ -103,7 +104,11 @@ public static class Marathon
         if (end <= start) return ([], objects);
         var times = new List<DateTime>();
         for (var t = start; t <= end; t = t.AddMinutes(5)) times.Add(t);
-        var alts = objects.Select(o => { var f = Ephemeris.FixedAltitude(o.RaHours, o.DecDeg, lat, lon); return times.Select(f).ToArray(); }).ToArray();
+        var alts = objects.Select(o =>
+        {
+            var now = Astro.PrecessFromJ2000(o.RaHours, o.DecDeg, start);
+            return times.Select(t => { var aa = Astro.AltAz(now.Ra, now.Dec, t, lat, lon); return aa.Alt >= hz.AltitudeAt(aa.Az) ? aa.Alt : -90; }).ToArray();
+        }).ToArray();
         int LastVisible(int i, int k) { var j = k; while (j + 1 < times.Count && alts[i][j + 1] >= minAltitude) j++; return j; }
         var remaining = Enumerable.Range(0, objects.Count).ToHashSet();
         var steps = new List<MarathonStep>();

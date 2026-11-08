@@ -154,7 +154,7 @@ enum Comets {
 
     /// Cometas más brillantes que `maxMagnitude` que suben por encima de `minAltitude` de noche.
     static func visible(_ orbits: [CometOrbit], night: Astro.Night, lat: Double, lon: Double,
-                        minAltitude: Double, maxMagnitude: Double = 12) -> [Forecast] {
+                        minAltitude: Double, maxMagnitude: Double = 12, horizon: Horizon = .flat) -> [Forecast] {
         guard let start = night.duskStart, let end = night.dawnEnd, end > start else { return [] }
         let mid = start.addingTimeInterval(end.timeIntervalSince(start) / 2)
         var times: [Date] = []
@@ -167,9 +167,9 @@ enum Comets {
             let now = Astro.precessFromJ2000(raHours: p.raHours, decDeg: p.decDeg, to: mid)
             var maxAlt = -90.0, best: Date?, usable = 0.0
             for tm in times {
-                let alt = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: tm, lat: lat, lon: lon).alt
-                if alt > maxAlt { maxAlt = alt; best = tm }
-                if alt >= minAltitude { usable += 15 }
+                let aa = Astro.altAz(raHours: now.ra, decDeg: now.dec, date: tm, lat: lat, lon: lon)
+                if aa.alt > maxAlt { maxAlt = aa.alt; best = tm }
+                if horizon.isVisible(altitude: aa.alt, azimuth: aa.az, minAltitude: minAltitude) { usable += 15 }
             }
             guard usable > 0 else { return nil }
             return Forecast(orbit: o, position: p, maxAltitude: maxAlt, best: best, usableMinutes: usable)

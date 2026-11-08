@@ -176,6 +176,9 @@ public sealed partial class ObservationLog : Observable
         OnPropertyChanged(nameof(Current));
     }
 
+    /// <summary>Sustituye todo el historial (al restaurar una copia).</summary>
+    public void ReplaceAll(IEnumerable<ObservationRecord> list) { Current = null; Records = list.OrderBy(r => r.Start).ToList(); Save(); }
+
     public void Delete(IEnumerable<Guid> ids) { var s = ids.ToHashSet(); Records.RemoveAll(r => s.Contains(r.Id)); Save(); }
 
     [GeneratedRegex(@"Stacked_(\d+)_(?:mosaic_)?(.+?)_(\d+(?:\.\d+)?)s_[A-Za-z0-9]+_(\d{8}-\d{6})")]

@@ -37,6 +37,8 @@ struct AboutView: View {
             Divider().overlay(Theme.cardStroke)
             Text(tr("Datos: d3-celestial y catálogo HYG (estrellas), NASA LRO (Luna), DSS2 vía NASA SkyView (fotos), Open-Meteo (tiempo), Wikipedia (descripciones), CDS SIMBAD (búsqueda)."))
                 .font(.caption2).foregroundStyle(.tertiary).multilineTextAlignment(.center)
+            Text(tr("Catálogo ampliado: OpenNGC de Mattia Verga (CC BY-SA 4.0). Cometas: Minor Planet Center. Avisos: MeteoAlarm. Radar: RainViewer."))
+                .font(.caption2).foregroundStyle(.tertiary).multilineTextAlignment(.center)
             Text(tr("Astrolabio es independiente y no está afiliado a ZWO."))
                 .font(.caption2).foregroundStyle(.tertiary)
         }

@@ -1,6 +1,6 @@
 # Pruebas automáticas de Astrolabio
 
-**Versión:** 1.4.0 · **Mac:** 68 pruebas en 12 grupos · **Windows:** 38 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
+**Versión:** 1.5.0 · **Mac:** 77 pruebas en 14 grupos · **Windows:** 45 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
 
 Cómo ejecutarlas:
 - Mac: `./scripts/test.sh` (o `swift test`)
@@ -42,6 +42,11 @@ Las pruebas usan ajustes, plan e historial temporales: **nunca tocan los datos r
 | Tormentas | Avisos de MeteoAlarm (formato real), lluvia, rachas y tormentas previstas; solo dentro de su horario | ✅ | ✅ |
 | Radar de lluvia | Lectura de RainViewer, rutas sospechosas descartadas, teselas del mapa | ✅ | ✅ |
 | Tiempo (Open-Meteo) | Las horas sin datos no cuentan como cielo despejado | ✅ | — |
+| Catálogo ampliado | Más de 1 500 objetos sin repetidos, búsqueda por NGC/IC y por número Caldwell, todos los Messier y Caldwell encontrados | ✅ | ✅ |
+| Cometas | Lectura del archivo del MPC; posiciones de 4 cometas (elíptico, casi parabólico, periódico, hiperbólico) a menos de 3′ de JPL Horizons; filtro por magnitud | ✅ | ✅ |
+| Seguimiento del cometa | En un plan contra el simulador, vuelve a apuntar cuando el cometa se ha movido más de 3′ | ✅ | — |
+| Listas y maratón | Hechos y pendientes según el historial, CSV, orden del maratón Messier (≥ 95 de 110 en abril) | ✅ | ✅ |
+| La semana | Puntuación por nubes, Luna y oscuridad; elige la noche despejada | ✅ | ✅ |
 | Astronomía | Día juliano, altura de la Polar, precesión, coordenadas, Luna, planetas, salidas y puestas | ✅ | ✅ |
 | Qué mirar / Elige por mí | Sugerencias y plan corto; consejos de captura por tipo de objeto | ✅ | — |
 | Mosaicos | Número y posición de paneles | ✅ | ✅ |

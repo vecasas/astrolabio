@@ -4,8 +4,8 @@ import Foundation
 /// Para cambiar el autor o el contacto, edita solo este archivo.
 enum AppInfo {
     static let name = "Astrolabio"
-    static let version = "1.4.0"
-    static let build = "5"
+    static let version = "1.5.0"
+    static let build = "6"
     static let author = "Víctor Casas"
     static let email = "vecasas@gmail.com"
     static let repository = "https://github.com/vecasas/astrolabio"

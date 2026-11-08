@@ -12,7 +12,7 @@ namespace Astrolabio.App.Views;
 /// <summary>Datos de «Acerca de» (un único sitio, igual que AppInfo.swift en macOS).</summary>
 public static class AppInfo
 {
-    public const string Version = "1.4.0";
+    public const string Version = "1.5.0";
     public const string Build = "1";
     public const string Author = "Víctor Casas";
     public const string Email = "vecasas@gmail.com";
@@ -41,6 +41,7 @@ public sealed class AboutWindow : Window
                 Ui.Row(Ui.T("Creada el"), AppInfo.Created.ToString("D", Strings.Culture)),
                 Ui.Row(Ui.T("Contacto"), mail), Ui.Row(Ui.T("Código fuente"), repo),
                 Ui.Caption(Ui.T("Datos: d3-celestial y catálogo HYG (estrellas), NASA LRO (Luna), DSS2 vía NASA SkyView (fotos), Open-Meteo (tiempo), Wikipedia (descripciones), CDS SIMBAD (búsqueda).")),
+                Ui.Caption(Ui.T("Catálogo ampliado: OpenNGC de Mattia Verga (CC BY-SA 4.0). Cometas: Minor Planet Center. Avisos: MeteoAlarm. Radar: RainViewer.")),
                 Ui.Caption(Ui.T("Astrolabio es independiente y no está afiliado a ZWO.")),
             },
         };

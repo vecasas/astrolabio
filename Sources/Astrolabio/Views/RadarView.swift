@@ -41,7 +41,7 @@ struct RadarCard: View {
                     }
                     .pickerStyle(.segmented).frame(width: 220).labelsHidden()
                 }
-                Text(tr("Radar: RainViewer. Mapa: © OpenStreetMap, © CARTO. El punto azul es tu lugar de observación."))
+                Text(tr("Radar: RainViewer. Mapa: © colaboradores de OpenStreetMap. El punto azul es tu lugar de observación."))
                     .font(.caption2).foregroundStyle(.tertiary)
             }
         }
@@ -69,7 +69,7 @@ struct RadarCard: View {
                     let dx = k % grid - grid / 2, dy = k / grid - grid / 2
                     let origin = CGPoint(x: CGFloat(k % grid) * tileSize, y: CGFloat(k / grid) * tileSize)
                     Group {
-                        if let img = base[k] { Image(nsImage: img).resizable() }
+                        if let img = base[k] { Image(nsImage: img).resizable().saturation(0.25).opacity(0.5) }
                         if let frame, let img = radar["\(frame.path)|\(k)"] { Image(nsImage: img).resizable().opacity(0.75) }
                     }
                     .frame(width: tileSize, height: tileSize)
@@ -116,7 +116,8 @@ struct RadarCard: View {
         if let hit = cache.object(forKey: url as NSURL) { return hit }
         var req = URLRequest(url: url)
         req.timeoutInterval = 15
-        req.setValue("Astrolabio/\(AppInfo.version)", forHTTPHeaderField: "User-Agent")
+        // La política de teselas de OpenStreetMap pide identificar la app.
+        req.setValue("Astrolabio/\(AppInfo.version) (+\(AppInfo.repository))", forHTTPHeaderField: "User-Agent")
         guard let (data, resp) = try? await URLSession.shared.data(for: req),
               (resp as? HTTPURLResponse)?.statusCode == 200, data.count < 2_000_000,
               let img = NSImage(data: data) else { return nil }

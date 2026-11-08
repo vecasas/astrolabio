@@ -13,7 +13,7 @@
 Astrolabio no tiene servidor propio, cuentas de usuario ni base de datos en internet. Todo se ejecuta en el ordenador del usuario. Solo acepta conexiones si el usuario activa el control desde el móvil, y entonces únicamente desde la red local (ver «Control desde el móvil»). Habla con cuatro tipos de destino:
 
 1. **El Seestar en la red local**, con el protocolo del fabricante (TCP 4700 y 4800 sin cifrar, HTTP para el álbum). Ese protocolo no admite TLS, así que la red local se considera de confianza limitada.
-2. **Servicios públicos de datos, todos por HTTPS:** Open-Meteo, NASA SkyView, Wikipedia, CDS Sesame, MeteoAlarm, RainViewer, Minor Planet Center, CelesTrak y las teselas del mapa de CARTO.
+2. **Servicios públicos de datos, todos por HTTPS:** Open-Meteo, NASA SkyView, Wikipedia, CDS Sesame, MeteoAlarm, RainViewer, Minor Planet Center, CelesTrak y las teselas del mapa de OpenStreetMap (desde la 1.9; el mapa de CARTO pasó a exigir clave).
 3. **ntfy**, solo si el usuario activa los avisos al móvil.
 4. **La API pública de GitHub**, desde la web, para enlazar la última versión.
 

@@ -157,3 +157,26 @@ struct CompanionTests {
         #expect(saved.count == 1 && saved.keys.first != key && saved.keys.first == CompanionAuth.hash(key))
     }
 }
+
+/// Solo para revisar la página a mano: ASTROLABIO_SERVE=<archivo> deja el servidor 4 min en 127.0.0.1:18642
+/// y escribe en el archivo la dirección de emparejamiento y el código.
+@MainActor
+struct CompanionManualServe {
+    @Test func testServeForManualCheck() async throws {
+        guard let out = ProcessInfo.processInfo.environment["ASTROLABIO_SERVE"] else { return }
+        let server = CompanionServer(defaults: UserDefaults(suiteName: "companion-manual-\(UUID())")!)
+        let bridge = CompanionBridge(
+            status: { ["connected": true, "running": true, "frames": 184, "exposure": 10, "battery": 76, "charging": false,
+                       "target": "M 31 · Galaxia de Andrómeda", "phase": SessionRunner.Phase.stacking.label,
+                       "plan": ["total": 4, "done": 1, "remainingMin": 42],
+                       "messages": ["21:42  " + tr("Apilando %@ durante %@ min.", "M 31", "60"), "21:40  " + tr("Enfoque automático…")]] },
+            jpeg: { CompanionServer.jpeg(MoonRenderer.render(size: 600, elongation: 120)!) },
+            stop: { "ok" }, skip: { "ok" }, park: { "ok" },
+            strings: { CompanionRouter.pageStrings() }, language: { Loc.shared.language.rawValue })
+        server.start(bridge: bridge, port: 18642, bindAddress: "127.0.0.1")
+        server.startPairing()
+        try "\(server.pairingURL!)\n\(server.pairing!.code)\n".write(toFile: out, atomically: true, encoding: .utf8)
+        try await Task.sleep(for: .seconds(240))
+        server.stop()
+    }
+}

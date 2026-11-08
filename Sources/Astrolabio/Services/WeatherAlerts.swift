@@ -105,6 +105,6 @@ enum RainRadar {
     }
 
     static func baseURL(z: Int, x: Int, y: Int) -> URL? {
-        URL(string: "https://a.basemaps.cartocdn.com/dark_all/\(z)/\(x)/\(y).png")
+        URL(string: "https://tile.openstreetmap.org/\(z)/\(x)/\(y).png")
     }
 }

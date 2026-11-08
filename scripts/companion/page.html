@@ -18,7 +18,8 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .dim{color:var(--dim)}
 .big{font-size:22px;font-weight:700}
 img{width:100%;border-radius:10px;background:#000;display:block;min-height:80px}
-body.night img{filter:sepia(1) saturate(6) hue-rotate(-50deg) brightness(.75)}
+body.night img{filter:url(#nightred)}
+body.night .logo{display:none}
 .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:6px}
 .bar>div{height:100%;background:var(--acc);width:0}
 .btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -28,13 +29,15 @@ button.small{padding:8px 12px;min-height:0}
 input{font:inherit;font-size:28px;letter-spacing:6px;text-align:center;width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#000;color:var(--text)}
 #msg{min-height:1.4em}
 .hidden{display:none}
+.hidden-svg{position:absolute}
 ul{margin:0;padding-left:18px}
 .wide{width:100%}
 .top{margin-top:12px}
 </style>
 </head>
 <body>
-<header><h1>🔭 Astrolabio</h1><button id="night" class="small"></button></header>
+<svg width="0" height="0" class="hidden-svg" aria-hidden="true"><filter id="nightred"><feColorMatrix type="matrix" values="0.3 0.59 0.11 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>
+<header><h1><span class="logo">🔭 </span>Astrolabio</h1><button id="night" class="small"></button></header>
 <section id="pair" class="card hidden">
   <p id="pairText"></p>
   <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*">

@@ -32,7 +32,7 @@ public sealed class RadarCard : UserControl
     {
         for (var k = 0; k < Grid * Grid; k++)
         {
-            _base[k] = new Image { Width = TileSize, Height = TileSize };
+            _base[k] = new Image { Width = TileSize, Height = TileSize, Opacity = 0.45 };
             _radar[k] = new Image { Width = TileSize, Height = TileSize, Opacity = 0.75 };
             Canvas.SetLeft(_base[k], k % Grid * TileSize); Canvas.SetTop(_base[k], k / Grid * TileSize);
             Canvas.SetLeft(_radar[k], k % Grid * TileSize); Canvas.SetTop(_radar[k], k / Grid * TileSize);
@@ -49,7 +49,7 @@ public sealed class RadarCard : UserControl
         var zoom = new ComboBox { ItemsSource = new[] { Ui.T("Cerca"), Ui.T("Región"), Ui.T("Amplio") }, SelectedIndex = 1, Width = 130 };
         zoom.SelectionChanged += (_, _) => { _zoom = 7 - zoom.SelectedIndex; _ = Load(); };
         Content = Ui.Card(Ui.T("Radar de lluvia"), _canvas, Ui.H(play, _slider, _time, zoom),
-            Ui.Caption(Ui.T("Radar: RainViewer. Mapa: © OpenStreetMap, © CARTO. El punto azul es tu lugar de observación.")));
+            Ui.Caption(Ui.T("Radar: RainViewer. Mapa: © colaboradores de OpenStreetMap. El punto azul es tu lugar de observación.")));
         _ = Load();
     }
 

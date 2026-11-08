@@ -1,6 +1,6 @@
 # Pruebas automáticas de Astrolabio
 
-**Versión:** 1.8.0 · **Mac:** 105 pruebas en 22 grupos (+1 opcional con GraXpert real) · **Windows:** 60 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
+**Versión:** 1.9.0 · **Mac:** 113 pruebas en 24 grupos (+1 opcional con GraXpert real; 1 solo para revisar a mano la página del móvil) · **Windows:** 81 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
 
 Cómo ejecutarlas:
 - Mac: `./scripts/test.sh` (o `swift test`)
@@ -59,6 +59,7 @@ Las pruebas usan ajustes, plan e historial temporales: **nunca tocan los datos r
 | Luna | Libración y punto subsolar frente al ejemplo 53.a de Meeus; terminador en cuarto creciente; posición de los accidentes en el disco; imagen rotulada | ✅ | ✅ (sin imagen) |
 | Eventos del cielo | Lluvias de estrellas, fases y conjunciones en seis semanas, orden por fecha, cálculo del mínimo | ✅ | ✅ |
 | Hoja de la noche | Datos de la noche y PNG generado | ✅ | — |
+| Control desde el móvil | Lectura de peticiones HTTP (límites de tamaño, sin `chunked`); solo direcciones privadas; Host obligatorio (DNS rebinding); emparejamiento con token + código, un solo uso, caducidad a los 5 min y bloqueo tras 5 fallos; llaves revocables guardadas como SHA-256; límites de peticiones, de emparejamiento y de acciones; sin llave no se hace nada; servidor real en 127.0.0.1; la copia de seguridad no lleva el permiso del móvil | ✅ | ✅ |
 | Astronomía | Día juliano, altura de la Polar, precesión, coordenadas, Luna, planetas, salidas y puestas | ✅ | ✅ |
 | Qué mirar / Elige por mí | Sugerencias y plan corto; consejos de captura por tipo de objeto | ✅ | — |
 | Mosaicos | Número y posición de paneles | ✅ | ✅ |

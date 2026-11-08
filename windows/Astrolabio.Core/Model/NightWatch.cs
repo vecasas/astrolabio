@@ -245,5 +245,5 @@ public static class RainRadar
     }
 
     public static string RadarUrl(string host, Frame f, int z, int x, int y) => $"{host}{f.Path}/256/{z}/{x}/{y}/2/1_1.png";
-    public static string BaseUrl(int z, int x, int y) => $"https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
+    public static string BaseUrl(int z, int x, int y) => $"https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 }

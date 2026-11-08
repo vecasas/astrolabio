@@ -16,7 +16,9 @@ public static class WeatherService
     private static HttpClient CreateHttp()
     {
         var h = new HttpClient { Timeout = TimeSpan.FromSeconds(45) };
-        h.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Astrolabio", "1.0"));
+        h.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("Astrolabio", "1.9.0"));
+        // La política de teselas de OpenStreetMap pide identificar la app.
+        h.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("(+https://github.com/vecasas/astrolabio)"));
         return h;
     }
 

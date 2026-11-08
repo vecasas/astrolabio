@@ -12,7 +12,9 @@ namespace Astrolabio.Core.Protocol;
 /// </summary>
 public sealed class ImageStream
 {
-    public const int Port = 4800;
+    public const int DefaultPort = 4800;
+    /// <summary>Puerto del canal de imagen (solo cambia en las pruebas).</summary>
+    public int Port { get; set; } = DefaultPort;
     public event Action<RawFrame>? FrameReceived;
     public event Action<string>? StatusChanged;
     public event Action? Ready;

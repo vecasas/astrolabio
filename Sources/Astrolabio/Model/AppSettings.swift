@@ -3,7 +3,7 @@ import Foundation
 /// Ajustes persistentes de la app (se guardan en UserDefaults).
 @MainActor
 final class AppSettings: ObservableObject {
-    private let d = UserDefaults.standard
+    private let d: UserDefaults
 
     @Published var siteName: String { didSet { d.set(siteName, forKey: "siteName") } }
     @Published var latitude: Double { didSet { d.set(latitude, forKey: "latitude") } }
@@ -60,8 +60,10 @@ final class AppSettings: ObservableObject {
 
     var nightModeActive: Bool { nightMode || (nightModeAuto && autoNightNow && nightOverride != false) }
 
-    init() {
-        let d = UserDefaults.standard
+    /// `defaults` solo cambia en las pruebas, para no tocar los ajustes reales.
+    init(defaults: UserDefaults = .standard) {
+        self.d = defaults
+        let d = defaults
         func dbl(_ k: String, _ def: Double) -> Double { d.object(forKey: k) == nil ? def : d.double(forKey: k) }
         func int(_ k: String, _ def: Int) -> Int { d.object(forKey: k) == nil ? def : d.integer(forKey: k) }
         siteName = d.string(forKey: "siteName") ?? tr("Mi observatorio")

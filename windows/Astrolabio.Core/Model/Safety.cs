@@ -115,9 +115,11 @@ public static class HealthCheck
 
     public sealed record Issue(string Kind, string Message);
 
-    public static List<Issue> Issues(bool connected, int? battery, bool charging, double? freeMB, bool planRunning, double disconnectedFor)
+    public static List<Issue> Issues(bool connected, int? battery, bool charging, double? freeMB, bool planRunning, double disconnectedFor, double? computerFreeMB = null)
     {
         var o = new List<Issue>();
+        if (computerFreeMB is double cf && cf < LowStorageMB)
+            o.Add(new("computer-disk", Strings.T("⚠️ Queda poco espacio en el disco del ordenador: %@ MB. No se podrán guardar imágenes ni informes.", (int)cf)));
         if (connected)
         {
             if (battery is int b && b <= LowBattery && !charging) o.Add(new("battery", Strings.T("⚠️ Batería del Seestar baja: %@ %%.", b)));
@@ -126,5 +128,11 @@ public static class HealthCheck
         else if (planRunning && disconnectedFor >= SilentAfterSeconds)
             o.Add(new("silent", Strings.T("⚠️ El Seestar no responde desde hace %@ min y hay un plan en marcha.", (int)(disconnectedFor / 60))));
         return o;
+    }
+
+    /// <summary>Espacio libre (MB) en el disco de una carpeta.</summary>
+    public static double? FreeMB(string folder)
+    {
+        try { return new DriveInfo(Path.GetPathRoot(Path.GetFullPath(folder))!).AvailableFreeSpace / 1048576.0; } catch { return null; }
     }
 }

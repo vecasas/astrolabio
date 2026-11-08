@@ -27,14 +27,17 @@ struct PlanItem: Identifiable, Codable, Hashable {
 final class PlanStore: ObservableObject {
     @Published var items: [PlanItem] = [] { didSet { save() } }
 
-    private var url: URL {
+    private let url: URL
+
+    nonisolated static var defaultURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Astrolabio", isDirectory: true)
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base.appendingPathComponent("plan.json")
     }
 
-    init() {
+    init(url: URL = PlanStore.defaultURL) {
+        self.url = url
         if let data = try? Data(contentsOf: url),
            let list = try? JSONDecoder().decode([PlanItem].self, from: data) {
             items = list
@@ -94,6 +97,8 @@ final class SessionRunner: ObservableObject {
     }
 
     static let stateKey = "sessionRunnerState"
+    /// Dónde se guarda el estado para retomar el plan (otro en las pruebas).
+    var stateDefaults: UserDefaults = .standard
 
     /// Plan interrumpido que se puede retomar (como mucho 16 horas después de empezar).
     static func pendingResume(defaults: UserDefaults = .standard, now: Date = Date()) -> SavedState? {
@@ -103,8 +108,8 @@ final class SessionRunner: ObservableObject {
     }
 
     private func saveState(_ st: SavedState?) {
-        if let st, let data = try? JSONEncoder().encode(st) { UserDefaults.standard.set(data, forKey: Self.stateKey) }
-        else { UserDefaults.standard.removeObject(forKey: Self.stateKey) }
+        if let st, let data = try? JSONEncoder().encode(st) { stateDefaults.set(data, forKey: Self.stateKey) }
+        else { stateDefaults.removeObject(forKey: Self.stateKey) }
     }
 
     @Published private(set) var phase: Phase = .idle
@@ -118,6 +123,7 @@ final class SessionRunner: ObservableObject {
 
     private var task: Task<Void, Never>?
     private var skipRequested = false
+    private var connectionLost = false
     private weak var client: SeestarClient?
     private weak var settings: AppSettings?
     private weak var plan: PlanStore?
@@ -132,6 +138,7 @@ final class SessionRunner: ObservableObject {
         self.settings = settings
         self.plan = plan
         messages.removeAll()
+        connectionLost = false
         if let resuming { options = resuming.options }
         // Un objeto que estaba en marcha cuando se cerró la app vuelve a la cola (con su tiempo hecho).
         for i in plan.items.indices where plan.items[i].status == .running { plan.items[i].status = .pending }
@@ -229,6 +236,12 @@ final class SessionRunner: ObservableObject {
             plan.items[index].status = .running
 
             let ok = await runItem(item, index: index, lastFocus: &lastFocusDate)
+            if connectionLost {
+                if index < plan.items.count { plan.items[index].status = .pending }
+                saveState(nil)
+                phase = .stopped
+                return
+            }
             guard index < plan.items.count else { continue }
             if Task.isCancelled { plan.items[index].status = .pending; return }
             plan.items[index].status = ok ? .done : (skipRequested ? .skipped : .failed)
@@ -355,6 +368,17 @@ final class SessionRunner: ObservableObject {
                 }
 
                 if needGoto {
+                    // Si el telescopio se ha desconectado o reiniciado, se espera a que vuelva (hasta 10 min).
+                    if !client.isConnected {
+                        say(tr("Sin conexión con el telescopio: esperando a que vuelva…"))
+                        guard await client.waitForConnection(timeout: 600) else {
+                            say(tr("El telescopio no ha vuelto en 10 minutos. Se detiene el plan."))
+                            settings.notify("Astrolabio", tr("El telescopio no responde: se ha detenido el plan."))
+                            connectionLost = true
+                            return anyPanelDone
+                        }
+                        say(tr("Conexión recuperada."))
+                    }
                     phase = .slewing
                     say(tr("Apuntando a %@…", "\(label)"))
                     let target = Astro.precessFromJ2000(raHours: panel.ra, decDeg: panel.dec, to: Date())
@@ -393,11 +417,14 @@ final class SessionRunner: ObservableObject {
                 }
 
                 // Espera por tramos de 5 s comprobando amanecer, nubes y altura.
+                let epoch = client.connectionCount
                 let chunkEnd = Date().addingTimeInterval(min(remaining, 300))
                 while Date() < chunkEnd {
                     if !(await sleep(5)) { try? await client.stopStack(); return anyPanelDone }
                     if skipRequested { try? await client.stopStack(); return anyPanelDone }
                     if nightGuard?.stormReason != nil { break }
+                    // Conexión perdida: el tiempo no cuenta (el telescopio puede haber dejado de apilar).
+                    if !client.isConnected || client.connectionCount != epoch { break }
                     remaining -= 5
                     remainingSeconds = remaining
                     if index < plan.items.count {
@@ -407,6 +434,11 @@ final class SessionRunner: ObservableObject {
                 }
                 anyPanelDone = true
                 if nightGuard?.stormReason != nil { continue }   // se recoge al principio del bucle
+                if !client.isConnected || client.connectionCount != epoch {
+                    say(tr("Se perdió la conexión durante el apilado: se volverá a apuntar y apilar."))
+                    needGoto = true
+                    continue
+                }
                 // Estrellas menos nítidas: se para, se enfoca y se sigue apilando el tiempo que queda.
                 if settings.autoRefocus && item.autofocus && nightGuard?.needsRefocus == true && remaining > 300 {
                     say(tr("Las estrellas han perdido nitidez: se vuelve a enfocar."))

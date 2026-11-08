@@ -38,17 +38,26 @@ public static class WeatherService
     {
         var url = string.Create(CultureInfo.InvariantCulture,
             $"{baseUrl}?latitude={lat:F4}&longitude={lon:F4}&hourly=cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m,precipitation,wind_gusts_10m,weather_code&timezone=UTC{extra}");
-        var root = JsonNode.Parse(await Http.GetStringAsync(url));
+        return Parse(await Http.GetStringAsync(url));
+    }
+
+    /// <summary>Respuesta horaria de Open-Meteo. Las horas sin datos (null) se descartan en lugar de
+    /// tomarse como 0 % de nubes, que haría pasar por despejada una noche desconocida.</summary>
+    public static List<WeatherHour> Parse(string json)
+    {
+        JsonNode? root;
+        try { root = JsonNode.Parse(json); } catch { return []; }
         var h = root?["hourly"];
         if (h?["time"] is not JsonArray times) return [];
-        double G(string k, int i) => h[k] is JsonArray a && i < a.Count && a[i] is JsonValue v && v.TryGetValue<double>(out var d) ? d : 0;
+        double? G(string k, int i) => h[k] is JsonArray a && i < a.Count && a[i] is JsonValue v && v.TryGetValue<double>(out var d) ? d : null;
         var res = new List<WeatherHour>();
         for (var i = 0; i < times.Count; i++)
         {
             if (!DateTime.TryParseExact(times[i]?.GetValue<string>(), "yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var t)) continue;
-            res.Add(new WeatherHour(t, G("cloud_cover", i), G("cloud_cover_low", i), G("relative_humidity_2m", i), G("temperature_2m", i), G("dew_point_2m", i), G("wind_speed_10m", i),
-                G("precipitation", i), G("wind_gusts_10m", i), (int)G("weather_code", i)));
+            if (G("cloud_cover", i) is not double cloud || G("temperature_2m", i) is not double temp) continue;
+            res.Add(new WeatherHour(t, cloud, G("cloud_cover_low", i) ?? 0, G("relative_humidity_2m", i) ?? 0, temp, G("dew_point_2m", i) ?? temp - 10,
+                G("wind_speed_10m", i) ?? 0, G("precipitation", i) ?? 0, G("wind_gusts_10m", i) ?? 0, (int)(G("weather_code", i) ?? 0)));
         }
         return res;
     }

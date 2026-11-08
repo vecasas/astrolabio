@@ -35,6 +35,7 @@ public sealed class SessionRunner : Observable
 
     private CancellationTokenSource? _cts;
     private volatile bool _skip;
+    private volatile bool _connectionLost;
     private List<WeatherHour> _weather = [];
     private DateTime _weatherFetched = DateTime.MinValue;
 
@@ -78,6 +79,7 @@ public sealed class SessionRunner : Observable
     {
         if (_cts is not null) return;
         Messages.Clear();
+        _connectionLost = false;
         if (resuming is not null) { WaitForDark = resuming.WaitForDark; PauseForClouds = resuming.PauseForClouds; StopAtDawn = resuming.StopAtDawn; }
         foreach (var i in plan.Items.Where(i => i.Status == PlanItem.ItemStatus.Running)) i.Status = PlanItem.ItemStatus.Pending;
         plan.Save();
@@ -147,6 +149,13 @@ public sealed class SessionRunner : Observable
             item.Status = PlanItem.ItemStatus.Running; Ui(plan.Save);
             var (ok, lf) = await RunItem(c, s, plan, item, lastFocus, ct);
             lastFocus = lf;
+            if (_connectionLost)
+            {
+                item.Status = PlanItem.ItemStatus.Pending; Ui(plan.Save);
+                SaveState(null);
+                SetPhase(RunPhase.Stopped);
+                return;
+            }
             item.Status = ok ? PlanItem.ItemStatus.Done : _skip ? PlanItem.ItemStatus.Skipped : PlanItem.ItemStatus.Failed;
             Ui(plan.Save);
             if (!ok && !_skip) s.Notify("Astrolabio", Strings.T("No se pudo completar %@.", item.Name));
@@ -251,6 +260,18 @@ public sealed class SessionRunner : Observable
                 }
                 if (needGoto)
                 {
+                    if (!c.IsConnected)
+                    {
+                        Say(c, Strings.T("Sin conexión con el telescopio: esperando a que vuelva…"));
+                        if (!await c.WaitForConnection(600, ct))
+                        {
+                            Say(c, Strings.T("El telescopio no ha vuelto en 10 minutos. Se detiene el plan."));
+                            s.Notify("Astrolabio", Strings.T("El telescopio no responde: se ha detenido el plan."));
+                            _connectionLost = true;
+                            return (any, lastFocus);
+                        }
+                        Say(c, Strings.T("Conexión recuperada."));
+                    }
                     SetPhase(RunPhase.Slewing);
                     Say(c, Strings.T("Apuntando a %@…", label));
                     var target = Astro.PrecessFromJ2000(pra, pdec, DateTime.UtcNow);
@@ -277,6 +298,7 @@ public sealed class SessionRunner : Observable
                     SetPhase(RunPhase.Stacking);
                     Say(c, Strings.T("Apilando %@ durante %@ min.", label, (int)(remaining / 60)));
                 }
+                var epoch = c.ConnectionCount;
                 var chunkEnd = DateTime.Now.AddSeconds(Math.Min(remaining, 300));
                 while (DateTime.Now < chunkEnd)
                 {
@@ -284,6 +306,7 @@ public sealed class SessionRunner : Observable
                     catch { try { await c.StopStack(); } catch { } throw; }
                     if (_skip) { try { await c.StopStack(); } catch { } return (any, lastFocus); }
                     if (Guard?.StormReason is not null) break;
+                    if (!c.IsConnected || c.ConnectionCount != epoch) break;
                     remaining -= 5;
                     var r = remaining; Ui(() => RemainingSeconds = r);
                     item.StackedFrames = c.StackedFrames;
@@ -292,6 +315,12 @@ public sealed class SessionRunner : Observable
                 }
                 any = true;
                 if (Guard?.StormReason is not null) continue;
+                if (!c.IsConnected || c.ConnectionCount != epoch)
+                {
+                    Say(c, Strings.T("Se perdió la conexión durante el apilado: se volverá a apuntar y apilar."));
+                    needGoto = true;
+                    continue;
+                }
                 if (s.AutoRefocus && item.Autofocus && Guard?.NeedsRefocus == true && remaining > 300)
                 {
                     Say(c, Strings.T("Las estrellas han perdido nitidez: se vuelve a enfocar."));

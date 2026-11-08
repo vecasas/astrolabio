@@ -211,9 +211,17 @@ public sealed partial class ObservationLog : Observable
         return added;
     }
 
+    private bool _saveFailed;
+
     private void Save()
     {
-        try { File.WriteAllText(_path, JsonSerializer.Serialize(Records, new JsonSerializerOptions { WriteIndented = true })); } catch { }
+        try { File.WriteAllText(_path, JsonSerializer.Serialize(Records, new JsonSerializerOptions { WriteIndented = true })); _saveFailed = false; }
+        catch (Exception e)
+        {
+            // Disco lleno o sin permisos: se avisa una vez, sin perder el historial en memoria.
+            if (!_saveFailed) _client?.AddLog(Strings.T("No se pudo guardar el historial: %@", e.Message), LogLevel.Error);
+            _saveFailed = true;
+        }
         OnPropertyChanged(nameof(Records));
     }
 

@@ -55,6 +55,8 @@ struct LogEntry: Identifiable {
 @MainActor
 final class SeestarClient: ObservableObject {
     static let controlPort: UInt16 = 4700
+    /// Puerto de control (solo cambia en las pruebas con un Seestar simulado).
+    var port: UInt16 = SeestarClient.controlPort
 
     @Published private(set) var status: ConnectionStatus = .disconnected
     @Published private(set) var host = ""
@@ -114,6 +116,19 @@ final class SeestarClient: ObservableObject {
     private var reconnectTask: Task<Void, Never>?
 
     var isConnected: Bool { status == .connected }
+    /// Aumenta en cada conexión: si cambia durante un apilado, el telescopio se ha reiniciado o
+    /// ha perdido la conexión y hay que volver a apuntar y apilar.
+    @Published private(set) var connectionCount = 0
+
+    /// Espera a que haya conexión (la reconexión es automática). Devuelve false si no vuelve a tiempo.
+    func waitForConnection(timeout: Double) async -> Bool {
+        let deadline = Date().addingTimeInterval(timeout)
+        while !isConnected {
+            if Task.isCancelled || Date() > deadline { return false }
+            try? await Task.sleep(for: .seconds(2))
+        }
+        return true
+    }
 
     // MARK: - Registro
 
@@ -131,9 +146,9 @@ final class SeestarClient: ObservableObject {
         closeSocket()
         self.host = host
         status = .connecting
-        addLog(tr("Conectando con %@:%@…", "\(host)", "\(Self.controlPort)"))
+        addLog(tr("Conectando con %@:%@…", "\(host)", "\(port)"))
 
-        guard let port = NWEndpoint.Port(rawValue: Self.controlPort) else { return }
+        guard let port = NWEndpoint.Port(rawValue: port) else { return }
         let params = NWParameters.tcp
         if let tcp = params.defaultProtocolStack.transportProtocol as? NWProtocolTCP.Options {
             tcp.enableKeepalive = true
@@ -157,6 +172,9 @@ final class SeestarClient: ObservableObject {
                         if once.fire() {
                             self?.addLog(tr("No se puede llegar al telescopio: %@", "\(error.localizedDescription)"), .error)
                             cont.resume(returning: false)
+                        } else {
+                            // La red se ha caído con la conexión ya abierta.
+                            self?.handleDrop(error.localizedDescription)
                         }
                     case .cancelled:
                         if once.fire() { cont.resume(returning: false) }
@@ -181,6 +199,7 @@ final class SeestarClient: ObservableObject {
         }
 
         status = .connected
+        connectionCount += 1
         addLog(tr("Conectado a %@.", "\(host)"))
         receiveNext()
         await afterConnect()
@@ -430,9 +449,17 @@ final class SeestarClient: ObservableObject {
         heartbeatTask?.cancel()
         heartbeatTask = Task { @MainActor [weak self] in
             var tick = 0
+            var missed = 0
             while !Task.isCancelled {
                 guard let self, self.isConnected else { return }
-                _ = try? await self.send("scope_get_equ_coord", timeout: 8)
+                do {
+                    _ = try await self.send("scope_get_equ_coord", timeout: 8)
+                    missed = 0
+                } catch SeestarError.timeout {
+                    // Sin respuesta durante ~30 s (wifi caída o telescopio apagado sin cerrar la conexión).
+                    missed += 1
+                    if missed >= 3 { self.handleDrop(tr("el telescopio no responde")); return }
+                } catch {}
                 if tick % 10 == 0 { await self.refreshDeviceState() }
                 tick += 1
                 try? await Task.sleep(for: .seconds(3))
@@ -495,11 +522,16 @@ final class SeestarClient: ObservableObject {
                       terminal: Set<String> = ["complete", "fail", "cancel"],
                       timeout: Double) async -> String? {
         let deadline = Date().addingTimeInterval(timeout)
+        var offlineSince: Date?
         while Date() < deadline {
             if Task.isCancelled { return nil }
             if let ev = lastEvents[name], ev.received >= since, let st = ev.state, terminal.contains(st) {
                 return st
             }
+            // Sin conexión más de 2 minutos: el evento ya no llegará (el telescopio se reinició).
+            if isConnected { offlineSince = nil }
+            else if let o = offlineSince { if Date().timeIntervalSince(o) > 120 { return nil } }
+            else { offlineSince = Date() }
             try? await Task.sleep(for: .milliseconds(500))
         }
         return nil

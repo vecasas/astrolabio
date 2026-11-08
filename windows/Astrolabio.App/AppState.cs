@@ -83,7 +83,7 @@ public sealed class AppState
                 if (Client.IsConnected) _disconnectedSince = null; else _disconnectedSince ??= DateTime.Now;
                 if (!Settings.HealthAlerts) return;
                 var issues = HealthCheck.Issues(Client.IsConnected, Client.Battery, Client.ChargerStatus == "Charging", Client.FreeStorageMB,
-                    Runner.IsRunning, _disconnectedSince is DateTime d ? (DateTime.Now - d).TotalSeconds : 0);
+                    Runner.IsRunning, _disconnectedSince is DateTime d ? (DateTime.Now - d).TotalSeconds : 0, HealthCheck.FreeMB(Settings.SaveFolder));
                 foreach (var i in issues.Where(i => _alerts.ShouldSend(i.Kind, DateTime.Now)))
                 {
                     Client.AddLog(i.Message, LogLevel.Warning);

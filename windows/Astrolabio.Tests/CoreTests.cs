@@ -450,3 +450,125 @@ public class SecurityTests
         Assert.Null(ImageStream.ExtractZip([1, 2, 3], "raw_data"));
     }
 }
+
+/// <summary>Pruebas de extremo a extremo contra el Seestar simulado.</summary>
+[Collection("Red")]
+public class ProtocolIntegrationTests
+{
+    private static async Task<bool> WaitUntil(Func<bool> cond, double seconds = 5)
+    {
+        var end = DateTime.Now.AddSeconds(seconds);
+        while (DateTime.Now < end) { if (cond()) return true; await Task.Delay(50); }
+        return cond();
+    }
+
+    private static async Task<SeestarClient> Connect(FakeSeestar fake, SeestarSigner? signer = null)
+    {
+        var c = new SeestarClient { Port = fake.Port, SignerProvider = () => signer };
+        await c.ConnectAsync("127.0.0.1");
+        return c;
+    }
+
+    [Fact]
+    public async Task ConnectsAuthenticatesAndReadsState()
+    {
+        using var fake = new FakeSeestar();
+        using var rsa = System.Security.Cryptography.RSA.Create(2048);
+        var pub = System.Security.Cryptography.RSA.Create(); pub.ImportParameters(rsa.ExportParameters(false));
+        fake.PublicKey = pub;
+        var c = await Connect(fake, new SeestarSigner(rsa.ExportRSAPrivateKeyPem()));
+        try
+        {
+            Assert.True(c.IsConnected);
+            Assert.True(await WaitUntil(() => c.IsAuthenticated && c.FirmwareVersion == 2706));
+            Assert.True(await WaitUntil(() => c.Battery == 87 && c.DeviceName == "Seestar S50 simulado"));
+        }
+        finally { c.Disconnect(); }
+    }
+
+    [Fact]
+    public async Task WrongKeyIsRejected()
+    {
+        using var fake = new FakeSeestar();
+        using var expected = System.Security.Cryptography.RSA.Create(2048);
+        using var other = System.Security.Cryptography.RSA.Create(2048);
+        fake.PublicKey = expected;
+        var c = await Connect(fake, new SeestarSigner(other.ExportRSAPrivateKeyPem()));
+        try
+        {
+            await Task.Delay(1500);
+            Assert.True(c.IsConnected);
+            Assert.False(c.IsAuthenticated);
+        }
+        finally { c.Disconnect(); }
+    }
+
+    [Fact]
+    public async Task ErrorsTimeoutsAndSafety()
+    {
+        using var fake = new FakeSeestar();
+        fake.Errors["scope_park"] = 207;
+        fake.Silent.Add("scope_move_to_horizon");
+        var c = await Connect(fake);
+        try
+        {
+            await Assert.ThrowsAnyAsync<Exception>(() => c.Park());
+            await Assert.ThrowsAnyAsync<Exception>(() => c.Send("scope_move_to_horizon", timeout: 1));
+            await c.Send("get_device_state");
+            c.GotoLimitsProvider = () => new GotoSafety.Limits(40.48, -3.36, 15, 30);
+            var sun = Astro.Sun(DateTime.UtcNow);
+            await Assert.ThrowsAsync<GotoBlockedException>(() => c.GotoTarget("Sol", sun.Ra, sun.Dec));
+            Assert.Equal(0, fake.Count("iscope_start_view"));
+        }
+        finally { c.Disconnect(); }
+    }
+
+    [Fact]
+    public async Task GotoRecentersWhenOffCentre()
+    {
+        using var fake = new FakeSeestar();
+        var c = await Connect(fake);
+        try
+        {
+            c.RecenterToleranceProvider = () => 2;
+            fake.PointingOffsetsArcmin.Enqueue(3.0);
+            fake.PointingOffsetsArcmin.Enqueue(0.5);
+            var p = Astro.PrecessFromJ2000(2.53, 89.26, DateTime.UtcNow);
+            Assert.True(await c.GotoAndWait("Polaris", p.Ra, p.Dec, timeout: 10));
+            Assert.Equal(2, fake.Count("iscope_start_view"));
+        }
+        finally { c.Disconnect(); }
+    }
+
+    [Fact]
+    public async Task DisconnectFailsPendingAndReconnects()
+    {
+        using var fake = new FakeSeestar();
+        fake.DropOn.Add("reboot_simulado");
+        var c = await Connect(fake);
+        try
+        {
+            await Assert.ThrowsAnyAsync<Exception>(() => c.Send("reboot_simulado", timeout: 10));
+            Assert.True(await WaitUntil(() => c.ConnectionCount >= 2 && c.IsConnected, 20));
+        }
+        finally { c.Disconnect(); }
+    }
+
+    [Fact]
+    public async Task ImageStreamDeliversStackedFrame()
+    {
+        using var server = new FakeImageServer(64, 48);
+        var stream = new ImageStream { Port = server.Port };
+        RawFrame? got = null;
+        stream.FrameReceived += f => got = f;
+        stream.Connect("127.0.0.1");
+        try
+        {
+            Assert.True(await WaitUntil(() => got is not null, 8));
+            Assert.True(got!.Stacked);
+            Assert.Equal(64, got.Width);
+            Assert.Equal(48, got.Height);
+        }
+        finally { stream.Disconnect(); }
+    }
+}

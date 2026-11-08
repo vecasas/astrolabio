@@ -39,7 +39,8 @@ final class HealthMonitor {
         let issues = Self.issues(connected: client.isConnected, battery: client.battery,
                                  charging: client.chargerStatus == "Charging",
                                  freeMB: client.freeStorageMB, planRunning: runner.isRunning,
-                                 disconnectedFor: disconnectedSince.map { Date().timeIntervalSince($0) } ?? 0)
+                                 disconnectedFor: disconnectedSince.map { Date().timeIntervalSince($0) } ?? 0,
+                                 computerFreeMB: Self.freeMB(at: settings.saveFolderURL))
         if client.isConnected {
             disconnectedSince = nil
             if Date().timeIntervalSince(lastDeviceRefresh) > 600 {
@@ -56,6 +57,13 @@ final class HealthMonitor {
         }
     }
 
+    /// Espacio libre (MB) en el disco de una carpeta.
+    static func freeMB(at url: URL) -> Double? {
+        guard let v = try? url.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey]),
+              let bytes = v.volumeAvailableCapacityForImportantUsage else { return nil }
+        return Double(bytes) / 1_048_576
+    }
+
     struct Issue: Equatable {
         let kind: String
         let message: String
@@ -63,8 +71,11 @@ final class HealthMonitor {
 
     /// Problemas que merecen un aviso (función pura, para las pruebas).
     static func issues(connected: Bool, battery: Int?, charging: Bool, freeMB: Double?,
-                       planRunning: Bool, disconnectedFor: TimeInterval) -> [Issue] {
+                       planRunning: Bool, disconnectedFor: TimeInterval, computerFreeMB: Double? = nil) -> [Issue] {
         var out: [Issue] = []
+        if let f = computerFreeMB, f < lowStorageMB {
+            out.append(Issue(kind: "computer-disk", message: tr("⚠️ Queda poco espacio en el disco del ordenador: %@ MB. No se podrán guardar imágenes ni informes.", "\(Int(f))")))
+        }
         if connected {
             if let b = battery, b <= lowBattery, !charging {
                 out.append(Issue(kind: "battery", message: tr("⚠️ Batería del Seestar baja: %@ %%.", "\(b)")))

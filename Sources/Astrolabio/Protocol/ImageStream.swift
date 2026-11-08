@@ -19,7 +19,9 @@ struct RawFrame {
 /// - id 21: fotograma de vista previa (Bayer GRBG de 16 bits)
 /// - id 23: imagen apilada, un ZIP con `raw_data` (RGB de 16 bits)
 final class ImageStream {
-    static let port: UInt16 = 4800
+    static let defaultPort: UInt16 = 4800
+    /// Puerto del canal de imagen (solo cambia en las pruebas).
+    var port: UInt16 = ImageStream.defaultPort
 
     var onFrame: ((RawFrame) -> Void)?
     var onStatus: ((String) -> Void)?
@@ -48,7 +50,7 @@ final class ImageStream {
     private func openLocked(host: String) {
             stopLocked()
             self.host = host
-            guard let port = NWEndpoint.Port(rawValue: Self.port) else { return }
+            guard let port = NWEndpoint.Port(rawValue: self.port) else { return }
             let conn = NWConnection(host: NWEndpoint.Host(host), port: port, using: .tcp)
             connection = conn
             conn.stateUpdateHandler = { [weak self] state in

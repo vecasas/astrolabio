@@ -47,12 +47,21 @@ enum WeatherService {
             .init(name: "hourly", value: "cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m,precipitation,wind_gusts_10m,weather_code"),
             .init(name: "timezone", value: "UTC"),
         ] + extra
-        let (data, _) = try await URLSession.shared.data(from: c.url!)
-        guard let obj = (try JSONSerialization.jsonObject(with: data)) as? JSONObject,
+        let (data, resp) = try await URLSession.shared.data(from: c.url!)
+        if let http = resp as? HTTPURLResponse, http.statusCode != 200 {
+            throw URLError(.badServerResponse)
+        }
+        return parse(data)
+    }
+
+    /// Convierte la respuesta horaria de Open-Meteo. Las horas sin datos (null) se descartan en
+    /// lugar de tomarse como 0 % de nubes, que haría pasar por despejada una noche desconocida.
+    static func parse(_ data: Data) -> [WeatherHour] {
+        guard let obj = (try? JSONSerialization.jsonObject(with: data)) as? JSONObject,
               let hourly = obj["hourly"] as? JSONObject,
               let times = hourly["time"] as? [String] else { return [] }
-        func arr(_ k: String) -> [Double] {
-            (hourly[k] as? [Any])?.map { ($0 as? NSNumber)?.doubleValue ?? 0 } ?? []
+        func arr(_ k: String) -> [Double?] {
+            (hourly[k] as? [Any])?.map { ($0 as? NSNumber)?.doubleValue } ?? []
         }
         let cc = arr("cloud_cover"), low = arr("cloud_cover_low"), rh = arr("relative_humidity_2m")
         let t = arr("temperature_2m"), dp = arr("dew_point_2m"), w = arr("wind_speed_10m")
@@ -64,10 +73,11 @@ enum WeatherService {
         var out: [WeatherHour] = []
         for (i, s) in times.enumerated() {
             guard let d = fmt.date(from: s) else { continue }
-            func g(_ a: [Double]) -> Double { i < a.count ? a[i] : 0 }
-            out.append(WeatherHour(time: d, cloudCover: g(cc), lowClouds: g(low), humidity: g(rh),
-                                   temperature: g(t), dewPoint: g(dp), wind: g(w),
-                                   precipitation: g(pr), gusts: g(gu), weatherCode: Int(g(wc))))
+            func g(_ a: [Double?]) -> Double? { i < a.count ? a[i] : nil }
+            guard let cloud = g(cc), let temp = g(t) else { continue }
+            out.append(WeatherHour(time: d, cloudCover: cloud, lowClouds: g(low) ?? 0, humidity: g(rh) ?? 0,
+                                   temperature: temp, dewPoint: g(dp) ?? temp - 10, wind: g(w) ?? 0,
+                                   precipitation: g(pr) ?? 0, gusts: g(gu) ?? 0, weatherCode: Int(g(wc) ?? 0)))
         }
         return out
     }
@@ -84,7 +94,11 @@ enum Notifier {
     /// Muestra una notificación del sistema. Dentro de Astrolabio.app usa el centro de
     /// notificaciones (con el nombre y el icono de la app); con `swift run`, sin paquete,
     /// recurre a osascript.
+    /// Las pruebas lo apagan para no llenar el Mac de notificaciones.
+    nonisolated(unsafe) static var enabled = true
+
     static func local(_ title: String, _ body: String) {
+        guard enabled else { return }
         guard Bundle.main.bundleURL.pathExtension == "app", Bundle.main.bundleIdentifier != nil else {
             localViaScript(title, body)
             return

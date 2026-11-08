@@ -251,8 +251,17 @@ final class ObservationLog: ObservableObject {
         let enc = JSONEncoder()
         enc.dateEncodingStrategy = .iso8601
         enc.outputFormatting = [.prettyPrinted, .sortedKeys]
-        if let data = try? enc.encode(records) { try? data.write(to: url, options: .atomic) }
+        do {
+            try enc.encode(records).write(to: url, options: .atomic)
+        } catch {
+            // Disco lleno o carpeta sin permisos: se avisa una vez, sin perder el historial en memoria.
+            if !saveFailed { client?.addLog(tr("No se pudo guardar el historial: %@", error.localizedDescription), .error) }
+            saveFailed = true
+            return
+        }
+        saveFailed = false
     }
+    private var saveFailed = false
 
     /// Todas las sesiones, incluida la que está en curso.
     var allRecords: [ObservationRecord] { records + (current.map { [$0] } ?? []) }

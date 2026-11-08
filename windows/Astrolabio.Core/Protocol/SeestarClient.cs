@@ -27,6 +27,8 @@ public sealed class SeestarException(string message) : Exception(message);
 public sealed class SeestarClient : Observable
 {
     public const int ControlPort = 4700;
+    /// <summary>Puerto de control (solo cambia en las pruebas con un Seestar simulado).</summary>
+    public int Port { get; set; } = ControlPort;
 
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
     private TcpClient? _tcp;
@@ -51,6 +53,20 @@ public sealed class SeestarClient : Observable
 
     private string? _stackState; public string? StackState { get => _stackState; private set => Set(ref _stackState, value); }
     public bool IsStacking => StackState is "working" or "start";
+    /// <summary>Aumenta en cada conexión: si cambia durante un apilado, hay que volver a apuntar y apilar.</summary>
+    public int ConnectionCount { get; private set; }
+
+    /// <summary>Espera a que haya conexión (la reconexión es automática).</summary>
+    public async Task<bool> WaitForConnection(double timeout, CancellationToken ct = default)
+    {
+        var deadline = DateTime.Now.AddSeconds(timeout);
+        while (!IsConnected)
+        {
+            if (ct.IsCancellationRequested || DateTime.Now > deadline) return false;
+            try { await Task.Delay(2000, ct); } catch { return false; }
+        }
+        return true;
+    }
 
     // Estado publicado
     private ConnectionState _state; public ConnectionState State { get => _state; private set { if (Set(ref _state, value)) OnPropertyChanged(nameof(IsConnected)); } }
@@ -107,12 +123,12 @@ public sealed class SeestarClient : Observable
         Host = host;
         State = ConnectionState.Connecting;
         StatusText = Strings.T("Conectando…");
-        AddLog(Strings.T("Conectando con %@:%@…", host, ControlPort));
+        AddLog(Strings.T("Conectando con %@:%@…", host, Port));
         var tcp = new TcpClient { NoDelay = true };
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-            await tcp.ConnectAsync(host, ControlPort, timeout.Token);
+            await tcp.ConnectAsync(host, Port, timeout.Token);
         }
         catch (Exception e)
         {
@@ -127,6 +143,7 @@ public sealed class SeestarClient : Observable
         _stream = tcp.GetStream();
         _cts = new CancellationTokenSource();
         State = ConnectionState.Connected;
+        ConnectionCount++;
         StatusText = Strings.T("Conectado");
         AddLog(Strings.T("Conectado a %@.", host));
         _ = Task.Run(() => ReadLoop(_stream, _cts.Token));
@@ -374,9 +391,15 @@ public sealed class SeestarClient : Observable
     private async Task Heartbeat(CancellationToken ct)
     {
         var tick = 0;
+        var missed = 0;
         while (!ct.IsCancellationRequested && IsConnected)
         {
-            try { await Send("scope_get_equ_coord", timeout: 8); } catch { }
+            try { await Send("scope_get_equ_coord", timeout: 8); missed = 0; }
+            catch (Exception) when (!ct.IsCancellationRequested)
+            {
+                // Sin respuesta durante ~30 s (wifi caída o telescopio apagado sin cerrar la conexión).
+                if (++missed >= 3) { Ui(() => HandleDrop(Strings.T("el telescopio no responde"))); return; }
+            }
             if (tick % 10 == 0) await RefreshDeviceState();
             tick++;
             try { await Task.Delay(3000, ct); } catch { return; }
@@ -437,10 +460,15 @@ public sealed class SeestarClient : Observable
     public async Task<string?> WaitForEvent(string name, DateTime since, double timeout, CancellationToken ct = default)
     {
         var deadline = DateTime.Now.AddSeconds(timeout);
+        DateTime? offline = null;
         while (DateTime.Now < deadline && !ct.IsCancellationRequested)
         {
             if (LastEvents.TryGetValue(name, out var ev) && ev.Received >= since && ev.State is "complete" or "fail" or "cancel")
                 return ev.State;
+            // Sin conexión más de 2 minutos: el evento ya no llegará.
+            if (IsConnected) offline = null;
+            else if (offline is DateTime o) { if ((DateTime.Now - o).TotalSeconds > 120) return null; }
+            else offline = DateTime.Now;
             try { await Task.Delay(500, ct); } catch { return null; }
         }
         return null;

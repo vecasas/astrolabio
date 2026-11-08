@@ -28,7 +28,7 @@ public sealed class TonightView : UserControl
             filters.Children.Add(Ui.Button(Ui.T(f), () => { _filter = f; Fill(); }));
         var onlyNow = new CheckBox { Content = Ui.T("Solo lo que está alto ahora") };
         onlyNow.IsCheckedChanged += (_, _) => { _onlyNow = onlyNow.IsChecked == true; Fill(); };
-        Content = Ui.Scroll(Ui.V(_summary, Ui.H(filters, onlyNow, Ui.Button(Ui.T("Recalcular"), async () => await st.RecomputeTonight())), _msg, _cards));
+        Content = Ui.Scroll(Ui.V(_summary, Ui.Wrap(new WeekOutlookCard { Width = 420 }, new CometsTonightCard(_msg) { Width = 560 }), Ui.H(filters, onlyNow, Ui.Button(Ui.T("Recalcular"), async () => await st.RecomputeTonight())), _msg, _cards));
         st.TonightUpdated += () => Avalonia.Threading.Dispatcher.UIThread.Post(Fill);
         Fill();
         if (st.Forecasts.Count == 0) _ = st.RecomputeTonight();

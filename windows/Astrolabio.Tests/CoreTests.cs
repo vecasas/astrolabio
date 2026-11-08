@@ -572,3 +572,63 @@ public class ProtocolIntegrationTests
         finally { stream.Disconnect(); }
     }
 }
+
+public class ListsAndCometsTests
+{
+    private const string Mpc = """
+    CK25A060  2025 11  8.5202  0.529814  0.995608  132.9562  108.0997  143.6634  20261108   8.6  4.0  C/2025 A6 (Lemmon)                                       MPEC 2026-U70
+0012P         2024 04 21.2124  0.781960  0.954751  199.0367  255.8683   74.1442  20261108   5.0  6.0  12P/Pons-Brooks                                          MPEC 2026-TI5
+    CK25K010  2025 10  8.4092  0.334370  1.000218  271.0354   97.5695  147.8676  20261108  12.2  4.0  C/2025 K1 (ATLAS)                                        MPEC 2026-TI5
+0210P         2025 11 22.7082  0.524602  0.833994  345.9522   93.7986   10.2867  20261108  14.3  4.0  210P/Christensen                                         MPEC 2026-R26
+""";
+
+    [Fact]
+    public void ExpandedCatalogAndCaldwell()
+    {
+        Assert.True(Catalog.Objects.Count > 1500);
+        Assert.True(Catalog.Featured.Count < 300);
+        Assert.Equal(Catalog.Objects.Count, Catalog.Objects.Select(o => Catalog.Normalize(o.Id)).Distinct().Count());
+        Assert.Equal("NGC 869", Catalog.Find("C14")?.Id);
+        Assert.Equal("NGC 2903", Catalog.Find("ngc2903")?.Id);
+        Assert.All(ObservingLists.Entries(ObservingList.Caldwell), e => Assert.NotNull(e.Object));
+        Assert.All(ObservingLists.Entries(ObservingList.Messier), e => Assert.NotNull(e.Object));
+        Assert.Equal(14, Catalog.CaldwellNumber("NGC 869"));
+    }
+
+    [Theory]
+    [InlineData("C/2025 A6 (Lemmon)", 182.01646, -35.22280, 5.1095, 5.8180)]
+    [InlineData("12P/Pons-Brooks", 247.19108, -30.95300, 9.1006, 9.9759)]
+    [InlineData("C/2025 K1 (ATLAS)", 19.97427, 45.29682, 5.6156, 4.7719)]
+    [InlineData("210P/Christensen", 232.09659, -13.54302, 3.9361, 4.9102)]
+    public void CometPositionsMatchJpl(string name, double ra, double dec, double r, double delta)
+    {
+        var o = Comets.Parse(Mpc).Single(x => x.Name == name);
+        var p = Comets.Position(o, new DateTime(2026, 11, 8, 0, 0, 0, DateTimeKind.Utc));
+        Assert.True(Astro.Separation(p.RaHours, p.DecDeg, ra / 15, dec) < 0.05);
+        Assert.InRange(p.R, r - 0.005, r + 0.005);
+        Assert.InRange(p.Delta, delta - 0.005, delta + 0.005);
+    }
+
+    [Fact]
+    public void ParsesOnlyValidLines()
+    {
+        Assert.Equal(4, Comets.Parse(Mpc + "\nlínea rota\n" + new string('x', 200)).Count);
+    }
+
+    [Fact]
+    public void MarathonWeekAndCsv()
+    {
+        var n = Astro.NightFor(new DateTime(2027, 4, 5, 12, 0, 0), 40.48, -3.36);
+        var r = Marathon.Plan(n, 40.48, -3.36, 5, 3);
+        Assert.Equal(110, r.Steps.Count + r.Missed.Count);
+        Assert.True(r.Steps.Count >= 95);
+        Assert.True(r.Steps.Zip(r.Steps.Skip(1)).All(p => p.First.Time <= p.Second.Time));
+        Assert.Equal(100, WeekOutlook.Score(9, 0, 0, 0));
+        Assert.True(WeekOutlook.Score(9, 90, 0, 0) < 10);
+        var t = DateTime.UtcNow;
+        var imaged = ObservingLists.Imaged([new ObservationRecord(Guid.NewGuid(), "NGC 869", t, t, 10, 10_000)]);
+        var csv = ObservingLists.Csv(ObservingList.Caldwell, imaged, new Dictionary<string, double> { ["NGC 869"] = 300 });
+        Assert.Contains("\"C14\",\"NGC 869\"", csv);
+        Assert.Contains("\"sí\",\"300\"", csv);
+    }
+}

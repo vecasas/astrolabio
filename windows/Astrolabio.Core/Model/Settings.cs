@@ -117,6 +117,8 @@ public sealed class PlanItem
     public int StackedFrames { get; set; }
     /// <summary>Segundos ya apilados, para retomar el plan tras un reinicio.</summary>
     public double? DoneSeconds { get; set; }
+    /// <summary>Nombre del cometa: su posición se recalcula y el telescopio le sigue mientras apila.</summary>
+    public string? Comet { get; set; }
     [JsonIgnore] public bool IsMosaic => MosaicColumns * MosaicRows > 1;
 }
 

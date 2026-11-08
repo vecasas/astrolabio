@@ -32,6 +32,13 @@ public sealed class SessionRunner : Observable
     public bool IsRunning => _cts is not null;
     /// <summary>Vigilancia de enfoque, rocío y tormentas (la pone la app).</summary>
     public NightGuard? Guard { get; set; }
+    /// <summary>Distancia que puede moverse un cometa antes de volver a apuntar.</summary>
+    public const double CometRetargetArcmin = 3;
+    public Func<string, CometOrbit?> CometOrbitProvider { get; set; } = n => CometStore.Shared.Orbit(n);
+    /// <summary>Cada cuánto se revisa todo durante el apilado (más corto en las pruebas).</summary>
+    public double ChunkSeconds { get; set; } = 300;
+    public double CometMinRemaining { get; set; } = 60;
+    private (double Ra, double Dec)? _cometAim;
 
     private CancellationTokenSource? _cts;
     private volatile bool _skip;
@@ -208,6 +215,11 @@ public sealed class SessionRunner : Observable
 
     private async Task<(bool, DateTime)> RunItem(SeestarClient c, AppSettings s, PlanStore plan, PlanItem item, DateTime lastFocus, CancellationToken ct)
     {
+        if (item.Comet is string cn && CometOrbitProvider(cn) is { } orb0)
+        {
+            var p0 = Comets.Position(orb0, DateTime.UtcNow);
+            item.RaHours = p0.RaHours; item.DecDeg = p0.DecDeg; item.MosaicColumns = 1; item.MosaicRows = 1;
+        }
         var panels = item.IsMosaic
             ? Planner.MosaicPanels(item.RaHours, item.DecDeg, item.MosaicColumns, item.MosaicRows, item.OverlapPercent, s.Fov)
             : [("", item.RaHours, item.DecDeg)];
@@ -274,7 +286,14 @@ public sealed class SessionRunner : Observable
                     }
                     SetPhase(RunPhase.Slewing);
                     Say(c, Strings.T("Apuntando a %@…", label));
-                    var target = Astro.PrecessFromJ2000(pra, pdec, DateTime.UtcNow);
+                    var aim = (Ra: pra, Dec: pdec);
+                    if (item.Comet is string cn2 && CometOrbitProvider(cn2) is { } orb2)
+                    {
+                        var p2 = Comets.Position(orb2, DateTime.UtcNow);
+                        aim = (p2.RaHours, p2.DecDeg);
+                        _cometAim = aim;
+                    }
+                    var target = Astro.PrecessFromJ2000(aim.Ra, aim.Dec, DateTime.UtcNow);
                     var reached = false;
                     for (var attempt = 1; attempt <= 3 && !reached; attempt++)
                     {
@@ -299,7 +318,7 @@ public sealed class SessionRunner : Observable
                     Say(c, Strings.T("Apilando %@ durante %@ min.", label, (int)(remaining / 60)));
                 }
                 var epoch = c.ConnectionCount;
-                var chunkEnd = DateTime.Now.AddSeconds(Math.Min(remaining, 300));
+                var chunkEnd = DateTime.Now.AddSeconds(Math.Min(remaining, ChunkSeconds));
                 while (DateTime.Now < chunkEnd)
                 {
                     try { await Task.Delay(5000, ct); }
@@ -320,6 +339,18 @@ public sealed class SessionRunner : Observable
                     Say(c, Strings.T("Se perdió la conexión durante el apilado: se volverá a apuntar y apilar."));
                     needGoto = true;
                     continue;
+                }
+                if (item.Comet is string cn3 && CometOrbitProvider(cn3) is { } orb3 && _cometAim is { } prev)
+                {
+                    var p3 = Comets.Position(orb3, DateTime.UtcNow);
+                    var moved = Astro.Separation(prev.Ra, prev.Dec, p3.RaHours, p3.DecDeg) * 60;
+                    if (moved > CometRetargetArcmin && remaining > CometMinRemaining)
+                    {
+                        Say(c, Strings.T("%@ se ha movido %@′: se vuelve a apuntar.", label, moved.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)));
+                        try { await c.StopStack(); } catch { }
+                        needGoto = true;
+                        continue;
+                    }
                 }
                 if (s.AutoRefocus && item.Autofocus && Guard?.NeedsRefocus == true && remaining > 300)
                 {

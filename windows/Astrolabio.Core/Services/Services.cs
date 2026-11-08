@@ -85,12 +85,12 @@ public static class PhoneNotifier
 {
     public static async Task Send(string server, string topic, string title, string body)
     {
-        var t = topic.Trim();
-        if (t.Length == 0) return;
+        // Solo HTTPS (o HTTP dentro de la red local) y un tema con caracteres válidos de ntfy.
+        if (Model.NetPolicy.NtfyUrl(server, topic) is not { } url) return;
         try
         {
-            using var req = new HttpRequestMessage(HttpMethod.Post, server.Trim().TrimEnd('/') + "/" + t) { Content = new StringContent(body, Encoding.UTF8) };
-            req.Headers.Add("Title", title);
+            using var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = new StringContent(body.Length > 2000 ? body[..2000] : body, Encoding.UTF8) };
+            req.Headers.Add("Title", Model.NetPolicy.HeaderValue(title));
             req.Headers.Add("Tags", "telescope");
             await WeatherService.Http.SendAsync(req);
         }

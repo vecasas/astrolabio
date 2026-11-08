@@ -214,12 +214,17 @@ struct AlbumView: View {
         let chosen = chosenFiles ?? files.filter { selection.contains($0.id) }
         var ok = 0
         for file in chosen {
-            let folder = settings.saveFolderURL.appendingPathComponent("Álbum").appendingPathComponent(file.title)
+            // El nombre de la carpeta y del archivo vienen del telescopio: se limpian para que no
+            // puedan escribir fuera de la carpeta de descargas.
+            let root = settings.saveFolderURL.appendingPathComponent("Álbum")
+            let folder = root.appendingPathComponent(SafeName.fileComponent(file.title))
+            guard SafeName.isInside(folder, root) else { continue }
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             message = tr("Descargando %@…", "\(file.title)")
             do {
                 let (tmp, _) = try await URLSession.shared.download(from: file.fullURL)
-                let dest = folder.appendingPathComponent(file.fullURL.lastPathComponent)
+                let dest = folder.appendingPathComponent(SafeName.fileComponent(file.fullURL.lastPathComponent, fallback: "imagen.jpg"))
+                guard SafeName.isInside(dest, folder) else { continue }
                 try? FileManager.default.removeItem(at: dest)
                 try FileManager.default.moveItem(at: tmp, to: dest)
                 ok += 1

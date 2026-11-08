@@ -79,8 +79,14 @@ enum ZipReader {
     }
 
     /// Descomprime deflate "en bruto" (sin cabecera zlib), que es lo que usa ZIP.
+    /// Tamaño máximo de una imagen descomprimida (un apilado de 4K a 16 bits y 3 canales ocupa unos 50 MB).
+    static let maxUncompressed = 128 * 1024 * 1024
+
     static func inflate(_ data: Data, expectedSize: Int) -> Data? {
-        let capacity = max(expectedSize, data.count * 4) + 1024
+        // El tamaño declarado viene del telescopio: se limita para que un ZIP manipulado no
+        // obligue a reservar gigas de memoria (bomba de descompresión).
+        guard expectedSize >= 0, expectedSize <= maxUncompressed else { return nil }
+        let capacity = min(maxUncompressed, max(expectedSize, data.count * 4) + 1024)
         var output = Data(count: capacity)
         let written = output.withUnsafeMutableBytes { (dst: UnsafeMutableRawBufferPointer) -> Int in
             data.withUnsafeBytes { (src: UnsafeRawBufferPointer) -> Int in

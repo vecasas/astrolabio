@@ -401,3 +401,52 @@ public class NightWatchTests
         Assert.Equal((31, 24), (m.X, m.Y));
     }
 }
+
+public class SecurityTests
+{
+    [Fact]
+    public void FileNamesCannotEscape()
+    {
+        var evil = SafeName.FileComponent("../../Library/LaunchAgents");
+        Assert.DoesNotContain("/", evil); Assert.DoesNotContain("..", evil);
+        Assert.DoesNotContain("\\", SafeName.FileComponent("..\\..\\Windows\\System32"));
+        Assert.Equal("Seestar", SafeName.FileComponent("..."));
+        Assert.Equal("Seestar", SafeName.FileComponent(""));
+        Assert.Equal("_CON", SafeName.FileComponent("CON"));
+        Assert.Equal("M 31", SafeName.FileComponent("M 31"));
+        var b = Path.Combine(Path.GetTempPath(), "astro-base");
+        Assert.True(SafeName.IsInside(Path.Combine(b, "M 31", "x.jpg"), b));
+        Assert.False(SafeName.IsInside(Path.Combine(b, "..", "fuera.jpg"), b));
+    }
+
+    [Fact]
+    public void CsvAndNetPolicies()
+    {
+        Assert.Equal("\"'=HYPERLINK(\"\"x\"\")\"", Csv.Field("=HYPERLINK(\"x\")"));
+        Assert.Equal("\"a\"\"b\"", Csv.Field("a\"b"));
+        Assert.Equal("https://ntfy.sh/astro-1", NetPolicy.NtfyUrl("https://ntfy.sh", "astro-1")?.ToString());
+        Assert.Null(NetPolicy.NtfyUrl("http://ntfy.sh", "abc"));
+        Assert.NotNull(NetPolicy.NtfyUrl("http://192.168.1.10:8080", "abc"));
+        Assert.Null(NetPolicy.NtfyUrl("https://ntfy.sh", "../admin"));
+        Assert.True(NetPolicy.IsLocal("192.168.0.37"));
+        Assert.False(NetPolicy.IsLocal("8.8.8.8"));
+        Assert.True(NetPolicy.IsWikipedia("https://es.wikipedia.org/wiki/M31"));
+        Assert.False(NetPolicy.IsWikipedia("https://wikipedia.org.malo.com/x"));
+        Assert.Equal("Hola  X: 1", NetPolicy.HeaderValue("Hola\r\nX: 1"));
+    }
+
+    [Fact]
+    public void ZipBombIsRejected()
+    {
+        // ZIP real con 200 MB de ceros comprimidos (ocupa ~200 KB): supera el límite de 128 MB.
+        using var ms = new MemoryStream();
+        using (var z = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
+        {
+            using var s = z.CreateEntry("raw_data", System.IO.Compression.CompressionLevel.Optimal).Open();
+            var zeros = new byte[1 << 20];
+            for (var i = 0; i < 200; i++) s.Write(zeros);
+        }
+        Assert.Null(ImageStream.ExtractZip(ms.ToArray(), "raw_data"));
+        Assert.Null(ImageStream.ExtractZip([1, 2, 3], "raw_data"));
+    }
+}

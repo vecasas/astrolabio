@@ -111,13 +111,14 @@ enum Notifier {
 
     /// Envía el aviso al tema de ntfy configurado (app gratuita para iPhone y Android).
     static func phone(topic: String, server: String, title: String, body: String) async {
-        let t = topic.trimmingCharacters(in: .whitespaces)
-        guard !t.isEmpty, let url = URL(string: server.trimmingCharacters(in: CharacterSet(charactersIn: "/ ")) + "/" + t) else { return }
+        // Solo HTTPS (o HTTP dentro de la red local) y un tema con caracteres válidos de ntfy.
+        guard let url = NetPolicy.ntfyURL(server: server, topic: topic) else { return }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
-        req.setValue(title, forHTTPHeaderField: "Title")
+        req.timeoutInterval = 20
+        req.setValue(NetPolicy.headerValue(title), forHTTPHeaderField: "Title")
         req.setValue("telescope", forHTTPHeaderField: "Tags")
-        req.httpBody = Data(body.utf8)
+        req.httpBody = Data(String(body.prefix(2000)).utf8)
         _ = try? await URLSession.shared.data(for: req)
     }
 }

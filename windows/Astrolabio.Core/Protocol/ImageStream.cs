@@ -149,22 +149,27 @@ public sealed class ImageStream
     private void Handle(int id, int width, int height, byte[] payload)
     {
         int w = width > 0 ? width : 1080, h = height > 0 ? height : 1920;
+        // Las dimensiones vienen de la cabecera del telescopio: se multiplican en 64 bits para que
+        // un valor manipulado (p. ej. 65535×65535) no desborde y pase la comprobación de tamaño.
+        long px = (long)w * h;
         RawFrame? frame = null;
         if (id == 21)
         {
-            if (payload.Length == w * h * 2) frame = new RawFrame(false, w, h, U16(payload), 1);
-            else if (payload.Length == w * h * 6) frame = new RawFrame(false, w, h, U16(payload), 3);
+            if (payload.Length == px * 2) frame = new RawFrame(false, w, h, U16(payload), 1);
+            else if (payload.Length == px * 6) frame = new RawFrame(false, w, h, U16(payload), 3);
         }
         else if (id == 23)
         {
             var raw = ExtractZip(payload, "raw_data");
             if (raw is null) { StatusChanged?.Invoke(Strings.T("No se pudo descomprimir la imagen apilada")); return; }
-            if (raw.Length == w * h * 6) frame = new RawFrame(true, w, h, U16(raw), 3);
-            else if (raw.Length == w * h * 2) frame = new RawFrame(true, w, h, U16(raw), 1);
+            if (raw.Length == px * 6) frame = new RawFrame(true, w, h, U16(raw), 3);
+            else if (raw.Length == px * 2) frame = new RawFrame(true, w, h, U16(raw), 1);
             else StatusChanged?.Invoke(Strings.T("Tamaño de imagen inesperado: %@ bytes", raw.Length));
         }
         if (frame is not null) FrameReceived?.Invoke(frame);
     }
+
+    public const long MaxUncompressed = 128L * 1024 * 1024;
 
     public static byte[]? ExtractZip(byte[] zip, string name)
     {
@@ -173,9 +178,17 @@ public sealed class ImageStream
             using var z = new ZipArchive(new MemoryStream(zip), ZipArchiveMode.Read);
             var e = z.GetEntry(name) ?? z.Entries.FirstOrDefault();
             if (e is null) return null;
+            // El tamaño viene del telescopio: se limita para evitar bombas de descompresión.
+            if (e.Length > MaxUncompressed) return null;
             using var s = e.Open();
             var ms = new MemoryStream();
-            s.CopyTo(ms);
+            var buf = new byte[81920];
+            int n;
+            while ((n = s.Read(buf, 0, buf.Length)) > 0)
+            {
+                if (ms.Length + n > MaxUncompressed) return null;
+                ms.Write(buf, 0, n);
+            }
             return ms.ToArray();
         }
         catch { return null; }

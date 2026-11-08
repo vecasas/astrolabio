@@ -11,6 +11,8 @@
 <link rel="icon" href="../favicon.png">
 <link rel="alternate" hreflang="es" href="https://vecasas.github.io/astrolabio/">
 <link rel="alternate" hreflang="en" href="https://vecasas.github.io/astrolabio/en/">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src https://api.github.com; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="stylesheet" href="../style.css">
 <script src="../config.js"></script>
 </head>
@@ -112,23 +114,6 @@
   <div><p><a href="https://github.com/vecasas/astrolabio">Source code (GitHub)</a></p></div>
 </div></footer>
 
-<script>
-// Enlaces directos a la última versión publicada (si la API de GitHub no responde, se queda la página de versiones).
-fetch("https://api.github.com/repos/vecasas/astrolabio/releases/latest").then(r => r.ok ? r.json() : null).then(rel => {
-  if (!rel) return;
-  const find = re => (rel.assets || []).find(a => re.test(a.name));
-  const map = { mac: /\.dmg$/i, win: /Setup\.exe$/i, zip: /portable\.zip$/i };
-  document.querySelectorAll("[data-asset]").forEach(el => {
-    const a = find(map[el.dataset.asset]); if (a) el.href = a.browser_download_url;
-  });
-  document.getElementById("ver").textContent = rel.tag_name;
-}).catch(() => {});
-// Botón de donación: se configura en config.js.
-const url = (window.ASTROLABIO || {}).donateUrl;
-if (url) {
-  const b = document.getElementById("donate"); b.href = url; b.hidden = false;
-  document.getElementById("donate-soon").hidden = true;
-}
-</script>
+<script src="../site.js"></script>
 </body>
 </html>

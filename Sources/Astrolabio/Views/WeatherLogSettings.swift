@@ -156,6 +156,7 @@ struct LogView: View {
         } else {
             out.append(client.isAuthenticated ? tr("✅ Autenticado.") : tr("⚠️ Clave cargada pero sin autenticar: %@", "\(client.authMessage)"))
         }
+        if let warn = SeestarSigner.permissionsWarning(for: settings.pemPath) { out.append("⚠️ " + warn) }
         if client.firmwareVersion > 0 { out.append(tr("ℹ️ Firmware %@ (%@).", "\(client.firmwareString)", "\(client.firmwareVersion)")) }
         if let b = client.battery { out.append(b < 20 ? tr("⚠️ Batería baja (%@ %%).", "\(b)") : tr("✅ Batería %@ %%.", "\(b)")) }
         if let f = client.freeStorageMB { out.append(f < 2000 ? tr("⚠️ Queda poco espacio (%@ MB).", "\(Int(f))") : tr("✅ Espacio libre suficiente.")) }
@@ -202,6 +203,10 @@ struct SettingsView: View {
                 HStack {
                     TextField(tr("Clave PEM"), text: $settings.pemPath)
                     Button(tr("Elegir…")) { choosePEM() }
+                }
+                if let warn = SeestarSigner.permissionsWarning(for: settings.pemPath) {
+                    Label(warn, systemImage: "lock.trianglebadge.exclamationmark").font(.caption).foregroundStyle(Theme.warn)
+                        .textSelection(.enabled)
                 }
                 Text(tr("El firmware reciente del Seestar exige que el cliente firme un reto con una clave privada. Indica aquí el archivo .pem que uses con seestar_alp (opción interop_pem)."))
                     .font(.caption).foregroundStyle(.secondary)

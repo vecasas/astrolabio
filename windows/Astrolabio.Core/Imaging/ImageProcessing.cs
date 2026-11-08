@@ -411,7 +411,7 @@ public static class ImageProcessing
         Card("SIMPLE", "T"); Card("BITPIX", "16"); Card("NAXIS", "3");
         Card("NAXIS1", img.Width.ToString()); Card("NAXIS2", img.Height.ToString()); Card("NAXIS3", "3");
         Card("BZERO", "32768"); Card("BSCALE", "1");
-        Card("OBJECT", "'" + new string(obj.Replace("'", "").Take(60).ToArray()) + "'");
+        Card("OBJECT", "'" + new string(obj.Where(c => c is >= ' ' and <= '~' and not '\'').Take(60).ToArray()) + "'");
         Card("CREATOR", "'Astrolabio'");
         Card("DATE", "'" + DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss") + "'");
         header.Append("END".PadRight(80));

@@ -512,7 +512,8 @@ enum ImageProcessing {
         card("NAXIS3", "3")
         card("BZERO", "32768")
         card("BSCALE", "1")
-        let safeName = object.replacingOccurrences(of: "'", with: "")
+        // FITS solo admite ASCII imprimible y tarjetas de 80 bytes exactos.
+        let safeName = String(String.UnicodeScalarView(object.unicodeScalars.filter { $0.value >= 32 && $0.value < 127 && $0 != "'" }))
         card("OBJECT", "'\(safeName.prefix(60))'")
         card("CREATOR", "'Astrolabio'")
         let iso = ISO8601DateFormatter().string(from: Date())

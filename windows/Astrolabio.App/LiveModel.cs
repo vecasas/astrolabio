@@ -98,7 +98,7 @@ public sealed class LiveModel : Observable
     public List<string> Save(string folder, string name)
     {
         var stamp = DateTime.Now.ToString("yyyy-MM-ddTHH-mm-ss");
-        var safe = string.IsNullOrWhiteSpace(name) ? "Seestar" : name.Replace('/', '-');
+        var safe = Core.Model.SafeName.FileComponent(name);
         var saved = new List<string>();
         if (Image is { } img) { var p = Path.Combine(folder, $"{safe}_{stamp}.png"); img.Save(p); saved.Add(p); }
         if (_linear is { } lin) { var p = Path.Combine(folder, $"{safe}_{stamp}.fits"); ImageProcessing.SaveFits(lin, p, safe); saved.Add(p); }

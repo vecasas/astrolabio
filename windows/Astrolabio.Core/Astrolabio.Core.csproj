@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- PDF de los informes (licencia Community: gratuita para proyectos de código abierto y particulares) -->
-    <PackageReference Include="QuestPDF" Version="2025.*" />
+    <PackageReference Include="QuestPDF" Version="2025.12.4" />
   </ItemGroup>
   <ItemGroup>
     <!-- Datos generados desde el proyecto de macOS (scripts/windows_data.py) -->

@@ -312,7 +312,7 @@ final class ObservationLog: ObservableObject {
         let f = ISO8601DateFormatter()
         var out = "objeto,inicio,fin,fotogramas,exposicion_ms,minutos\n"
         for r in allRecords {
-            out += "\"\(r.target)\",\(f.string(from: r.start)),\(f.string(from: r.end)),\(r.frames),\(r.exposureMs),\(String(format: "%.1f", r.integrationMinutes))\n"
+            out += "\(CSV.field(r.target)),\(f.string(from: r.start)),\(f.string(from: r.end)),\(r.frames),\(r.exposureMs),\(String(format: "%.1f", r.integrationMinutes))\n"
         }
         return out
     }

@@ -19,7 +19,15 @@ public sealed class SeestarSigner : IDisposable
         catch (Exception e) { _rsa.Dispose(); throw new InvalidDataException(Strings.T("El archivo PEM no es válido."), e); }
     }
 
-    public static SeestarSigner FromFile(string path) => new(File.ReadAllText(path));
+    /// <summary>Una clave RSA en PEM ocupa unos pocos KB; algo mayor no es una clave.</summary>
+    public const int MaxPemBytes = 64 * 1024;
+
+    public static SeestarSigner FromFile(string path)
+    {
+        var len = new FileInfo(path).Length;
+        if (len == 0 || len > MaxPemBytes) throw new InvalidDataException("PEM");
+        return new(File.ReadAllText(path));
+    }
 
     public string Sign(string challenge) =>
         Convert.ToBase64String(_rsa.SignData(Encoding.UTF8.GetBytes(challenge), HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1));

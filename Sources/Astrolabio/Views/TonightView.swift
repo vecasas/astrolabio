@@ -292,7 +292,7 @@ struct InfoPopover: View {
                 ScrollView { Text(summary.extract).font(.callout).frame(maxWidth: .infinity, alignment: .leading) }
                     .frame(maxHeight: 220)
                 HStack {
-                    if let u = summary.url, let url = URL(string: u) { Link(tr("Leer en Wikipedia"), destination: url) }
+                    if let u = summary.url, let url = URL(string: u), NetPolicy.isWikipedia(url) { Link(tr("Leer en Wikipedia"), destination: url) }
                     Spacer()
                     Text(tr("Texto: Wikipedia (CC BY-SA)")).font(.caption2).foregroundStyle(.tertiary)
                 }

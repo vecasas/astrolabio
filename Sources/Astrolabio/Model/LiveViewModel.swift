@@ -133,7 +133,7 @@ final class LiveViewModel: ObservableObject {
     /// Guarda la imagen procesada (PNG) y los datos lineales (FITS) en la carpeta elegida.
     func save(to folder: URL, name: String) throws -> [URL] {
         let stamp = ISO8601DateFormatter().string(from: Date()).replacingOccurrences(of: ":", with: "-")
-        let safe = name.isEmpty ? "Seestar" : name.replacingOccurrences(of: "/", with: "-")
+        let safe = SafeName.fileComponent(name)
         var saved: [URL] = []
         if let image {
             let png = folder.appendingPathComponent("\(safe)_\(stamp).png")

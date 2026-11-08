@@ -70,7 +70,7 @@ struct ReportsView: View {
         defer { loading = false }
         for r in s.records where images[r.id] == nil {
             if let url = r.imageURL, let img = CGImage.load(url) { images[r.id] = img; continue }
-            if let thumb = r.albumThumb, let url = URL(string: thumb) {
+            if let thumb = r.albumThumb, let url = URL(string: thumb), url.scheme == "http", NetPolicy.isLocal(url.host ?? "") {
                 var req = URLRequest(url: url); req.timeoutInterval = 4
                 if let (data, _) = try? await URLSession.shared.data(for: req), let img = CGImage.load(data) { images[r.id] = img }
             }

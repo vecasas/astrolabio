@@ -221,7 +221,7 @@ public sealed partial class ObservationLog : Observable
     {
         var sb = new StringBuilder("objeto,inicio,fin,fotogramas,exposicion_ms,minutos\n");
         foreach (var r in All)
-            sb.Append(CultureInfo.InvariantCulture, $"\"{r.Target}\",{r.Start:O},{r.End:O},{r.Frames},{r.ExposureMs},{r.IntegrationMinutes:F1}\n");
+            sb.Append(CultureInfo.InvariantCulture, $"{Csv.Field(r.Target)},{r.Start:O},{r.End:O},{r.Frames},{r.ExposureMs},{r.IntegrationMinutes:F1}\n");
         return sb.ToString();
     }
 }

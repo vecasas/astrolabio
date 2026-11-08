@@ -47,9 +47,23 @@ struct SeestarSigner {
         self.key = key
     }
 
+    /// Una clave RSA en PEM ocupa unos pocos KB; algo mayor no es una clave.
+    static let maxPEMBytes = 64 * 1024
+
     init(pemURL: URL) throws {
+        let size = (try? pemURL.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        guard size > 0, size <= Self.maxPEMBytes else { throw SeestarAuthError.badPEM }
         let text = try String(contentsOf: pemURL, encoding: .utf8)
         try self.init(pemText: text)
+    }
+
+    /// Aviso si otros usuarios del Mac pueden leer el archivo de la clave (permisos de grupo u otros).
+    static func permissionsWarning(for path: String) -> String? {
+        let p = (path as NSString).expandingTildeInPath
+        guard let attrs = try? FileManager.default.attributesOfItem(atPath: p),
+              let mode = (attrs[.posixPermissions] as? NSNumber)?.intValue else { return nil }
+        guard mode & 0o077 != 0 else { return nil }
+        return tr("La clave PEM la pueden leer otros usuarios de este Mac. Protégela con: chmod 600 \"%@\"", p)
     }
 
     /// Devuelve la firma en base64, como espera `verify_client`.

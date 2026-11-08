@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Astrolabio.Core;
+using Astrolabio.Core.Model;
 using Astrolabio.Core.Reports;
 using Astrolabio.Core.Services;
 
@@ -74,7 +75,8 @@ public sealed class ReportsView : UserControl
             try
             {
                 if (r.ImagePath is string p && File.Exists(p)) _images[r.Id] = await File.ReadAllBytesAsync(p);
-                else if (r.AlbumThumb is string u) _images[r.Id] = await Http.GetByteArrayAsync(u);
+                else if (r.AlbumThumb is string u && Uri.TryCreate(u, UriKind.Absolute, out var uri) && uri.Scheme == "http" && NetPolicy.IsLocal(uri.Host))
+                    _images[r.Id] = await Http.GetByteArrayAsync(uri);
             }
             catch { }
         }

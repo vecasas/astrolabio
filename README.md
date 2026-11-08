@@ -1,6 +1,6 @@
 # Astrolabio
 
-**Versión 1.2.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
+**Versión 1.3.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
 
 App nativa para macOS (SwiftUI) que controla un telescopio inteligente Seestar S50 desde el Mac por la red local.
 
@@ -27,6 +27,7 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 - **Planificar la noche**: unos 170 objetos ordenados por tiempo útil, Luna, nubes y encuadre, con gráfica de altura.
 - **Sesión automática**: espera a la noche, apunta, enfoca, apila y pasa al siguiente; se pausa con nubes, para al amanecer, aparca y avisa en el Mac y en el móvil (ntfy).
 - **Seguridad** (nuevo en 1.2): ningún GoTo cerca del Sol ni por debajo de la altura mínima, confirmación antes de interrumpir un apilado, recentrado tras el GoTo, comprobación de batería antes del plan, avisos de batería baja, poca memoria o telescopio sin respuesta, el plan se retoma tras un reinicio y se elige qué hacer al terminar (aparcar, apagar o nada, con oscuros opcionales).
+- **Vigilancia de la noche** (nuevo en 1.3): mide la nitidez de las estrellas en cada apilado y avisa (o vuelve a enfocar) si empeora; avisa del riesgo de rocío y puede encender el calentador; recoge el telescopio si hay aviso oficial (MeteoAlarm), tormenta, lluvia o rachas fuertes, y sigue tras 30 minutos de calma. La sección Tiempo incluye un radar de lluvia animado.
 - **Mosaicos**: hasta 3×3 paneles con vista previa.
 
 **Archivo**
@@ -54,7 +55,7 @@ python3 scripts/i18n_build.py   # valida (huecos %@, %.1f…) y regenera Transla
 
 ## Instalar
 
-Descarga `Astrolabio-1.2.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
+Descarga `Astrolabio-1.3.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
 
 Para crear el instalador desde el código: `./scripts/make_dmg.sh` (deja `dist/Astrolabio-<versión>.dmg`).
 

@@ -38,6 +38,7 @@ struct AstrolabioApp: App {
         .map { URL(fileURLWithPath: $0) })
     @ObservedObject private var loc = Loc.shared
     @State private var health = HealthMonitor()
+    @StateObject private var nightGuard = NightGuard()
 
     var body: some Scene {
         WindowGroup("Astrolabio", id: "main") {
@@ -53,6 +54,7 @@ struct AstrolabioApp: App {
                 .environmentObject(tonight)
                 .environmentObject(nav)
                 .environmentObject(history)
+                .environmentObject(nightGuard)
                 .preferredColorScheme(.dark)
                 .nightMode(settings)
                 .frame(minWidth: 1180, minHeight: 760)
@@ -123,7 +125,9 @@ struct AstrolabioApp: App {
             a.addButton(withTitle: tr("Cancelar"))
             return a.runModal() == .alertFirstButtonReturn
         }
-        health.start(client: client, settings: settings, runner: runner, plan: plan)
+        nightGuard.attach(client: client, settings: settings, sky: sky, live: live)
+        runner.nightGuard = nightGuard
+        health.start(client: client, settings: settings, runner: runner, plan: plan, nightGuard: nightGuard)
         live.attach(to: client)
         history.attach(to: client, exposureMs: { s.exposureMs })
         let sky = self.sky, live = self.live

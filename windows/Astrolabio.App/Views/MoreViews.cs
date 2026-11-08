@@ -236,6 +236,7 @@ public sealed class WeatherView : UserControl
             new Border { Width = 2 + w.CloudCover * 1.6, Height = 8, Background = Brushes.Gray, CornerRadius = new CornerRadius(3), VerticalAlignment = VerticalAlignment.Center },
             Ui.Caption($"{Ui.T("Nubes")} {w.CloudCover:F0} % · {w.Temperature:F0} °C · {Ui.T("Punto de rocío")} {w.DewPoint:F0} °C · {Ui.T("Humedad")} {w.Humidity:F0} % · {Ui.T("Viento")} {w.Wind:F0} km/h", false))).ToArray());
         Content = Ui.Scroll(Ui.V(Ui.Text(Ui.T("Previsión para %@", st.Settings.SiteName), 16, FontWeight.SemiBold),
+            Ui.Wrap(new NightAlertsCard { Width = 420 }, new RadarCard()),
             st.Weather.Count == 0 ? Ui.Caption(Ui.T("Sin previsión del tiempo")) : rows,
             Ui.Caption(Ui.T("Si la temperatura se acerca al punto de rocío, enciende el calentador para que no se empañe."))));
     }

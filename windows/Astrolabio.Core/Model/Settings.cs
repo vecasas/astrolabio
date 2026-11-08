@@ -56,6 +56,13 @@ public sealed class AppSettings : Observable
     public bool HealthAlerts { get; set; } = true;
     public EndAction EndAction { get; set; } = EndAction.Park;
     public bool DarksAtEnd { get; set; }
+    public bool FocusWatch { get; set; } = true;
+    public double FocusThresholdPercent { get; set; } = 30;
+    public bool AutoRefocus { get; set; } = true;
+    public bool AutoDewHeater { get; set; }
+    public bool StormGuard { get; set; } = true;
+    public string AlertCountry { get; set; } = "spain";
+    public string AlertZone { get; set; } = "";
 
     [JsonIgnore] public GotoSafety.Limits GotoLimits => new(Latitude, Longitude, GotoMinAltitude, Math.Max(GotoSafety.SunSeparationFloor, SunSafetyDeg));
 

@@ -25,6 +25,8 @@ public sealed class LiveModel : Observable
     private ProcessingOptions _opts = new();
     public ProcessingOptions Options { get => _opts; set { if (Set(ref _opts, value)) Rerender(); } }
     public bool AutoRefresh { get; set; } = true;
+    private Core.Model.StarMetrics.Result? _metrics; public Core.Model.StarMetrics.Result? LastStarMetrics { get => _metrics; private set => Set(ref _metrics, value); }
+    public event Action<Core.Model.StarMetrics.Result>? StarMetricsMeasured;
     public bool IsPreviewing { get; private set; }
 
     public LiveModel(SeestarClient client)
@@ -62,9 +64,11 @@ public sealed class LiveModel : Observable
         {
             var lin = ImageProcessing.Linear(f);
             var r = ImageProcessing.Render(lin, o);
+            var m = f.Stacked ? Core.Model.StarMetrics.Measure(Core.Model.StarMetrics.Luminance(lin), lin.Width, lin.Height) : null;
             Dispatcher.UIThread.Post(() =>
             {
                 _linear = lin;
+                if (m is not null) { LastStarMetrics = m; StarMetricsMeasured?.Invoke(m); }
                 if (gen == _gen) { Image = ToBitmap(r); IsProcessing = false; }
             });
         });

@@ -15,11 +15,12 @@ final class HealthMonitor {
     private var lastDeviceRefresh = Date.distantPast
     private var resumeChecked = false
 
-    func start(client: SeestarClient, settings: AppSettings, runner: SessionRunner, plan: PlanStore) {
+    func start(client: SeestarClient, settings: AppSettings, runner: SessionRunner, plan: PlanStore, nightGuard: NightGuard? = nil) {
         task?.cancel()
         task = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.tick(client: client, settings: settings, runner: runner, plan: plan)
+                await nightGuard?.tick()
                 try? await Task.sleep(for: .seconds(60))
             }
         }

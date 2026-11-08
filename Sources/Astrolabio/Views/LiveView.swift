@@ -66,6 +66,11 @@ struct LiveView: View {
         Form {
             SwiftUI.Section(tr("Imagen")) {
                 Text(live.info).font(.caption).foregroundStyle(.secondary)
+                if let m = live.lastStarMetrics {
+                    Text(tr("Nitidez: HFR %@ px (%@ estrellas)", String(format: "%.2f", m.hfr), "\(m.stars)"))
+                        .font(.caption).monospacedDigit().foregroundStyle(.secondary)
+                        .help(tr("Radio de media intensidad de las estrellas: cuanto menor, más nítidas."))
+                }
                 Text(tr("%@ fotogramas apilados", "\(client.stackedFrames)")).font(.caption)
                 if !live.streamStatus.isEmpty { Text(live.streamStatus).font(.caption2).foregroundStyle(.tertiary) }
                 Toggle(tr("Actualizar sola"), isOn: $live.autoRefresh)

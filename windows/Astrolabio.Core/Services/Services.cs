@@ -5,7 +5,8 @@ using System.Text.Json.Nodes;
 
 namespace Astrolabio.Core.Services;
 
-public sealed record WeatherHour(DateTime Time, double CloudCover, double LowClouds, double Humidity, double Temperature, double DewPoint, double Wind);
+public sealed record WeatherHour(DateTime Time, double CloudCover, double LowClouds, double Humidity, double Temperature, double DewPoint, double Wind,
+    double Precipitation = 0, double Gusts = 0, int WeatherCode = 0);
 
 /// <summary>Previsión de Open-Meteo (gratuita, sin clave).</summary>
 public static class WeatherService
@@ -36,7 +37,7 @@ public static class WeatherService
     private static async Task<List<WeatherHour>> Fetch(string baseUrl, double lat, double lon, string extra)
     {
         var url = string.Create(CultureInfo.InvariantCulture,
-            $"{baseUrl}?latitude={lat:F4}&longitude={lon:F4}&hourly=cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m&timezone=UTC{extra}");
+            $"{baseUrl}?latitude={lat:F4}&longitude={lon:F4}&hourly=cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m,precipitation,wind_gusts_10m,weather_code&timezone=UTC{extra}");
         var root = JsonNode.Parse(await Http.GetStringAsync(url));
         var h = root?["hourly"];
         if (h?["time"] is not JsonArray times) return [];
@@ -46,7 +47,8 @@ public static class WeatherService
         {
             if (!DateTime.TryParseExact(times[i]?.GetValue<string>(), "yyyy-MM-dd'T'HH:mm", CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var t)) continue;
-            res.Add(new WeatherHour(t, G("cloud_cover", i), G("cloud_cover_low", i), G("relative_humidity_2m", i), G("temperature_2m", i), G("dew_point_2m", i), G("wind_speed_10m", i)));
+            res.Add(new WeatherHour(t, G("cloud_cover", i), G("cloud_cover_low", i), G("relative_humidity_2m", i), G("temperature_2m", i), G("dew_point_2m", i), G("wind_speed_10m", i),
+                G("precipitation", i), G("wind_gusts_10m", i), (int)G("weather_code", i)));
         }
         return res;
     }

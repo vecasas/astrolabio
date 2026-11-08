@@ -12,13 +12,13 @@ namespace Astrolabio.Core.Model;
 /// </summary>
 public sealed class SessionRunner : Observable
 {
-    public enum RunPhase { Idle, WaitingDark, WaitingTarget, Slewing, Focusing, Stacking, PausedClouds, Darks, Parking, Finished, Stopped }
+    public enum RunPhase { Idle, WaitingDark, WaitingTarget, Slewing, Focusing, Stacking, PausedClouds, PausedStorm, Darks, Parking, Finished, Stopped }
 
     public static string PhaseKey(RunPhase p) => p switch
     {
         RunPhase.Idle => "En espera", RunPhase.WaitingDark => "Esperando a que oscurezca", RunPhase.WaitingTarget => "Esperando a que el objeto suba",
         RunPhase.Slewing => "Apuntando", RunPhase.Focusing => "Enfocando", RunPhase.Stacking => "Apilando", RunPhase.PausedClouds => "En pausa por nubes",
-        RunPhase.Darks => "Creando oscuros", RunPhase.Parking => "Aparcando", RunPhase.Finished => "Plan terminado", _ => "Detenido",
+        RunPhase.PausedStorm => "Recogido por mal tiempo", RunPhase.Darks => "Creando oscuros", RunPhase.Parking => "Aparcando", RunPhase.Finished => "Plan terminado", _ => "Detenido",
     };
 
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
@@ -30,6 +30,8 @@ public sealed class SessionRunner : Observable
     public bool PauseForClouds { get; set; } = true;
     public bool StopAtDawn { get; set; } = true;
     public bool IsRunning => _cts is not null;
+    /// <summary>Vigilancia de enfoque, rocío y tormentas (la pone la app).</summary>
+    public NightGuard? Guard { get; set; }
 
     private CancellationTokenSource? _cts;
     private volatile bool _skip;
@@ -175,6 +177,26 @@ public sealed class SessionRunner : Observable
         s.Notify("Astrolabio", Strings.T("El plan de la noche ha terminado."));
     }
 
+    /// <summary>Recoge el telescopio y espera 30 minutos seguidos sin mal tiempo.</summary>
+    private async Task<bool> WaitOutStorm(SeestarClient c, AppSettings s, string reason, CancellationToken ct)
+    {
+        SetPhase(RunPhase.PausedStorm);
+        Say(c, Strings.T("Mal tiempo: %@ Se recoge el telescopio.", reason));
+        s.Notify("Astrolabio", Strings.T("⛈ Telescopio recogido: %@", reason));
+        try { await c.StopStack(); await c.Park(); } catch { }
+        DateTime? calm = null;
+        while (true)
+        {
+            await Task.Delay(60_000, ct);
+            if (StopAtDawn && WaitForDark && !IsDark(s)) return false;
+            if (Guard?.StormReason is null) { calm ??= DateTime.Now; if ((DateTime.Now - calm.Value).TotalMinutes >= 30) break; }
+            else calm = null;
+        }
+        Say(c, Strings.T("Ha pasado el mal tiempo: se reanuda el plan."));
+        s.Notify("Astrolabio", Strings.T("Ha pasado el mal tiempo: se reanuda el plan."));
+        return true;
+    }
+
     private async Task<(bool, DateTime)> RunItem(SeestarClient c, AppSettings s, PlanStore plan, PlanItem item, DateTime lastFocus, CancellationToken ct)
     {
         var panels = item.IsMosaic
@@ -211,6 +233,12 @@ public sealed class SessionRunner : Observable
             while (remaining > 5)
             {
                 if (_skip) return (any, lastFocus);
+                if (Guard?.StormReason is string storm)
+                {
+                    if (!await WaitOutStorm(c, s, storm, ct)) return (any, lastFocus);
+                    needGoto = true;
+                    continue;
+                }
                 if (await Cloudy(s))
                 {
                     SetPhase(RunPhase.PausedClouds);
@@ -237,11 +265,11 @@ public sealed class SessionRunner : Observable
                     }
                     if (!reached) { Say(c, Strings.T("No se pudo alcanzar %@.", label)); break; }
                     needGoto = false;
-                    if (item.Autofocus && (DateTime.Now - lastFocus).TotalHours > 1)
+                    if (item.Autofocus && ((DateTime.Now - lastFocus).TotalHours > 1 || Guard?.NeedsRefocus == true))
                     {
                         SetPhase(RunPhase.Focusing);
                         Say(c, Strings.T("Enfoque automático…"));
-                        if (await c.AutoFocusAndWait(2)) lastFocus = DateTime.Now; else Say(c, Strings.T("El enfoque falló; se sigue con el enfoque actual."));
+                        if (await c.AutoFocusAndWait(2)) { lastFocus = DateTime.Now; Guard?.Refocused(); } else Say(c, Strings.T("El enfoque falló; se sigue con el enfoque actual."));
                     }
                     try { await c.SetLPFilter(item.LpFilter); await c.SetTargetName(label); await c.SetGain(s.Gain); } catch { }
                     try { await c.StartStack(); }
@@ -255,6 +283,7 @@ public sealed class SessionRunner : Observable
                     try { await Task.Delay(5000, ct); }
                     catch { try { await c.StopStack(); } catch { } throw; }
                     if (_skip) { try { await c.StopStack(); } catch { } return (any, lastFocus); }
+                    if (Guard?.StormReason is not null) break;
                     remaining -= 5;
                     var r = remaining; Ui(() => RemainingSeconds = r);
                     item.StackedFrames = c.StackedFrames;
@@ -262,6 +291,16 @@ public sealed class SessionRunner : Observable
                     if ((int)remaining % 60 == 0) Ui(plan.Save);
                 }
                 any = true;
+                if (Guard?.StormReason is not null) continue;
+                if (s.AutoRefocus && item.Autofocus && Guard?.NeedsRefocus == true && remaining > 300)
+                {
+                    Say(c, Strings.T("Las estrellas han perdido nitidez: se vuelve a enfocar."));
+                    try { await c.StopStack(); } catch { }
+                    SetPhase(RunPhase.Focusing);
+                    if (await c.AutoFocusAndWait(2)) { lastFocus = DateTime.Now; Guard?.Refocused(); }
+                    try { await c.StartStack(); } catch { }
+                    SetPhase(RunPhase.Stacking);
+                }
                 if (StopAtDawn && !IsDark(s)) { Say(c, Strings.T("Amanece: fin del apilado.")); try { await c.StopStack(); } catch { } return (true, lastFocus); }
                 var altNow = AltAt(DateTime.UtcNow);
                 if (altNow < s.MinAltitude - 5) { Say(c, Strings.T("%@ ha bajado a %@°. Siguiente.", label, (int)altNow)); break; }

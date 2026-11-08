@@ -5,6 +5,7 @@ using Astrolabio.Core.Imaging;
 using Astrolabio.Core.Model;
 using Astrolabio.Core.Protocol;
 using Astrolabio.Core.Reports;
+using Astrolabio.Core.Services;
 using Xunit;
 
 namespace Astrolabio.Tests;
@@ -313,5 +314,90 @@ public class SafetyTests
             Assert.Null(SessionRunner.PendingResume());
         }
         finally { SessionRunner.StatePath = old; }
+    }
+}
+
+public class NightWatchTests
+{
+    private static float[] Field(double sigma, int width = 400, int height = 300, int stars = 40, ulong seed = 7)
+    {
+        var rng = seed;
+        double Rand() { rng = rng * 6364136223846793005UL + 1442695040888963407UL; return (rng >> 11) / (double)(1UL << 53); }
+        var img = new float[width * height];
+        for (var i = 0; i < img.Length; i++) img[i] = 0.05f + (float)((Rand() - 0.5) * 0.004);
+        for (var s = 0; s < stars; s++)
+        {
+            double cx = 20 + Rand() * (width - 40), cy = 20 + Rand() * (height - 40), amp = 0.2 + Rand() * 0.5;
+            for (var y = Math.Max(0, (int)cy - 12); y <= Math.Min(height - 1, (int)cy + 12); y++)
+                for (var x = Math.Max(0, (int)cx - 12); x <= Math.Min(width - 1, (int)cx + 12); x++)
+                    img[y * width + x] += (float)(amp * Math.Exp(-((x - cx) * (x - cx) + (y - cy) * (y - cy)) / (2 * sigma * sigma)));
+        }
+        return img;
+    }
+
+    [Fact]
+    public void HfrGrowsWithBlur()
+    {
+        var sharp = StarMetrics.Measure(Field(1.2), 400, 300)!;
+        var soft = StarMetrics.Measure(Field(2.4), 400, 300)!;
+        Assert.True(sharp.Stars >= 10);
+        Assert.InRange(sharp.Hfr, 1.18 * 1.2 - 0.35, 1.18 * 1.2 + 0.35);
+        Assert.True(soft.Hfr > sharp.Hfr * 1.6);
+        Assert.Null(StarMetrics.Measure(new float[400 * 300], 400, 300));
+        Assert.Null(StarMetrics.Measure([], 400, 300));
+    }
+
+    [Fact]
+    public void FocusWatchWarnsOnSoftening()
+    {
+        var w = new FocusWatch(0.3);
+        foreach (var h in new[] { 2.0, 2.1, 2.0 }) Assert.IsType<FocusWatch.Verdict.Learning>(w.Add(h, "M 31"));
+        Assert.IsType<FocusWatch.Verdict.Ok>(w.Add(2.1, "M 31"));
+        w.Add(2.9, "M 31"); w.Add(3.0, "M 31");
+        Assert.IsType<FocusWatch.Verdict.Softening>(w.Add(3.1, "M 31"));
+        Assert.IsType<FocusWatch.Verdict.Learning>(w.Add(3.1, "M 45"));
+        Assert.Equal(DewRisk.High, Dew.Level(10, 8.5));
+        Assert.Equal(DewRisk.Possible, Dew.Level(10, 7));
+        Assert.Equal(DewRisk.Low, Dew.Level(10, 2));
+    }
+
+    private const string Feed = """
+    {"warnings":[{"alert":{"info":[
+      {"area":[{"areaDesc":"Campiña de Madrid"},{"areaDesc":"Sierra de Madrid"}],"event":"Tormentas","headline":"Aviso de tormentas",
+       "onset":"2026-11-08T18:00:00-00:00","expires":"2026-11-08T23:59:59-00:00",
+       "parameter":[{"value":"2; yellow; Moderate","valueName":"awareness_level"},{"value":"3; thunderstorm","valueName":"awareness_type"}]}]}},
+     {"alert":{"info":[{"area":[{"areaDesc":"Campiña de Madrid"}],"event":"Niebla","onset":"2026-11-08T18:00:00-00:00","expires":"2026-11-09T06:00:00-00:00",
+       "parameter":[{"value":"2; yellow","valueName":"awareness_level"},{"value":"4; fog","valueName":"awareness_type"}]}]}},
+     {"basura":true}]}
+    """;
+
+    [Fact]
+    public void MeteoAlarmAndStormGuard()
+    {
+        var w = MeteoAlarm.Parse(Feed);
+        Assert.Equal(3, w.Count);
+        Assert.Equal(new[] { "Campiña de Madrid", "Sierra de Madrid" }, MeteoAlarm.Areas(w));
+        Assert.Empty(MeteoAlarm.Parse("no es json"));
+        var zone = w.Where(x => x.Area == "Campiña de Madrid").ToList();
+        var during = new DateTime(2026, 11, 8, 20, 0, 0, DateTimeKind.Utc);
+        var before = new DateTime(2026, 11, 8, 12, 0, 0, DateTimeKind.Utc);
+        Assert.NotNull(StormGuard.Reason(zone, [], during));
+        Assert.Null(StormGuard.Reason(zone, [], before));
+        WeatherHour H(DateTime t, int code = 0, double rain = 0, double gust = 0) => new(t, 50, 0, 70, 10, 5, 10, rain, gust, code);
+        Assert.NotNull(StormGuard.Reason([], [H(before.AddMinutes(30), code: 95)], before));
+        Assert.NotNull(StormGuard.Reason([], [H(before.AddMinutes(30), rain: 1.2)], before));
+        Assert.NotNull(StormGuard.Reason([], [H(before.AddMinutes(30), gust: 62)], before));
+        Assert.Null(StormGuard.Reason([], [H(before.AddMinutes(30), rain: 0.1, gust: 30)], before));
+        Assert.Null(StormGuard.Reason([], [H(before.AddHours(5), code: 96)], before));
+    }
+
+    [Fact]
+    public void RainRadarParsing()
+    {
+        var r = RainRadar.Parse("""{"host":"https://tilecache.rainviewer.com","radar":{"past":[{"time":1794128400,"path":"/v2/radar/abc"},{"time":1,"path":"../evil"}]}}""");
+        Assert.Single(r.Frames);
+        Assert.Equal("", RainRadar.Parse("""{"host":"http://inseguro","radar":{"past":[]}}""").Host);
+        var m = RainRadar.Tile(40.42, -3.70, 6);
+        Assert.Equal((31, 24), (m.X, m.Y));
     }
 }

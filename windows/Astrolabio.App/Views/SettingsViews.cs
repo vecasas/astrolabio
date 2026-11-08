@@ -65,6 +65,19 @@ public sealed class SettingsView : UserControl
             return g;
         }
 
+        var country = new ComboBox { ItemsSource = MeteoAlarm.Countries, SelectedItem = s.AlertCountry, Width = 220 };
+        var zone = new ComboBox { Width = 320 };
+        async Task LoadZones()
+        {
+            var zones = new List<string> { Ui.T("Ninguna") };
+            try { zones.AddRange(MeteoAlarm.Areas(await MeteoAlarm.Fetch(s.AlertCountry))); } catch { }
+            if (s.AlertZone.Length > 0 && !zones.Contains(s.AlertZone)) zones.Add(s.AlertZone);
+            zone.ItemsSource = zones;
+            zone.SelectedItem = s.AlertZone.Length == 0 ? zones[0] : s.AlertZone;
+        }
+        country.SelectionChanged += async (_, _) => { if (country.SelectedItem is string c && c != s.AlertCountry) { s.AlertCountry = c; s.AlertZone = ""; s.Save(); await LoadZones(); } };
+        zone.SelectionChanged += (_, _) => { if (zone.SelectedIndex >= 0) { s.AlertZone = zone.SelectedIndex == 0 ? "" : zone.SelectedItem as string ?? ""; s.Save(); } };
+        _ = LoadZones();
         var lang = new ComboBox { ItemsSource = Strings.Languages.Select(l => l.Native).ToList(), SelectedIndex = (int)Strings.Language, Width = 200 };
         lang.SelectionChanged += (_, _) => { var l = (AppLanguage)lang.SelectedIndex; s.Language = l.ToString(); s.Save(); Strings.SetLanguage(l); };
 
@@ -112,6 +125,18 @@ public sealed class SettingsView : UserControl
                 Ui.Caption(Ui.T("Se aplica a todos los GoTo: telescopio, planes, mosaicos, carta estelar, Luna, planetas y sugerencias. La protección solar no se puede desactivar (mínimo %@°).", (int)GotoSafety.SunSeparationFloor)),
                 Cb(Ui.T("Recentrar si el objeto queda descentrado tras el GoTo"), s.RecenterEnabled, v => s.RecenterEnabled = v),
                 Labeled("Tolerancia: %@′", s.RecenterToleranceArcmin, 1, 15, 1, v => s.RecenterToleranceArcmin = v)),
+            Ui.Card(Ui.T("Enfoque y rocío"),
+                Cb(Ui.T("Vigilar la nitidez de las estrellas durante el apilado"), s.FocusWatch, v => s.FocusWatch = v),
+                Labeled("Avisar si empeora más de un %@ %%", s.FocusThresholdPercent, 10, 100, 5, v => s.FocusThresholdPercent = v),
+                Cb(Ui.T("Volver a enfocar automáticamente en la sesión automática"), s.AutoRefocus, v => s.AutoRefocus = v),
+                Cb(Ui.T("Encender el calentador si hay riesgo alto de rocío"), s.AutoDewHeater, v => s.AutoDewHeater = v),
+                Ui.Caption(Ui.T("Astrolabio mide el tamaño de las estrellas en cada apilado. Si crecen, suele ser el enfoque (cambio de temperatura) o rocío en la lente."))),
+            Ui.Card(Ui.T("Avisos meteorológicos"),
+                Cb(Ui.T("Recoger el telescopio si hay tormenta, lluvia o viento fuerte"), s.StormGuard, v => s.StormGuard = v),
+                Ui.Row(Ui.T("País"), country),
+                Ui.Row(Ui.T("Zona de avisos"), zone),
+                Ui.Caption(Ui.T("La lista muestra las zonas con avisos en los últimos días; si la tuya no aparece, vuelve a mirar otro día.")),
+                Ui.Caption(Ui.T("Con la guardia activada, la sesión automática aparca el telescopio y espera 30 minutos sin avisos antes de seguir."))),
             Ui.Card(Ui.T("Avisos al móvil"),
                 Cb(Ui.T("Avisar de batería baja, poca memoria o telescopio sin respuesta"), s.HealthAlerts, v => s.HealthAlerts = v),
                 Ui.Text(Ui.T("Astrolabio puede avisarte en el móvil de lo que pasa durante la noche, aunque estés lejos del Mac. **No hace falta número de teléfono ni crear una cuenta**: se usa ntfy, una app gratuita para iPhone y Android.").Replace("**", "").Replace("Mac", "PC"), 12, wrap: true),

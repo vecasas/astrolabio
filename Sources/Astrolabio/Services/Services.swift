@@ -12,6 +12,9 @@ struct WeatherHour: Identifiable {
     let temperature: Double     // °C
     let dewPoint: Double        // °C
     let wind: Double            // km/h
+    var precipitation: Double = 0   // mm
+    var gusts: Double = 0           // km/h
+    var weatherCode: Int = 0        // WMO (95–99 tormenta)
 }
 
 enum WeatherService {
@@ -41,7 +44,7 @@ enum WeatherService {
         c.queryItems = [
             .init(name: "latitude", value: String(format: "%.4f", lat)),
             .init(name: "longitude", value: String(format: "%.4f", lon)),
-            .init(name: "hourly", value: "cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m"),
+            .init(name: "hourly", value: "cloud_cover,cloud_cover_low,relative_humidity_2m,temperature_2m,dew_point_2m,wind_speed_10m,precipitation,wind_gusts_10m,weather_code"),
             .init(name: "timezone", value: "UTC"),
         ] + extra
         let (data, _) = try await URLSession.shared.data(from: c.url!)
@@ -53,6 +56,7 @@ enum WeatherService {
         }
         let cc = arr("cloud_cover"), low = arr("cloud_cover_low"), rh = arr("relative_humidity_2m")
         let t = arr("temperature_2m"), dp = arr("dew_point_2m"), w = arr("wind_speed_10m")
+        let pr = arr("precipitation"), gu = arr("wind_gusts_10m"), wc = arr("weather_code")
         let fmt = DateFormatter()
         fmt.locale = Locale(identifier: "en_US_POSIX")
         fmt.timeZone = TimeZone(identifier: "UTC")
@@ -62,7 +66,8 @@ enum WeatherService {
             guard let d = fmt.date(from: s) else { continue }
             func g(_ a: [Double]) -> Double { i < a.count ? a[i] : 0 }
             out.append(WeatherHour(time: d, cloudCover: g(cc), lowClouds: g(low), humidity: g(rh),
-                                   temperature: g(t), dewPoint: g(dp), wind: g(w)))
+                                   temperature: g(t), dewPoint: g(dp), wind: g(w),
+                                   precipitation: g(pr), gusts: g(gu), weatherCode: Int(g(wc))))
         }
         return out
     }

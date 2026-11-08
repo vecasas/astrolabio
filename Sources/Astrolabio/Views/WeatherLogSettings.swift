@@ -22,6 +22,10 @@ struct WeatherView: View {
                     Button(tr("Actualizar")) { Task { await load() } }
                 }
                 if !error.isEmpty { Text(error).foregroundStyle(.red) }
+                HStack(alignment: .top, spacing: 16) {
+                    NightAlertsCard()
+                    RadarCard(latitude: settings.latitude, longitude: settings.longitude)
+                }
                 Card(title: tr("Nubes (%)"), systemImage: "cloud") {
                     Chart(hours) { h in
                         AreaMark(x: .value("Hora", h.time), y: .value("Nubes", h.cloudCover))
@@ -228,6 +232,27 @@ struct SettingsView: View {
                     }
                 }
             }
+            SwiftUI.Section(tr("Enfoque y rocío")) {
+                Toggle(tr("Vigilar la nitidez de las estrellas durante el apilado"), isOn: $settings.focusWatch)
+                if settings.focusWatch {
+                    Stepper(value: $settings.focusThresholdPercent, in: 10...100, step: 5) {
+                        Text(tr("Avisar si empeora más de un %@ %%", "\(Int(settings.focusThresholdPercent))"))
+                    }
+                    Toggle(tr("Volver a enfocar automáticamente en la sesión automática"), isOn: $settings.autoRefocus)
+                }
+                Toggle(tr("Encender el calentador si hay riesgo alto de rocío"), isOn: $settings.autoDewHeater)
+                Text(tr("Astrolabio mide el tamaño de las estrellas en cada apilado. Si crecen, suele ser el enfoque (cambio de temperatura) o rocío en la lente."))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            SwiftUI.Section(tr("Avisos meteorológicos")) {
+                Toggle(tr("Recoger el telescopio si hay tormenta, lluvia o viento fuerte"), isOn: $settings.stormGuard)
+                Picker(tr("País"), selection: $settings.alertCountry) {
+                    ForEach(MeteoAlarm.countries, id: \.self) { Text($0.replacingOccurrences(of: "-", with: " ").capitalized).tag($0) }
+                }
+                AlertZonePicker()
+                Text(tr("Con la guardia activada, la sesión automática aparca el telescopio y espera 30 minutos sin avisos antes de seguir."))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             SwiftUI.Section(tr("Avisos al móvil")) {
                 PhoneAlertsSettings(testMessage: $testMessage)
                 Toggle(tr("Avisar de batería baja, poca memoria o telescopio sin respuesta"), isOn: $settings.healthAlerts)
@@ -374,5 +399,33 @@ struct LanguagePicker: View {
             ForEach(AppLanguage.allCases) { l in Text(l.nativeName).tag(l) }
         }
         .pickerStyle(.menu)
+    }
+}
+
+/// Elige la zona de avisos oficiales entre las que publica MeteoAlarm para el país.
+@MainActor
+struct AlertZonePicker: View {
+    @EnvironmentObject var settings: AppSettings
+    @State private var zones: [String] = []
+    @State private var loading = false
+
+    var body: some View {
+        HStack {
+            Picker(tr("Zona de avisos"), selection: $settings.alertZone) {
+                Text(tr("Ninguna")).tag("")
+                if !settings.alertZone.isEmpty && !zones.contains(settings.alertZone) {
+                    Text(settings.alertZone).tag(settings.alertZone)
+                }
+                ForEach(zones, id: \.self) { Text($0).tag($0) }
+            }
+            if loading { ProgressView().controlSize(.small) }
+        }
+        .task(id: settings.alertCountry) {
+            loading = true
+            defer { loading = false }
+            zones = MeteoAlarm.areas((try? await MeteoAlarm.fetch(country: settings.alertCountry)) ?? [])
+        }
+        Text(tr("La lista muestra las zonas con avisos en los últimos días; si la tuya no aparece, vuelve a mirar otro día."))
+            .font(.caption2).foregroundStyle(.tertiary)
     }
 }

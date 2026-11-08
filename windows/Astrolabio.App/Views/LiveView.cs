@@ -26,7 +26,8 @@ public sealed class LiveView : UserControl
         void Update()
         {
             image.Source = live.Image; placeholder.IsVisible = live.Image is null;
-            info.Text = live.Info; status.Text = live.StreamStatus; frames.Text = Ui.T("%@ fotogramas apilados", c.StackedFrames);
+            info.Text = live.Info + (live.LastStarMetrics is { } m
+                ? "  ·  " + Ui.T("Nitidez: HFR %@ px (%@ estrellas)", m.Hfr.ToString("F2", System.Globalization.CultureInfo.InvariantCulture), m.Stars) : ""); status.Text = live.StreamStatus; frames.Text = Ui.T("%@ fotogramas apilados", c.StackedFrames);
         }
         live.PropertyChanged += (_, _) => Avalonia.Threading.Dispatcher.UIThread.Post(Update);
 

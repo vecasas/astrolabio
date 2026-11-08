@@ -16,6 +16,10 @@ final class LiveViewModel: ObservableObject {
 
     private let stream = ImageStream()
     private var linear: LinearImage?
+    /// Nitidez de las estrellas del último apilado (HFR en píxeles).
+    @Published private(set) var lastStarMetrics: StarMetrics.Result?
+    /// La vigilancia de enfoque recibe aquí cada medida.
+    var onStarMetrics: (@MainActor (StarMetrics.Result) -> Void)?
     private var lastFrameKind: RawFrame.Kind?
     private var lastRequest = Date.distantPast
     private var renderGeneration = 0
@@ -99,9 +103,12 @@ final class LiveViewModel: ObservableObject {
         Task.detached(priority: .userInitiated) {
             let lin = ImageProcessing.linear(from: frame)
             let img = ImageProcessing.render(lin, options: opts)
+            let metrics = frame.kind == .stacked
+                ? StarMetrics.measure(StarMetrics.luminance(lin), width: lin.width, height: lin.height) : nil
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.linear = lin
+                if let metrics { self.lastStarMetrics = metrics; self.onStarMetrics?(metrics) }
                 if gen == self.renderGeneration { self.image = img; self.isProcessing = false }
             }
         }

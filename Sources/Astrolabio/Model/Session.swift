@@ -62,7 +62,7 @@ final class PlanStore: ObservableObject {
 @MainActor
 final class SessionRunner: ObservableObject {
     enum Phase: Equatable {
-        case idle, waitingDark, waitingTarget, slewing, focusing, stacking, pausedClouds, darks, parking, finished, stopped
+        case idle, waitingDark, waitingTarget, slewing, focusing, stacking, pausedClouds, pausedStorm, darks, parking, finished, stopped
         var label: String {
             switch self {
             case .idle: return tr("En espera")
@@ -72,6 +72,7 @@ final class SessionRunner: ObservableObject {
             case .focusing: return tr("Enfocando")
             case .stacking: return tr("Apilando")
             case .pausedClouds: return tr("En pausa por nubes")
+            case .pausedStorm: return tr("Recogido por mal tiempo")
             case .darks: return tr("Creando oscuros")
             case .parking: return tr("Aparcando")
             case .finished: return tr("Plan terminado")
@@ -120,6 +121,8 @@ final class SessionRunner: ObservableObject {
     private weak var client: SeestarClient?
     private weak var settings: AppSettings?
     private weak var plan: PlanStore?
+    /// Vigilancia de enfoque, rocío y tormentas (la pone la app).
+    weak var nightGuard: NightGuard?
     private var weather: [WeatherHour] = []
     private var weatherFetched = Date.distantPast
 
@@ -260,6 +263,31 @@ final class SessionRunner: ObservableObject {
         settings.notify("Astrolabio", tr("El plan de la noche ha terminado."))
     }
 
+    /// Recoge el telescopio por mal tiempo y espera 30 minutos seguidos sin avisos.
+    /// Devuelve false si se canceló el plan o llegó el amanecer.
+    private func waitOutStorm(_ reason: String) async -> Bool {
+        guard let client, let settings else { return false }
+        phase = .pausedStorm
+        say(tr("Mal tiempo: %@ Se recoge el telescopio.", reason))
+        settings.notify("Astrolabio", tr("⛈ Telescopio recogido: %@", reason))
+        try? await client.stopStack()
+        try? await client.park()
+        var calmSince: Date?
+        while true {
+            if !(await sleep(60)) { return false }
+            if options.stopAtDawn && options.waitForDark && !isDarkNow() { return false }
+            if nightGuard?.stormReason == nil {
+                calmSince = calmSince ?? Date()
+                if Date().timeIntervalSince(calmSince!) >= 1800 { break }
+            } else {
+                calmSince = nil
+            }
+        }
+        say(tr("Ha pasado el mal tiempo: se reanuda el plan."))
+        settings.notify("Astrolabio", tr("Ha pasado el mal tiempo: se reanuda el plan."))
+        return true
+    }
+
     private func runItem(_ item: PlanItem, index: Int, lastFocus: inout Date) async -> Bool {
         guard let client, let settings, let plan else { return false }
         let fov = (w: settings.fovWidthDeg, h: settings.fovHeightDeg)
@@ -310,6 +338,12 @@ final class SessionRunner: ObservableObject {
             while remaining > 5 {
                 if Task.isCancelled || skipRequested { return anyPanelDone }
 
+                if let storm = nightGuard?.stormReason {
+                    if !(await waitOutStorm(storm)) { return anyPanelDone }
+                    needGoto = true
+                    continue
+                }
+
                 if await cloudyNow() {
                     phase = .pausedClouds
                     say(tr("Se prevén nubes. Pausa de 10 minutos."))
@@ -339,10 +373,10 @@ final class SessionRunner: ObservableObject {
                     if !reached { say(tr("No se pudo alcanzar %@.", "\(label)")); break }
                     needGoto = false
 
-                    if item.autofocus && Date().timeIntervalSince(lastFocus) > 3600 {
+                    if item.autofocus && (Date().timeIntervalSince(lastFocus) > 3600 || nightGuard?.needsRefocus == true) {
                         phase = .focusing
                         say(tr("Enfoque automático…"))
-                        if await client.autoFocusAndWait(tries: 2) { lastFocus = Date() }
+                        if await client.autoFocusAndWait(tries: 2) { lastFocus = Date(); nightGuard?.refocused() }
                         else { say(tr("El enfoque falló; se sigue con el enfoque actual.")) }
                     }
                     try? await client.setLPFilter(item.lpFilter)
@@ -363,6 +397,7 @@ final class SessionRunner: ObservableObject {
                 while Date() < chunkEnd {
                     if !(await sleep(5)) { try? await client.stopStack(); return anyPanelDone }
                     if skipRequested { try? await client.stopStack(); return anyPanelDone }
+                    if nightGuard?.stormReason != nil { break }
                     remaining -= 5
                     remainingSeconds = remaining
                     if index < plan.items.count {
@@ -371,6 +406,16 @@ final class SessionRunner: ObservableObject {
                     }
                 }
                 anyPanelDone = true
+                if nightGuard?.stormReason != nil { continue }   // se recoge al principio del bucle
+                // Estrellas menos nítidas: se para, se enfoca y se sigue apilando el tiempo que queda.
+                if settings.autoRefocus && item.autofocus && nightGuard?.needsRefocus == true && remaining > 300 {
+                    say(tr("Las estrellas han perdido nitidez: se vuelve a enfocar."))
+                    try? await client.stopStack()
+                    phase = .focusing
+                    if await client.autoFocusAndWait(tries: 2) { lastFocus = Date(); nightGuard?.refocused() }
+                    try? await client.startStack(restart: true)
+                    phase = .stacking
+                }
                 if options.stopAtDawn && !isDarkNow() {
                     say(tr("Amanece: fin del apilado."))
                     try? await client.stopStack()

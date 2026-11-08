@@ -35,6 +35,15 @@ final class AppSettings: ObservableObject {
     /// Al terminar el plan.
     @Published var endAction: EndAction { didSet { d.set(endAction.rawValue, forKey: "endAction") } }
     @Published var darksAtEnd: Bool { didSet { d.set(darksAtEnd, forKey: "darksAtEnd") } }
+    /// Vigilancia de enfoque y rocío.
+    @Published var focusWatch: Bool { didSet { d.set(focusWatch, forKey: "focusWatch") } }
+    @Published var focusThresholdPercent: Double { didSet { d.set(focusThresholdPercent, forKey: "focusThresholdPercent") } }
+    @Published var autoRefocus: Bool { didSet { d.set(autoRefocus, forKey: "autoRefocus") } }
+    @Published var autoDewHeater: Bool { didSet { d.set(autoDewHeater, forKey: "autoDewHeater") } }
+    /// Guardia de tormenta y avisos oficiales.
+    @Published var stormGuard: Bool { didSet { d.set(stormGuard, forKey: "stormGuard") } }
+    @Published var alertCountry: String { didSet { d.set(alertCountry, forKey: "alertCountry") } }
+    @Published var alertZone: String { didSet { d.set(alertZone, forKey: "alertZone") } }
 
     var gotoLimits: GotoSafety.Limits {
         GotoSafety.Limits(latitude: latitude, longitude: longitude, minAltitude: gotoMinAltitude,
@@ -84,6 +93,13 @@ final class AppSettings: ObservableObject {
         healthAlerts = d.object(forKey: "healthAlerts") == nil ? true : d.bool(forKey: "healthAlerts")
         endAction = d.string(forKey: "endAction").flatMap(EndAction.init(rawValue:)) ?? .park
         darksAtEnd = d.bool(forKey: "darksAtEnd")
+        focusWatch = d.object(forKey: "focusWatch") == nil ? true : d.bool(forKey: "focusWatch")
+        focusThresholdPercent = dbl("focusThresholdPercent", 30)
+        autoRefocus = d.object(forKey: "autoRefocus") == nil ? true : d.bool(forKey: "autoRefocus")
+        autoDewHeater = d.bool(forKey: "autoDewHeater")
+        stormGuard = d.object(forKey: "stormGuard") == nil ? true : d.bool(forKey: "stormGuard")
+        alertCountry = d.string(forKey: "alertCountry") ?? "spain"
+        alertZone = d.string(forKey: "alertZone") ?? ""
         nightMode = d.bool(forKey: "nightMode")
         nightModeAuto = d.bool(forKey: "nightModeAuto")
         nightBrightness = dbl("nightBrightness", 0.7)

@@ -18,6 +18,7 @@ public sealed class AppState
     public SessionRunner Runner { get; }
     public ObservationLog History { get; } = new();
     public LiveModel Live { get; }
+    public NightGuard Guard { get; }
     public List<WeatherHour> Weather { get; private set; } = [];
     public Astro.Night? Night { get; private set; }
     public List<TargetForecast> Forecasts { get; private set; } = [];
@@ -31,6 +32,9 @@ public sealed class AppState
         Runner = new SessionRunner();
         Live = new LiveModel(Client);
         History.Attach(Client, () => Settings.ExposureMs);
+        Guard = new NightGuard(Client, Settings, () => Weather);
+        Live.StarMetricsMeasured += Guard.Handle;
+        Runner.Guard = Guard;
         History.ContextProvider = () =>
         {
             var s = Settings;
@@ -66,6 +70,7 @@ public sealed class AppState
         while (true)
         {
             await Task.Delay(TimeSpan.FromSeconds(60));
+            await Dispatcher.UIThread.InvokeAsync(Guard.Tick);
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 if (!_resumeChecked && Client.IsConnected)

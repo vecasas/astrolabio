@@ -8,6 +8,7 @@ using Avalonia.Threading;
 using Astrolabio.Core;
 using Astrolabio.Core.Astronomy;
 using Astrolabio.Core.Model;
+using Astrolabio.Core.Protocol;
 
 namespace Astrolabio.App.Views;
 

@@ -1,6 +1,6 @@
 # Astrolabio
 
-**Versión 1.6.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
+**Versión 1.7.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
 
 App nativa para macOS (SwiftUI) que controla un telescopio inteligente Seestar S50 desde el Mac por la red local.
 
@@ -31,6 +31,7 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 - **Más segura y robusta** (1.4): revisión completa de seguridad ([SEGURIDAD.md](SEGURIDAD.md)), recuperación automática si el Seestar se reinicia o se cae la wifi a mitad de plan, y una batería de pruebas con un Seestar simulado ([PRUEBAS.md](PRUEBAS.md)).
 - **Catálogo, cometas y listas** (nuevo en 1.5): unos 1 800 objetos (OpenNGC, CC BY-SA 4.0) y los 109 Caldwell; cometas visibles esta noche con órbitas del Minor Planet Center y seguimiento en la sesión automática; listas Messier y Caldwell con lo fotografiado y lo pendiente; planificador del maratón Messier; y la mejor noche de la semana.
 - **Mi horizonte y la noche planificada** (nuevo en 1.6): dibuja tu horizonte (árboles, tejados) y Astrolabio no sugiere ni apila lo que queda detrás; línea de tiempo del plan con barras arrastrables, avisos y «Simular la noche»; proyectos de varias noches con objetivo de horas; y copia de seguridad de ajustes, horizontes, plan, proyectos e historial (nunca la clave PEM).
+- **Retoque de fotos** (nuevo en 1.7): gradiente, fondo neutro, punto negro, brillo, ruido, ruido de color, enfoque, saturación, reducción de estrellas, recortes, comparación antes/después y pie de foto; trazas de satélite (detección automática o a mano); nombres de los objetos con la rosa N/E; integración con GraXpert si está instalado; y copia del álbum al ordenador con reanudación y comprobación SHA-256 (nunca borra nada del telescopio).
 - **Mosaicos**: hasta 3×3 paneles con vista previa.
 
 **Archivo**
@@ -58,7 +59,7 @@ python3 scripts/i18n_build.py   # valida (huecos %@, %.1f…) y regenera Transla
 
 ## Instalar
 
-Descarga `Astrolabio-1.6.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
+Descarga `Astrolabio-1.7.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
 
 Para crear el instalador desde el código: `./scripts/make_dmg.sh` (deja `dist/Astrolabio-<versión>.dmg`).
 

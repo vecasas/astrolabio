@@ -1,8 +1,8 @@
 ; Instalador de Astrolabio para Windows 10/11 (Inno Setup 6).
 ; Se compila en GitHub Actions (.github/workflows/windows.yml) o en un PC con Inno Setup:
-;   iscc /DAppVersion=1.6.0 /DPublishDir=..\publish\win-x64 Astrolabio.iss
+;   iscc /DAppVersion=1.7.0 /DPublishDir=..\publish\win-x64 Astrolabio.iss
 #ifndef AppVersion
-  #define AppVersion "1.6.0"
+  #define AppVersion "1.7.0"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\publish\win-x64"

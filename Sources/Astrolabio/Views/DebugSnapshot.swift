@@ -14,6 +14,9 @@ enum DebugSnapshot {
         guard let dir = ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT"], !dir.isEmpty else { return }
         let only = ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT_SECTIONS"]?
             .split(separator: ",").map(String.init)
+        if let open = ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT_OPEN"] {
+            PhotoEditorModel.shared.open(URL(fileURLWithPath: open))
+        }
         Task { @MainActor in
             try? await Task.sleep(for: .seconds(2))
             let folder = URL(fileURLWithPath: dir, isDirectory: true)
@@ -22,7 +25,7 @@ enum DebugSnapshot {
             for section in sections {
                 nav?.selection = section
                 let slow = Double(ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT_WAIT"] ?? "") ?? 9
-                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic].contains(section) ? slow : 3))
+                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic, .editor].contains(section) ? slow : 3))
                 save(to: folder.appendingPathComponent("\(section).png"))
             }
             if only?.contains("settings") == true {

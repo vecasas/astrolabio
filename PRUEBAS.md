@@ -1,6 +1,6 @@
 # Pruebas automáticas de Astrolabio
 
-**Versión:** 1.6.0 · **Mac:** 84 pruebas en 15 grupos · **Windows:** 48 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
+**Versión:** 1.7.0 · **Mac:** 93 pruebas en 16 grupos (+1 opcional con GraXpert real) · **Windows:** 50 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
 
 Cómo ejecutarlas:
 - Mac: `./scripts/test.sh` (o `swift test`)
@@ -50,6 +50,11 @@ Las pruebas usan ajustes, plan e historial temporales: **nunca tocan los datos r
 | Horizonte propio | Interpolación, importar y exportar, planificación y listas que lo respetan; la sesión salta un objeto tapado sin apuntar (Seestar simulado) | ✅ | ✅ |
 | Línea de tiempo | Orden, espera por «no antes de», tiempo ya hecho, avisos de amanecer y de horizonte | ✅ | ✅ |
 | Proyectos y copia de seguridad | Avance desde el historial; la copia nunca incluye la clave PEM y no la sobrescribe al restaurar | ✅ | ✅ |
+| Retoque de fotos | FITS ida y vuelta (orientación y cabecera), estirado, recortes, reducción de estrellas y del ruido de color, exportación JPEG/PNG/TIFF 16 bits, pie de foto | ✅ | ✅ |
+| Trazas de satélite | Detecta una traza real (y nada en un campo solo de estrellas), la quita; una traza desmarcada no se toca | ✅ | ✅ |
+| Nombres de objetos | Proyección TAN, cabecera FITS con matriz CD, estimación con norte arriba, rosa N/E, centro desde el nombre del archivo | ✅ | ✅ |
+| GraXpert | Argumentos exactos, programa falso que imita a GraXpert, errores y limpieza de temporales; prueba opcional con el GraXpert instalado (el gradiente bajó de 4920 a 49) | ✅ | ✅ (argumentos) |
+| Copia del álbum | Índice HTML seguro (sin «..», rutas ni otros servidores), copia contra un servidor HTTP simulado, reanudación sin volver a descargar, recopia si el archivo local se estropea | ✅ | ✅ (índice) |
 | Astronomía | Día juliano, altura de la Polar, precesión, coordenadas, Luna, planetas, salidas y puestas | ✅ | ✅ |
 | Qué mirar / Elige por mí | Sugerencias y plan corto; consejos de captura por tipo de objeto | ✅ | — |
 | Mosaicos | Número y posición de paneles | ✅ | ✅ |

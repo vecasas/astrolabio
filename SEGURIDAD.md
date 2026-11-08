@@ -74,6 +74,8 @@ Todas las correcciones tienen pruebas automáticas:
   - no se ejecuta ningún comando con texto que venga de fuera;
   - en el Mac solo se lanza `osascript` (avisos cuando la app se ejecuta sin empaquetar), con el texto escapado;
   - en Windows solo se abren rutas de archivos propios o URLs construidas por la app.
+- **GraXpert (desde la versión 1.7):** es el único programa externo que lanza Astrolabio, y solo si el usuario lo pide. Se ejecuta directamente, sin shell, con una lista fija de argumentos; trabaja sobre copias en una carpeta temporal propia que se borra al terminar, tiene un tiempo máximo y el original nunca se toca.
+- **Copia del álbum (desde la versión 1.7):** de la lista del telescopio solo se aceptan nombres de imagen o vídeo de esa carpeta (sin rutas, sin «..» y sin enlaces a otros servidores). Cada archivo se comprueba por tamaño y SHA-256, y Astrolabio no borra nada del telescopio: no hay orden documentada para hacerlo.
 - **Datos de internet:**
   - todas las fuentes van por HTTPS;
   - RainViewer y MeteoAlarm se validan (solo hosts HTTPS, rutas sin `..`, tamaño máximo del feed).

@@ -1,6 +1,6 @@
 # Astrolabio
 
-**Versión 1.7.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
+**Versión 1.8.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
 
 App nativa para macOS (SwiftUI) que controla un telescopio inteligente Seestar S50 desde el Mac por la red local.
 
@@ -32,6 +32,7 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 - **Catálogo, cometas y listas** (nuevo en 1.5): unos 1 800 objetos (OpenNGC, CC BY-SA 4.0) y los 109 Caldwell; cometas visibles esta noche con órbitas del Minor Planet Center y seguimiento en la sesión automática; listas Messier y Caldwell con lo fotografiado y lo pendiente; planificador del maratón Messier; y la mejor noche de la semana.
 - **Mi horizonte y la noche planificada** (nuevo en 1.6): dibuja tu horizonte (árboles, tejados) y Astrolabio no sugiere ni apila lo que queda detrás; línea de tiempo del plan con barras arrastrables, avisos y «Simular la noche»; proyectos de varias noches con objetivo de horas; y copia de seguridad de ajustes, horizontes, plan, proyectos e historial (nunca la clave PEM).
 - **Retoque de fotos** (nuevo en 1.7): gradiente, fondo neutro, punto negro, brillo, ruido, ruido de color, enfoque, saturación, reducción de estrellas, recortes, comparación antes/después y pie de foto; trazas de satélite (detección automática o a mano); nombres de los objetos con la rosa N/E; integración con GraXpert si está instalado; y copia del álbum al ordenador con reanudación y comprobación SHA-256 (nunca borra nada del telescopio).
+- **Luna, satélites y eventos** (nuevo en 1.8): 74 cráteres, mares y montes de la Luna con la libración del día y los mejores junto al terminador, rotulados sobre la Luna (imagen para guardar o copiar); pasos de la Estación Espacial y de los satélites brillantes en las próximas cinco noches, con un modelo orbital SGP4 propio y aviso si alguno va a cruzar el objeto que se está apilando; eventos del cielo de las próximas seis semanas (lluvias de estrellas, conjunciones, oposiciones, elongaciones, fases y cometas) con etiquetas pensadas para el Seestar; y la «Hoja de la noche», una imagen con todo lo de la noche para guardar, copiar o imprimir.
 - **Mosaicos**: hasta 3×3 paneles con vista previa.
 
 **Archivo**
@@ -59,7 +60,7 @@ python3 scripts/i18n_build.py   # valida (huecos %@, %.1f…) y regenera Transla
 
 ## Instalar
 
-Descarga `Astrolabio-1.7.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
+Descarga `Astrolabio-1.8.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
 
 Para crear el instalador desde el código: `./scripts/make_dmg.sh` (deja `dist/Astrolabio-<versión>.dmg`).
 

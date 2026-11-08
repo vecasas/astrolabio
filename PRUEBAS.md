@@ -1,6 +1,6 @@
 # Pruebas automáticas de Astrolabio
 
-**Versión:** 1.7.0 · **Mac:** 93 pruebas en 16 grupos (+1 opcional con GraXpert real) · **Windows:** 50 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
+**Versión:** 1.8.0 · **Mac:** 105 pruebas en 22 grupos (+1 opcional con GraXpert real) · **Windows:** 60 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
 
 Cómo ejecutarlas:
 - Mac: `./scripts/test.sh` (o `swift test`)
@@ -55,6 +55,10 @@ Las pruebas usan ajustes, plan e historial temporales: **nunca tocan los datos r
 | Nombres de objetos | Proyección TAN, cabecera FITS con matriz CD, estimación con norte arriba, rosa N/E, centro desde el nombre del archivo | ✅ | ✅ |
 | GraXpert | Argumentos exactos, programa falso que imita a GraXpert, errores y limpieza de temporales; prueba opcional con el GraXpert instalado (el gradiente bajó de 4920 a 49) | ✅ | ✅ (argumentos) |
 | Copia del álbum | Índice HTML seguro (sin «..», rutas ni otros servidores), copia contra un servidor HTTP simulado, reanudación sin volver a descargar, recopia si el archivo local se estropea | ✅ | ✅ (índice) |
+| Satélites (SGP4) | Lectura de TLE con suma de control; vectores de referencia de Vallado (error < 1 km); los 29 pasos de la ISS sobre Madrid en 5 días frente a Skyfield (salida y puesta a menos de 1 min, altura máxima a menos de 1,5°); cruce de un satélite por el campo; descarga solo HTTPS de celestrak.org con límite de tamaño | ✅ | ✅ |
+| Luna | Libración y punto subsolar frente al ejemplo 53.a de Meeus; terminador en cuarto creciente; posición de los accidentes en el disco; imagen rotulada | ✅ | ✅ (sin imagen) |
+| Eventos del cielo | Lluvias de estrellas, fases y conjunciones en seis semanas, orden por fecha, cálculo del mínimo | ✅ | ✅ |
+| Hoja de la noche | Datos de la noche y PNG generado | ✅ | — |
 | Astronomía | Día juliano, altura de la Polar, precesión, coordenadas, Luna, planetas, salidas y puestas | ✅ | ✅ |
 | Qué mirar / Elige por mí | Sugerencias y plan corto; consejos de captura por tipo de objeto | ✅ | — |
 | Mosaicos | Número y posición de paneles | ✅ | ✅ |

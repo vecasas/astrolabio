@@ -13,7 +13,7 @@
 Astrolabio no tiene servidor propio, cuentas de usuario ni base de datos en internet. Todo se ejecuta en el ordenador del usuario y habla con cuatro tipos de destino:
 
 1. **El Seestar en la red local**, con el protocolo del fabricante (TCP 4700 y 4800 sin cifrar, HTTP para el álbum). Ese protocolo no admite TLS, así que la red local se considera de confianza limitada.
-2. **Servicios públicos de datos, todos por HTTPS:** Open-Meteo, NASA SkyView, Wikipedia, CDS Sesame, MeteoAlarm, RainViewer y las teselas del mapa de CARTO.
+2. **Servicios públicos de datos, todos por HTTPS:** Open-Meteo, NASA SkyView, Wikipedia, CDS Sesame, MeteoAlarm, RainViewer, Minor Planet Center, CelesTrak y las teselas del mapa de CARTO.
 3. **ntfy**, solo si el usuario activa los avisos al móvil.
 4. **La API pública de GitHub**, desde la web, para enlazar la última versión.
 
@@ -76,6 +76,7 @@ Todas las correcciones tienen pruebas automáticas:
   - en Windows solo se abren rutas de archivos propios o URLs construidas por la app.
 - **GraXpert (desde la versión 1.7):** es el único programa externo que lanza Astrolabio, y solo si el usuario lo pide. Se ejecuta directamente, sin shell, con una lista fija de argumentos; trabaja sobre copias en una carpeta temporal propia que se borra al terminar, tiene un tiempo máximo y el original nunca se toca.
 - **Copia del álbum (desde la versión 1.7):** de la lista del telescopio solo se aceptan nombres de imagen o vídeo de esa carpeta (sin rutas, sin «..» y sin enlaces a otros servidores). Cada archivo se comprueba por tamaño y SHA-256, y Astrolabio no borra nada del telescopio: no hay orden documentada para hacerlo.
+- **Órbitas de satélites (desde la versión 1.8):** se descargan de CelesTrak solo por HTTPS desde `celestrak.org` (también tras redirecciones), como mucho una vez al día y con un límite de 2 MB; cada línea se valida con su suma de control. El modelo orbital es propio, sin bibliotecas externas. Para imprimir la hoja de la noche en Windows se abre un PNG propio guardado en la carpeta de datos de la app.
 - **Datos de internet:**
   - todas las fuentes van por HTTPS;
   - RainViewer y MeteoAlarm se validan (solo hosts HTTPS, rutas sin `..`, tamaño máximo del feed).

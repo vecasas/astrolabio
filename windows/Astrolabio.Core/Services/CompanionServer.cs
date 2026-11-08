@@ -138,7 +138,7 @@ public sealed class RateLimiter(double capacity, double perSecond)
         lock (_b)
         {
             var t = Now();
-            var b = _b.TryGetValue(who, out var x) ? x : (capacity, t);
+            (double Tokens, DateTime At) b = _b.TryGetValue(who, out var x) ? x : (capacity, t);
             b.Tokens = Math.Min(capacity, b.Tokens + (t - b.At).TotalSeconds * perSecond); b.At = t;
             var ok = b.Tokens >= cost;
             if (ok) b.Tokens -= cost;

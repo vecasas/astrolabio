@@ -10,7 +10,7 @@
 
 ## Resumen
 
-Astrolabio no tiene servidor propio, cuentas de usuario ni base de datos en internet. Todo se ejecuta en el ordenador del usuario y habla con cuatro tipos de destino:
+Astrolabio no tiene servidor propio, cuentas de usuario ni base de datos en internet. Todo se ejecuta en el ordenador del usuario. Solo acepta conexiones si el usuario activa el control desde el móvil, y entonces únicamente desde la red local (ver «Control desde el móvil»). Habla con cuatro tipos de destino:
 
 1. **El Seestar en la red local**, con el protocolo del fabricante (TCP 4700 y 4800 sin cifrar, HTTP para el álbum). Ese protocolo no admite TLS, así que la red local se considera de confianza limitada.
 2. **Servicios públicos de datos, todos por HTTPS:** Open-Meteo, NASA SkyView, Wikipedia, CDS Sesame, MeteoAlarm, RainViewer, Minor Planet Center, CelesTrak y las teselas del mapa de CARTO.
@@ -86,8 +86,51 @@ Todas las correcciones tienen pruebas automáticas:
   - la web no usa servicios de terceros salvo la API pública de GitHub.
 - **Dependencias:**
   - la app de Mac no usa ninguna librería externa;
-  - la de Windows usa Avalonia 11.3.22 (MIT), QuestPDF 2025.12.4 (licencia Community, gratuita para proyectos de código abierto) y, solo para las pruebas, xUnit (Apache 2.0);
+  - la de Windows usa Avalonia 11.3.22 (MIT), QuestPDF 2025.12.4 (licencia Community, gratuita para proyectos de código abierto), QRCoder 1.6.0 (MIT, solo para dibujar el QR del móvil) y, solo para las pruebas, xUnit (Apache 2.0);
   - las versiones ahora van fijadas, sin comodines.
+
+## Control desde el móvil (desde la versión 1.9)
+
+Es la única parte de Astrolabio que **acepta conexiones**. Por eso está diseñada para exponer lo mínimo:
+
+- **Apagada de serie.** Solo funciona si el usuario la activa en «Control desde el móvil»; al desactivarla se cierra el puerto.
+- **Solo la red local:**
+  - el servidor escucha únicamente en la dirección privada del ordenador en la wifi o el cable (no en todas las interfaces), puerto 8642;
+  - toda conexión que llega desde una dirección que no sea privada (10/8, 172.16/12, 192.168/16, enlace local, IPv6 ULA o de enlace) se cierra sin leer nada;
+  - cada petición debe traer en `Host` la dirección exacta del servidor, lo que frena los ataques de *DNS rebinding* desde una web.
+- **Emparejamiento en dos factores:**
+  - el QR lleva un token aleatorio de 192 bits;
+  - en el ordenador se muestra un código de 6 cifras que hay que escribir en el móvil;
+  - el QR caduca a los 5 minutos, vale para un solo móvil y se anula tras 5 códigos fallidos;
+  - además hay un límite de 5 intentos por minuto y dirección.
+- **Llaves revocables:**
+  - cada móvil recibe una llave aleatoria de 256 bits que guarda en su navegador;
+  - el ordenador solo guarda su resumen SHA-256, y las comparaciones son de tiempo constante;
+  - «Quitar el acceso a todos» las anula de golpe;
+  - las llaves y el permiso del móvil no viajan en las copias de seguridad.
+- **Sin CSRF:**
+  - la llave va en la cabecera `Authorization`, nunca en cookies, así que otra web no puede usarla aunque el móvil la visite;
+  - el servidor no responde a peticiones CORS;
+  - las acciones solo se aceptan por `POST`.
+- **Lo que expone es poco:**
+  - estado, objeto, fotogramas, batería, avance del plan, últimos mensajes y la imagen en directo (JPEG reducido);
+  - acciones: parar, saltar y aparcar, con confirmación en el móvil y un límite de 3 acciones cada 30 s;
+  - nunca muestra ajustes, la clave PEM, la dirección del telescopio ni archivos;
+  - no permite apuntar ni mover el telescopio a coordenadas.
+- **Robustez:**
+  - una petición por conexión;
+  - cabeceras de hasta 8 KB y cuerpo de hasta 2 KB;
+  - sin `chunked`;
+  - 10 s de tiempo máximo;
+  - un límite general de peticiones por dirección.
+- **Página blindada:**
+  - CSP estricta con *nonce* por respuesta (`default-src 'none'`, sin recursos externos);
+  - `X-Frame-Options: DENY`, `nosniff` y `no-store`;
+  - los textos se insertan como JSON escapado.
+
+**Riesgo residual:** el tráfico va por HTTP sin cifrar dentro de la wifi, igual que el propio protocolo del Seestar. Un equipo malicioso en la misma red podría leer el estado o copiar la llave de un móvil al vuelo. Se recomienda usarlo solo en la wifi de casa y quitar el acceso a los móviles cuando no se necesite.
+
+En el Mac, macOS pide permiso de «red local» y puede preguntar si se aceptan conexiones entrantes. En Windows, el cortafuegos pregunta la primera vez: basta con permitir las redes privadas.
 
 ## Riesgos que quedan (y por qué)
 

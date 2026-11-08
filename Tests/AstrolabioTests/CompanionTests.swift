@@ -91,7 +91,7 @@ struct CompanionTests {
         let page = await r.handle(Self.req("GET", "/"), from: "192.168.1.20")
         let html = String(decoding: page.body, as: UTF8.self)
         #expect(page.status == 200 && page.extraHeaders["Content-Security-Policy"]?.contains("default-src 'none'") == true)
-        #expect(!html.contains("__NONCE__") && !html.contains("__I18N__") && html.contains("Parar"))
+        #expect(!html.contains("__NONCE__") && !html.contains("__I18N__") && html.contains(CompanionRouter.pageStrings()["stop"]!))
         // Sin llave: 401 y no se hace nada.
         #expect(await r.handle(Self.req("GET", "/api/status"), from: "192.168.1.20").status == 401)
         #expect(await r.handle(Self.req("POST", "/api/park", auth: String(repeating: "a", count: 40)), from: "192.168.1.20").status == 401)

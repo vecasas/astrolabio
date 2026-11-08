@@ -280,7 +280,7 @@ final class CompanionRouter {
 @MainActor
 final class CompanionServer: ObservableObject {
     static let shared = CompanionServer()
-    static let defaultPort: UInt16 = 8642
+    nonisolated static let defaultPort: UInt16 = 8642
 
     @Published private(set) var isRunning = false
     @Published private(set) var url: String?

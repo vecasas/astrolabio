@@ -54,6 +54,7 @@ enum AlbumViewerItem: Identifiable {
 
 @MainActor
 struct AlbumView: View {
+    @EnvironmentObject var nav: AppNavigation
     @EnvironmentObject var client: SeestarClient
     @EnvironmentObject var settings: AppSettings
 
@@ -84,7 +85,8 @@ struct AlbumView: View {
                     Spacer()
                     Text(tr("%@ seleccionadas", "\(selection.count)")).foregroundStyle(.secondary)
                     Button(tr("Seleccionar todo")) { selection = Set(visible.map(\.id)) }
-                    Button(tr("Descargar al Mac")) { Task { await download() } }
+                    Button(tr("Copiar al Mac")) { Task { await download() } }
+                        .help(tr("Copia las carpetas elegidas con todos sus archivos, comprueba cada uno y continúa donde lo dejó. No borra nada del telescopio."))
                         .buttonStyle(.borderedProminent)
                         .disabled(selection.isEmpty)
                 } else {
@@ -210,29 +212,35 @@ struct AlbumView: View {
         return URL(string: "http://\(client.host)/\(path)")
     }
 
+    /// Copia las carpetas elegidas (todos sus archivos si el telescopio los lista) con reanudación y
+    /// comprobación de tamaño y SHA-256. Nunca borra nada del telescopio.
     private func download(_ chosenFiles: [AlbumFile]? = nil) async {
         let chosen = chosenFiles ?? files.filter { selection.contains($0.id) }
-        var ok = 0
-        for file in chosen {
-            // El nombre de la carpeta y del archivo vienen del telescopio: se limpian para que no
-            // puedan escribir fuera de la carpeta de descargas.
-            let root = settings.saveFolderURL.appendingPathComponent("Álbum")
+        var copied = 0, already = 0, failed = 0, total = 0
+        let root = settings.saveFolderURL.appendingPathComponent("Álbum")
+        for (k, file) in chosen.enumerated() {
+            // El nombre de la carpeta viene del telescopio: se limpia para no escribir fuera.
             let folder = root.appendingPathComponent(SafeName.fileComponent(file.title))
             guard SafeName.isInside(folder, root) else { continue }
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            message = tr("Descargando %@…", "\(file.title)")
-            do {
-                let (tmp, _) = try await URLSession.shared.download(from: file.fullURL)
-                let dest = folder.appendingPathComponent(SafeName.fileComponent(file.fullURL.lastPathComponent, fallback: "imagen.jpg"))
-                guard SafeName.isInside(dest, folder) else { continue }
-                try? FileManager.default.removeItem(at: dest)
-                try FileManager.default.moveItem(at: tmp, to: dest)
-                ok += 1
-            } catch {
-                client.addLog(tr("No se pudo descargar %@: %@", "\(file.name)", "\(error.localizedDescription)"), .warning)
+            let remoteFolder = file.fullURL.deletingLastPathComponent()
+            let urls = await AlbumCopy.listFolder(remoteFolder, knownFull: file.fullURL)
+            var manifest = AlbumCopy.loadManifest(folder)
+            for (n, url) in urls.enumerated() {
+                message = tr("Copiando %@ (%@ de %@) · carpeta %@ de %@", file.title, "\(n + 1)", "\(urls.count)", "\(k + 1)", "\(chosen.count)")
+                switch await AlbumCopy.copy(url, into: folder, manifest: &manifest) {
+                case .copied: copied += 1; total += 1
+                case .alreadyThere: already += 1; total += 1
+                case .missing: break
+                case .failed(let why):
+                    failed += 1
+                    client.addLog(tr("No se pudo copiar %@: %@", url.lastPathComponent, why), .warning)
+                }
+                AlbumCopy.saveManifest(manifest, folder)
             }
         }
-        message = tr("Descargadas %@ de %@ en %@/Álbum.", "\(ok)", "\(chosen.count)", "\(settings.saveFolderURL.path)")
+        message = tr("Copia terminada: %@ archivos nuevos, %@ ya estaban, %@ con error. Todo comprobado (tamaño y SHA-256) en %@/Álbum.",
+                     "\(copied)", "\(already)", "\(failed)", settings.saveFolderURL.path)
     }
 
     // MARK: Mac
@@ -260,6 +268,7 @@ struct AlbumView: View {
                             .contextMenu {
                                 Button(tr("Mostrar en el Finder")) { NSWorkspace.shared.activateFileViewerSelecting([img.url]) }
                                 Button(tr("Abrir con la app predeterminada")) { NSWorkspace.shared.open(img.url) }
+                                Button(tr("Retocar")) { PhotoEditorModel.shared.open(img.url); nav.selection = .editor }
                             }
                         Text(img.url.deletingPathExtension().lastPathComponent).font(.caption.weight(.semibold)).lineLimit(1).truncationMode(.middle)
                         Text(img.date.formatted(Date.FormatStyle(date: .abbreviated, time: .shortened, locale: Loc.shared.locale))).font(.caption2).foregroundStyle(.secondary)

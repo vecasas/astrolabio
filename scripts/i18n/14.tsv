@@ -1,0 +1,60 @@
+%@ trazas encontradas. Desmarca las que no lo sean.	%@ trails found. Untick any that are not trails.	%@ traînées trouvées. Décochez celles qui n’en sont pas.	%@ Spuren gefunden. Entferne das Häkchen bei falschen.	找到 %@ 条轨迹。取消勾选不是轨迹的。	Найдено следов: %@. Снимите отметку с ложных.
+%@ × %@ s (%@)	%@ × %@ s (%@)	%@ × %@ s (%@)	%@ × %@ s (%@)	%@ × %@ 秒（%@）	%@ × %@ с (%@)
+Abre una imagen del álbum, de tu carpeta o un FITS para retocarla. El original no se modifica nunca.	Open an image from the album, your folder or a FITS file to edit it. The original is never changed.	Ouvrez une image de l’album, de votre dossier ou un FITS pour la retoucher. L’original n’est jamais modifié.	Öffne ein Bild aus dem Album, deinem Ordner oder eine FITS-Datei zum Bearbeiten. Das Original wird nie verändert.	打开相册、文件夹中的图像或 FITS 文件进行编辑。原始文件绝不会被修改。	Откройте изображение из альбома, папки или FITS для обработки. Оригинал никогда не изменяется.
+Abrir una imagen…	Open an image…	Ouvrir une image…	Bild öffnen…	打开图像…	Открыть изображение…
+Ajustes	Adjustments	Réglages	Anpassungen	调整	Настройки
+Alto	Height	Hauteur	Höhe	高	Высота
+Ancho	Width	Largeur	Breite	宽	Ширина
+Antes | después	Before | after	Avant | après	Vorher | nachher	之前 | 之后	До | после
+Arriba	Top	Haut	Oben	上	Сверху
+Añadir un pie con el objeto, la exposición y la fecha	Add a caption with the object, exposure and date	Ajouter une légende avec l’objet, l’exposition et la date	Bildunterschrift mit Objekt, Belichtung und Datum hinzufügen	添加包含天体、曝光和日期的说明	Добавить подпись с объектом, выдержкой и датой
+Buscar trazas	Find trails	Chercher les traînées	Spuren suchen	查找轨迹	Найти следы
+Comparar antes/después	Compare before/after	Comparer avant/après	Vorher/nachher vergleichen	前后对比	Сравнить до/после
+Copia las carpetas elegidas con todos sus archivos, comprueba cada uno y continúa donde lo dejó. No borra nada del telescopio.	Copies the chosen folders with all their files, verifies each one and resumes where it stopped. Nothing is deleted from the telescope.	Copie les dossiers choisis avec tous leurs fichiers, vérifie chacun et reprend là où il s’était arrêté. Rien n’est supprimé du télescope.	Kopiert die gewählten Ordner mit allen Dateien, prüft jede und setzt dort fort, wo es aufgehört hat. Vom Teleskop wird nichts gelöscht.	复制所选文件夹及其全部文件，逐个校验，并可从中断处继续。不会删除望远镜上的任何内容。	Копирует выбранные папки со всеми файлами, проверяет каждый и продолжает с места остановки. С телескопа ничего не удаляется.
+Copia terminada: %@ archivos nuevos, %@ ya estaban, %@ con error. Todo comprobado (tamaño y SHA-256) en %@/Álbum.	Copy finished: %@ new files, %@ already there, %@ with errors. All verified (size and SHA-256) in %@/Álbum.	Copie terminée : %@ nouveaux fichiers, %@ déjà présents, %@ en erreur. Tout vérifié (taille et SHA-256) dans %@/Álbum.	Kopie fertig: %@ neue Dateien, %@ bereits vorhanden, %@ mit Fehler. Alles geprüft (Größe und SHA-256) in %@/Álbum.	复制完成：新文件 %1$@ 个，已存在 %2$@ 个，出错 %3$@ 个。全部已校验（大小和 SHA-256），位于 %4$@/Álbum。	Копирование завершено: новых файлов — %@, уже были — %@, с ошибкой — %@. Всё проверено (размер и SHA-256) в %@/Álbum.
+Copiando %@ (%@ de %@) · carpeta %@ de %@	Copying %@ (%@ of %@) · folder %@ of %@	Copie de %@ (%@ sur %@) · dossier %@ sur %@	Kopiere %@ (%@ von %@) · Ordner %@ von %@	正在复制 %1$@（%2$@ / %3$@）· 文件夹 %4$@ / %5$@	Копирование %@ (%@ из %@) · папка %@ из %@
+Copiar al Mac	Copy to Mac	Copier sur le Mac	Auf den Mac kopieren	复制到 Mac	Скопировать на Mac
+Deshacer GraXpert	Undo GraXpert	Annuler GraXpert	GraXpert rückgängig	撤销 GraXpert	Отменить GraXpert
+Elige otro nombre: el original no se sobrescribe.	Choose another name: the original is never overwritten.	Choisissez un autre nom : l’original n’est jamais écrasé.	Wähle einen anderen Namen: Das Original wird nie überschrieben.	请换个名字：不会覆盖原始文件。	Выберите другое имя: оригинал не перезаписывается.
+Esta imagen no trae solución astrométrica: las posiciones se estiman con el objeto central y el campo del Seestar, suponiendo el norte arriba. Pueden estar giradas.	This image has no astrometric solution: positions are estimated from the central object and the Seestar’s field, assuming north up. They may be rotated.	Cette image n’a pas de solution astrométrique : les positions sont estimées à partir de l’objet central et du champ du Seestar, nord en haut. Elles peuvent être tournées.	Dieses Bild hat keine astrometrische Lösung: Die Positionen werden aus dem zentralen Objekt und dem Seestar-Feld geschätzt, mit Norden oben. Sie können verdreht sein.	此图像没有天体测量解：位置根据中心天体和 Seestar 视场估算，假定北在上方。可能存在旋转。	У изображения нет астрометрического решения: позиции оценены по центральному объекту и полю Seestar, север вверху. Они могут быть повёрнуты.
+Fondo neutro	Neutral background	Fond neutre	Neutraler Hintergrund	中性背景	Нейтральный фон
+Formato	Format	Format	Format	格式	Формат
+GraXpert está trabajando… puede tardar unos minutos.	GraXpert is working… it may take a few minutes.	GraXpert travaille… cela peut prendre quelques minutes.	GraXpert arbeitet… das kann einige Minuten dauern.	GraXpert 正在处理…可能需要几分钟。	GraXpert работает… это может занять несколько минут.
+GraXpert ha terminado.	GraXpert has finished.	GraXpert a terminé.	GraXpert ist fertig.	GraXpert 已完成。	GraXpert закончил.
+GraXpert no devolvió ninguna imagen.	GraXpert did not return an image.	GraXpert n’a renvoyé aucune image.	GraXpert hat kein Bild zurückgegeben.	GraXpert 没有返回图像。	GraXpert не вернул изображение.
+GraXpert no está instalado.	GraXpert is not installed.	GraXpert n’est pas installé.	GraXpert ist nicht installiert.	未安装 GraXpert。	GraXpert не установлен.
+GraXpert tardó demasiado y se ha detenido.	GraXpert took too long and was stopped.	GraXpert a mis trop de temps et a été arrêté.	GraXpert hat zu lange gebraucht und wurde beendet.	GraXpert 耗时过长，已停止。	GraXpert работал слишком долго и был остановлен.
+GraXpert terminó con un error: %@	GraXpert ended with an error: %@	GraXpert s’est terminé avec une erreur : %@	GraXpert endete mit einem Fehler: %@	GraXpert 出错结束：%@	GraXpert завершился с ошибкой: %@
+Guardada en %@	Saved as %@	Enregistrée sous %@	Gespeichert als %@	已保存为 %@	Сохранено: %@
+Haz clic en los dos extremos…	Click both ends…	Cliquez sur les deux extrémités…	Klicke auf beide Enden…	点击两个端点…	Щёлкните оба конца…
+Instala GraXpert (gratuito, graxpert.com) para quitar el gradiente y el ruido con IA. Mientras tanto se usan los ajustes de Astrolabio.	Install GraXpert (free, graxpert.com) to remove gradients and noise with AI. Meanwhile Astrolabio’s own adjustments are used.	Installez GraXpert (gratuit, graxpert.com) pour supprimer le gradient et le bruit avec l’IA. En attendant, les réglages d’Astrolabio sont utilisés.	Installiere GraXpert (kostenlos, graxpert.com), um Gradient und Rauschen mit KI zu entfernen. Bis dahin werden die Anpassungen von Astrolabio verwendet.	安装 GraXpert（免费，graxpert.com）可用 AI 去除梯度和噪声。在此之前使用 Astrolabio 自带的调整。	Установите GraXpert (бесплатно, graxpert.com), чтобы убирать градиент и шум с помощью ИИ. Пока используются настройки Astrolabio.
+Intensidad	Strength	Intensité	Stärke	强度	Сила
+Izquierda	Left	Gauche	Links	左	Слева
+La imagen es demasiado grande.	The image is too large.	L’image est trop grande.	Das Bild ist zu groß.	图像太大。	Изображение слишком большое.
+Los nombres solo se dibujan sin recorte.	Names are only drawn without cropping.	Les noms ne sont dessinés que sans recadrage.	Namen werden nur ohne Beschnitt gezeichnet.	仅在不裁剪时绘制名称。	Названия рисуются только без кадрирования.
+Marcar a mano	Mark by hand	Marquer à la main	Von Hand markieren	手动标记	Отметить вручную
+Mostrar nombres y la rosa N/E	Show names and the N/E compass	Afficher les noms et la rose N/E	Namen und N/O-Kompass anzeigen	显示名称和北/东方向	Показать названия и стрелки С/В
+No se han encontrado trazas de satélite.	No satellite trails found.	Aucune traînée de satellite trouvée.	Keine Satellitenspuren gefunden.	未发现卫星轨迹。	Следов спутников не найдено.
+No se pudo abrir la imagen.	Could not open the image.	Impossible d’ouvrir l’image.	Bild konnte nicht geöffnet werden.	无法打开图像。	Не удалось открыть изображение.
+No se pudo copiar %@: %@	Could not copy %@: %@	Impossible de copier %@ : %@	%@ konnte nicht kopiert werden: %@	无法复制 %1$@：%2$@	Не удалось скопировать %@: %@
+Nombres de los objetos	Object names	Noms des objets	Objektnamen	天体名称	Названия объектов
+Posiciones aproximadas: la imagen no tiene solución astrométrica	Approximate positions: the image has no astrometric solution	Positions approximatives : l’image n’a pas de solution astrométrique	Ungefähre Positionen: Das Bild hat keine astrometrische Lösung	位置为近似值：图像没有天体测量解	Позиции приблизительные: у изображения нет астрометрического решения
+Punto negro	Black point	Point noir	Schwarzpunkt	黑点	Точка чёрного
+Quitar el gradiente (contaminación lumínica)	Remove the gradient (light pollution)	Supprimer le gradient (pollution lumineuse)	Gradient entfernen (Lichtverschmutzung)	去除梯度（光污染）	Убрать градиент (засветку)
+Quitar el gradiente con IA	Remove the gradient with AI	Supprimer le gradient avec l’IA	Gradient mit KI entfernen	用 AI 去除梯度	Убрать градиент ИИ
+Quitar el ruido con IA	Remove noise with AI	Supprimer le bruit avec l’IA	Rauschen mit KI entfernen	用 AI 去噪	Убрать шум ИИ
+Recorte	Crop	Recadrage	Beschnitt	裁剪	Кадрирование
+Reducir estrellas	Reduce stars	Réduire les étoiles	Sterne verkleinern	缩星	Уменьшить звёзды
+Retocar	Edit	Retoucher	Bearbeiten	编辑	Обработать
+Retoque	Photo editing	Retouche	Bildbearbeitung	图像编辑	Обработка
+Ruido	Noise	Bruit	Rauschen	噪声	Шум
+Ruido de color	Colour noise	Bruit de couleur	Farbrauschen	彩色噪声	Цветовой шум
+Se guarda una copia nueva; el original no se toca.	A new copy is saved; the original is not touched.	Une nouvelle copie est enregistrée ; l’original n’est pas modifié.	Es wird eine neue Kopie gespeichert; das Original bleibt unberührt.	保存为新副本；原始文件不受影响。	Сохраняется новая копия; оригинал не трогается.
+Traza de %@ px	Trail of %@ px	Traînée de %@ px	Spur von %@ px	%@ 像素的轨迹	След %@ пикс.
+Traza marcada a mano (%@ px)	Hand-marked trail (%@ px)	Traînée marquée à la main (%@ px)	Von Hand markierte Spur (%@ px)	手动标记的轨迹（%@ 像素）	След, отмеченный вручную (%@ пикс.)
+Trazas de satélite	Satellite trails	Traînées de satellites	Satellitenspuren	卫星轨迹	Следы спутников
+Usa los modelos de IA de GraXpert en tu ordenador; la imagen no sale de él.	Uses GraXpert’s AI models on your computer; the image never leaves it.	Utilise les modèles d’IA de GraXpert sur votre ordinateur ; l’image ne le quitte pas.	Nutzt die KI-Modelle von GraXpert auf deinem Computer; das Bild verlässt ihn nicht.	在你的电脑上使用 GraXpert 的 AI 模型；图像不会离开电脑。	Использует модели ИИ GraXpert на вашем компьютере; изображение не покидает его.
+Valores iniciales	Reset	Valeurs initiales	Zurücksetzen	重置	Сбросить
+tamaño distinto del anunciado	size differs from the announced one	taille différente de celle annoncée	Größe weicht von der angekündigten ab	大小与声明的不一致	размер не совпадает с заявленным
+Cuadrado	Square	Carré	Quadrat	正方形	Квадрат
+Libre	Free	Libre	Frei	自由	Свободно

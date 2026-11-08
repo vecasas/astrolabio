@@ -252,3 +252,43 @@ final class FakeImageServer: @unchecked Sendable {
         return z
     }
 }
+
+/// Servidor HTTP mínimo que imita el álbum del Seestar (http://IP/MyWorks/…).
+final class TinyHTTPServer: @unchecked Sendable {
+    private let queue = DispatchQueue(label: "tiny-http")
+    private var listener: NWListener!
+    private(set) var port: UInt16 = 0
+    /// Ruta («/MyWorks/M 42/») → (tipo, cuerpo). Las rutas que faltan dan 404.
+    var routes: [String: (String, Data)] = [:]
+    var requests: [String] { queue.sync { _requests } }
+    private var _requests: [String] = []
+
+    init() throws {
+        let params = NWParameters.tcp
+        params.requiredLocalEndpoint = .hostPort(host: "127.0.0.1", port: .any)
+        listener = try NWListener(using: params)
+        let ready = DispatchSemaphore(value: 0)
+        listener.stateUpdateHandler = { if case .ready = $0 { ready.signal() } }
+        listener.newConnectionHandler = { [weak self] c in self?.serve(c) }
+        listener.start(queue: queue)
+        _ = ready.wait(timeout: .now() + 5)
+        port = listener.port?.rawValue ?? 0
+    }
+
+    func stop() { listener.cancel() }
+
+    private func serve(_ c: NWConnection) {
+        c.start(queue: queue)
+        c.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, _, _, _ in
+            guard let self, let data, let req = String(data: data, encoding: .utf8),
+                  let line = req.split(separator: "\r\n").first else { c.cancel(); return }
+            let parts = line.split(separator: " ")
+            let path = parts.count > 1 ? (String(parts[1]).removingPercentEncoding ?? String(parts[1])) : "/"
+            self._requests.append(path)
+            let (status, type, body): (String, String, Data) = self.routes[path].map { ("200 OK", $0.0, $0.1) } ?? ("404 Not Found", "text/plain", Data("no".utf8))
+            var head = "HTTP/1.1 \(status)\r\nContent-Type: \(type)\r\nContent-Length: \(body.count)\r\nConnection: close\r\n\r\n"
+            if parts.first == "HEAD" { head += "" }
+            c.send(content: Data(head.utf8) + body, completion: .contentProcessed { _ in c.cancel() })
+        }
+    }
+}

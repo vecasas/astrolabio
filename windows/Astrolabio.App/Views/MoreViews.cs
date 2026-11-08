@@ -178,7 +178,44 @@ public sealed class AlbumView : UserControl
         }
         var load = Ui.Button(Ui.T("Cargar"), async () => await Load(), true);
         load.IsEnabled = c.IsConnected;
-        Content = Ui.Scroll(Ui.V(Ui.H(load, subs, Ui.Button(Ui.T("Abrir la carpeta"), () => LiveView.OpenFolder(st.Settings.SaveFolderPath))), msg,
+        // Copia todo el álbum con comprobación y reanudación. Nunca borra nada del telescopio.
+        var copy = Ui.Button(Ui.T("Copiar al PC"), async () =>
+        {
+            try
+            {
+                var reply = await c.Albums();
+                var basePath = reply.Str("result.path") ?? "MyWorks";
+                var root = Path.Combine(st.Settings.SaveFolderPath, "Álbum");
+                int copied = 0, already = 0, failed = 0;
+                foreach (var g in (reply.At("result.list") as System.Text.Json.Nodes.JsonArray ?? []).OfType<System.Text.Json.Nodes.JsonObject>())
+                foreach (var f in (g["files"] as System.Text.Json.Nodes.JsonArray ?? []).OfType<System.Text.Json.Nodes.JsonObject>())
+                {
+                    var thn = f.Str("thn"); var name = f.Str("name") ?? "";
+                    if (thn is null || (!subs.IsChecked.GetValueOrDefault() && name.EndsWith("_sub"))) continue;
+                    var folder = Path.Combine(root, Astrolabio.Core.Model.SafeName.FileComponent(name));
+                    if (!Astrolabio.Core.Model.SafeName.IsInside(folder, root)) continue;
+                    Directory.CreateDirectory(folder);
+                    var parts = thn.Split('/');
+                    var folderUri = new Uri($"http://{c.Host}/{Uri.EscapeDataString(basePath)}/{string.Join('/', parts[..^1].Select(Uri.EscapeDataString))}/");
+                    var full = new Uri(folderUri, Uri.EscapeDataString(parts[^1].Replace("_thn.jpg", ".jpg")));
+                    var urls = await AlbumCopy.ListFolder(WeatherService.Http, folderUri, full);
+                    var manifest = AlbumCopy.LoadManifest(folder);
+                    foreach (var u in urls)
+                    {
+                        msg.Text = Ui.T("Copiando %@ (%@ de %@) · carpeta %@ de %@", name, urls.IndexOf(u) + 1, urls.Count, copied + already + failed + 1, "…");
+                        var (r, err) = await AlbumCopy.Copy(WeatherService.Http, u, folder, manifest);
+                        if (r == AlbumCopy.Outcome.Copied) copied++; else if (r == AlbumCopy.Outcome.AlreadyThere) already++;
+                        else if (r == AlbumCopy.Outcome.Failed) { failed++; c.AddLog(Ui.T("No se pudo copiar %@: %@", u.Segments[^1], err ?? ""), LogLevel.Warning); }
+                        AlbumCopy.SaveManifest(manifest, folder);
+                    }
+                }
+                msg.Text = Ui.T("Copia terminada: %@ archivos nuevos, %@ ya estaban, %@ con error. Todo comprobado (tamaño y SHA-256) en %@/Álbum.", copied, already, failed, st.Settings.SaveFolderPath);
+            }
+            catch (Exception e) { msg.Text = e.Message; }
+        });
+        copy.IsEnabled = c.IsConnected;
+        ToolTip.SetTip(copy, Ui.T("Copia las carpetas elegidas con todos sus archivos, comprueba cada uno y continúa donde lo dejó. No borra nada del telescopio."));
+        Content = Ui.Scroll(Ui.V(Ui.H(load, copy, subs, Ui.Button(Ui.T("Abrir la carpeta"), () => LiveView.OpenFolder(st.Settings.SaveFolderPath))), msg,
             c.IsConnected ? grid : Ui.Caption(Ui.T("Conecta el telescopio para ver su álbum."))));
     }
 }

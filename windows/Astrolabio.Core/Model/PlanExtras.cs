@@ -98,7 +98,9 @@ public sealed class BackupFile
     public const int CurrentVersion = 1;
     public const long MaxBytes = 50L * 1024 * 1024;
 
-    public string Format { get; set; } = "astrolabio-backup";
+    public const string FormatName = "astrolabio-backup";
+    // Vacío por defecto: un JSON sin este campo no es una copia de Astrolabio.
+    public string Format { get; set; } = "";
     public int Version { get; set; } = CurrentVersion;
     public DateTime Created { get; set; } = DateTime.UtcNow;
     public JsonObject Settings { get; set; } = new();
@@ -110,7 +112,7 @@ public sealed class BackupFile
     {
         var settings = JsonSerializer.SerializeToNode(s) as JsonObject ?? new JsonObject();
         settings.Remove("PemPath");                        // nunca la clave
-        return new BackupFile { Settings = settings, Plan = plan.ToList(), Projects = projects.ToList(), History = history.ToList() };
+        return new BackupFile { Format = FormatName, Settings = settings, Plan = plan.ToList(), Projects = projects.ToList(), History = history.ToList() };
     }
 
     public string Encoded() => JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
@@ -120,7 +122,7 @@ public sealed class BackupFile
         if (json.Length > MaxBytes) throw new InvalidDataException(Strings.T("El archivo es demasiado grande para ser una copia de Astrolabio."));
         BackupFile? b;
         try { b = JsonSerializer.Deserialize<BackupFile>(json); } catch { b = null; }
-        if (b is null || b.Format != "astrolabio-backup") throw new InvalidDataException(Strings.T("Este archivo no es una copia de seguridad de Astrolabio."));
+        if (b is null || b.Format != FormatName) throw new InvalidDataException(Strings.T("Este archivo no es una copia de seguridad de Astrolabio."));
         if (b.Version > CurrentVersion) throw new InvalidDataException(Strings.T("La copia es de una versión más nueva de Astrolabio. Actualiza la app primero."));
         return b;
     }

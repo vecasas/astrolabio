@@ -46,7 +46,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.utilities</string>
   <key>NSHighResolutionCapable</key><true/>
-  <key>NSLocalNetworkUsageDescription</key><string>Astrolabio se conecta a tu Seestar en la red local.</string>
+  <key>NSLocalNetworkUsageDescription</key><string>Astrolabio se conecta a tu Seestar en la red local y, si lo activas, deja que tu móvil lo controle desde la misma wifi.</string>
   <key>NSAppTransportSecurity</key>
   <dict><key>NSAllowsLocalNetworking</key><true/></dict>
 </dict>

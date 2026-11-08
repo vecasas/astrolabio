@@ -8,6 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Datos generados desde el proyecto de macOS (scripts/windows_data.py) -->
-    <EmbeddedResource Include="Data\*.json;Data\*.txt;Data\*.jpg" />
+    <EmbeddedResource Include="Data\*.json;Data\*.txt;Data\*.jpg;Data\*.html" />
   </ItemGroup>
 </Project>

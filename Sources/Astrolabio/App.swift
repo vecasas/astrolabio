@@ -61,6 +61,7 @@ struct AstrolabioApp: App {
                 .nightMode(settings)
                 .frame(minWidth: 1180, minHeight: 760)
                 .task { await wireUp() }
+                .onChange(of: settings.companionEnabled) { _, on in updateCompanion(on) }
         }
         .commands {
             CommandGroup(replacing: .newItem) {}
@@ -140,9 +141,22 @@ struct AstrolabioApp: App {
             SessionContext(siteName: s.siteName, latitude: s.latitude, longitude: s.longitude, gain: s.gain,
                            weather: sky.snapshot, image: { live.image })
         }
+        updateCompanion(settings.companionEnabled)
         if settings.autoConnect && !client.isConnected {
             await client.connect(to: settings.telescopeHost)
             if client.isConnected { live.connect(host: settings.telescopeHost) }
+        }
+    }
+}
+
+extension AstrolabioApp {
+    /// Enciende o apaga el servidor para el móvil.
+    @MainActor
+    func updateCompanion(_ on: Bool) {
+        if on {
+            CompanionServer.shared.start(bridge: .live(client: client, runner: runner, plan: plan, live: live))
+        } else {
+            CompanionServer.shared.stop()
         }
     }
 }

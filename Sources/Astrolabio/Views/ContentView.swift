@@ -1,6 +1,7 @@
 import SwiftUI
 
 enum AppSection: String, CaseIterable, Identifiable, Hashable {
+    case start = "Empieza aquí"
     case tonight = "Qué mirar"
     case pick = "Elige por mí"
     case skyChart = "Carta estelar"
@@ -23,11 +24,16 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case reports = "Informes"
     case weather = "Tiempo"
     case log = "Registro"
+    case phone = "Control desde el móvil"
+    case help = "Manual"
 
     var id: String { rawValue }
 
     var icon: String {
         switch self {
+        case .start: return "flag.checkered"
+        case .phone: return "iphone.radiowaves.left.and.right"
+        case .help: return "book"
         case .tonight: return "binoculars"
         case .pick: return "wand.and.stars"
         case .skyChart: return "map"
@@ -55,12 +61,12 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
     /// Grupos de la barra lateral.
     static let groups: [(title: String, items: [AppSection])] = [
-        (tr("Esta noche"), [.tonight, .pick, .skyChart, .events, .satellites, .nightSheet]),
+        (tr("Esta noche"), [.start, .tonight, .pick, .skyChart, .events, .satellites, .nightSheet]),
         ("Observar", [.telescope, .live]),
         (tr("Sistema solar"), [.moon, .planets, .stacker]),
         ("Planificar", [.planner, .session, .mosaic, .lists, .horizon]),
         ("Archivo", [.album, .editor, .stats, .reports]),
-        ("Sistema", [.weather, .log]),
+        ("Sistema", [.weather, .log, .phone, .help]),
     ]
 }
 
@@ -69,22 +75,34 @@ struct ContentView: View {
     @EnvironmentObject var client: SeestarClient
     @EnvironmentObject var runner: SessionRunner
     @EnvironmentObject var nav: AppNavigation
+    @EnvironmentObject var settings: AppSettings
 
     var body: some View {
         NavigationSplitView {
             List(selection: $nav.selection) {
                 ForEach(AppSection.groups, id: \.title) { group in
-                    SwiftUI.Section(tr(group.title)) {
-                        ForEach(group.items) { section in
+                    let items = group.items.filter { !settings.beginnerMode || Guide.beginnerSections.contains($0) }
+                    if !items.isEmpty { SwiftUI.Section(tr(group.title)) {
+                        ForEach(items) { section in
                             Label(section.label, systemImage: section.icon).tag(section)
                         }
-                    }
+                    } }
                 }
             }
             .scrollContentBackground(.hidden)
             .background(Theme.sidebar.ignoresSafeArea())
             .navigationSplitViewColumnWidth(min: 200, ideal: 220)
-            .safeAreaInset(edge: .top) { BrandHeader().padding(.horizontal, 14).padding(.bottom, 6) }
+            .safeAreaInset(edge: .top) {
+                VStack(spacing: 8) {
+                    BrandHeader()
+                    Picker(tr("Modo"), selection: $settings.beginnerMode) {
+                        Text(tr("Principiante")).tag(true)
+                        Text(tr("Avanzado")).tag(false)
+                    }
+                    .pickerStyle(.segmented).labelsHidden().controlSize(.small)
+                }
+                .padding(.horizontal, 14).padding(.bottom, 6)
+            }
             .safeAreaInset(edge: .bottom) { StatusFooter().padding(10) }
         } detail: {
             VStack(spacing: 0) {
@@ -114,13 +132,23 @@ struct ContentView: View {
                     case .reports: ReportsView()
                     case .weather: WeatherView()
                     case .log: LogView()
+                    case .start: StartView()
+                    case .phone: PhoneView()
+                    case .help: HelpView()
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
             .themedBackground()
+            .overlay { TutorialOverlay() }
         }
         .tint(Theme.accent)
+        .onAppear {
+            if settings.beginnerMode { nav.selection = .start }
+            if settings.beginnerMode && !settings.tutorialSeen && ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT"] == nil {
+                nav.tutorialStep = 0
+            }
+        }
     }
 }
 
@@ -165,6 +193,7 @@ struct TopBar: View {
                 item(moonSymbol(now), String(format: "%.0f %%", m.illumination * 100), "Luna")
                 nightState(now)
                 Spacer()
+                HelpButton()
                 NightModeButton()
                 connection
             }

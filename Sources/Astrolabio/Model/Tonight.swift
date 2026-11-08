@@ -5,6 +5,10 @@ import Foundation
 @MainActor
 final class AppNavigation: ObservableObject {
     @Published var selection: AppSection? = .tonight
+    /// Paso del tutorial que se muestra (nil: ninguno).
+    @Published var tutorialStep: Int?
+    /// Tema del manual que se resalta al abrirlo con «?».
+    @Published var helpTopic: String?
 }
 
 /// Cálculo de la noche de hoy compartido por «Qué mirar», «Elige por mí» y la carta estelar.

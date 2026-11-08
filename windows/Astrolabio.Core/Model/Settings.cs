@@ -66,6 +66,11 @@ public sealed class AppSettings : Observable
     public string AlertZone { get; set; } = "";
     /// <summary>Horizontes dibujados, uno por lugar (clave: latitud y longitud redondeadas).</summary>
     public Dictionary<string, Horizon> Horizons { get; set; } = new();
+    /// <summary>Control desde el móvil (servidor en la red local; apagado de serie).</summary>
+    public bool CompanionEnabled { get; set; }
+    /// <summary>Modo principiante: menos secciones y la pantalla «Empieza aquí».</summary>
+    public bool BeginnerMode { get; set; }
+    public bool TutorialSeen { get; set; }
 
     public static string SiteKey(double lat, double lon) => string.Create(CultureInfo.InvariantCulture, $"{lat:F3},{lon:F3}");
 
@@ -89,7 +94,7 @@ public sealed class AppSettings : Observable
     {
         try { if (File.Exists(FilePath)) return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(FilePath)) ?? new(); }
         catch { }
-        return new AppSettings();
+        return new AppSettings { BeginnerMode = true };   // instalación nueva: modo principiante
     }
 
     public void Save()

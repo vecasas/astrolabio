@@ -112,6 +112,7 @@ public sealed class BackupFile
     {
         var settings = JsonSerializer.SerializeToNode(s) as JsonObject ?? new JsonObject();
         settings.Remove("PemPath");                        // nunca la clave
+        settings.Remove("CompanionEnabled");               // el acceso desde el móvil no viaja en la copia
         return new BackupFile { Format = FormatName, Settings = settings, Plan = plan.ToList(), Projects = projects.ToList(), History = history.ToList() };
     }
 
@@ -132,8 +133,10 @@ public sealed class BackupFile
     {
         var node = (JsonObject)Settings.DeepClone();
         node.Remove("PemPath");
+        node.Remove("CompanionEnabled");
         var s = node.Deserialize<AppSettings>() ?? new AppSettings();
         s.PemPath = current.PemPath;
+        s.CompanionEnabled = current.CompanionEnabled;
         return s;
     }
 }

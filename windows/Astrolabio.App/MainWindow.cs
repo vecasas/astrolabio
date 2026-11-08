@@ -12,21 +12,27 @@ using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.App;
 
-public enum Section { Tonight, Pick, SkyChart, Events, Satellites, NightSheet, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Editor, Stats, Reports, Weather, Log, Settings }
+public enum Section { Start, Tonight, Pick, SkyChart, Events, Satellites, NightSheet, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Editor, Stats, Reports, Weather, Log, Phone, Help, Settings }
 
 public sealed class MainWindow : Window
 {
     private static readonly (string Group, (Section S, string Key, string Icon)[] Items)[] Groups =
     [
-        ("Esta noche", [(Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺"), (Section.Events, "Eventos del cielo", "📅"), (Section.Satellites, "Satélites", "🛰"), (Section.NightSheet, "Hoja de la noche", "🗒")]),
+        ("Esta noche", [(Section.Start, "Empieza aquí", "🏁"), (Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺"), (Section.Events, "Eventos del cielo", "📅"), (Section.Satellites, "Satélites", "🛰"), (Section.NightSheet, "Hoja de la noche", "🗒")]),
         ("Observar", [(Section.Telescope, "Telescopio", "🎯"), (Section.Live, "Vista en directo", "📷")]),
         ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐"), (Section.Stacker, "Apilador planetario", "🎞")]),
         ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑"), (Section.Horizon, "Mi horizonte", "⛰")]),
         ("Archivo", [(Section.Album, "Álbum", "🖼"), (Section.Editor, "Retoque", "🪄"), (Section.Stats, "Estadísticas", "📊"), (Section.Reports, "Informes", "📄")]),
-        ("Sistema", [(Section.Weather, "Tiempo", "⛅"), (Section.Log, "Registro", "📜"), (Section.Settings, "Ajustes", "⚙")]),
+        ("Sistema", [(Section.Weather, "Tiempo", "⛅"), (Section.Log, "Registro", "📜"), (Section.Phone, "Control desde el móvil", "📱"), (Section.Help, "Manual", "📖"), (Section.Settings, "Ajustes", "⚙")]),
     ];
 
-    private Section _current = Section.Tonight;
+    private Section _current = AppState.Instance.Settings.BeginnerMode ? Section.Start : Section.Tonight;
+    private readonly Panel _contentHost = new();
+    private int? _tutorialStep;
+    private string? _helpTopic;
+    public static MainWindow? Instance { get; private set; }
+
+    public static string SectionKey(Section s) => Groups.SelectMany(g => g.Items).FirstOrDefault(i => i.S == s).Key ?? s.ToString();
     private readonly ContentControl _content = new();
     private readonly StackPanel _sidebar = new() { Spacing = 2, Margin = new Thickness(10) };
     private readonly TopBar _topBar = new();
@@ -50,14 +56,18 @@ public sealed class MainWindow : Window
         var right = new DockPanel { Background = Ui.Background };
         DockPanel.SetDock(_topBar, Dock.Top);
         right.Children.Add(_topBar);
-        right.Children.Add(_content);
+        _contentHost.Children.Add(_content);
+        right.Children.Add(_contentHost);
         var main = new DockPanel();
         DockPanel.SetDock(side, Dock.Left);
         main.Children.Add(side);
         main.Children.Add(right);
         Content = new Panel { Children = { main, _nightOverlay } };
 
+        Instance = this;
         Strings.LanguageChanged += Rebuild;
+        if (AppState.Instance.Settings.CompanionEnabled) Companion.Apply(true);
+        if (AppState.Instance.Settings.BeginnerMode && !AppState.Instance.Settings.TutorialSeen && Environment.GetEnvironmentVariable("ASTROLABIO_SNAPSHOT") is null) _tutorialStep = 0;
         AppState.Instance.Settings.PropertyChanged += (_, _) => UpdateNight();
         KeyDown += (_, e) =>
         {
@@ -87,7 +97,18 @@ public sealed class MainWindow : Window
 
     private void main_Opacity(double v) { if (Content is Panel p && p.Children.Count > 0) p.Children[0].Opacity = Math.Clamp(v, 0.3, 1); }
 
-    public void Navigate(Section s) { _current = s; Rebuild(); }
+    public void Navigate(Section s) { _current = s; if (s != Section.Help) _helpTopic = null; Rebuild(); }
+
+    public void OpenHelp(string? topic) { _helpTopic = topic; _current = Section.Help; Rebuild(); }
+    public void OpenHelpForCurrent() => OpenHelp(GuideContent.Topics.FirstOrDefault(t => t.Section == _current)?.Id);
+    public void StartTutorial() => TutorialGo(0);
+    public void TutorialGo(int i) { _tutorialStep = i; _current = GuideContent.Tutorial[i].Section; Rebuild(); }
+    public void TutorialFinish()
+    {
+        _tutorialStep = null;
+        var s = AppState.Instance.Settings; s.TutorialSeen = true; s.Save();
+        Rebuild();
+    }
 
     private void Rebuild()
     {
@@ -98,8 +119,17 @@ public sealed class MainWindow : Window
         info.Background = Brushes.Transparent; info.Padding = new Thickness(4, 0);
         brand.Children.Add(info);
         _sidebar.Children.Add(brand);
-        foreach (var (group, items) in Groups)
+        var st = AppState.Instance.Settings;
+        var beginner = new RadioButton { Content = Ui.T("Principiante"), GroupName = "sidebarMode", IsChecked = st.BeginnerMode, FontSize = 12 };
+        var advanced = new RadioButton { Content = Ui.T("Avanzado"), GroupName = "sidebarMode", IsChecked = !st.BeginnerMode, FontSize = 12 };
+        beginner.IsCheckedChanged += (_, _) => { if (beginner.IsChecked == true && !st.BeginnerMode) { st.BeginnerMode = true; st.Save(); Rebuild(); } };
+        advanced.IsCheckedChanged += (_, _) => { if (advanced.IsChecked == true && st.BeginnerMode) { st.BeginnerMode = false; st.Save(); Rebuild(); } };
+        var mode = Ui.H(beginner, advanced); mode.Margin = new Thickness(6, 0, 0, 4);
+        _sidebar.Children.Add(mode);
+        foreach (var (group, all) in Groups)
         {
+            var items = all.Where(i => !st.BeginnerMode || Guide.BeginnerSections.Contains(i.S)).ToArray();
+            if (items.Length == 0) continue;
             var header = Ui.Caption(Ui.T(group).ToUpperInvariant(), false);
             header.Margin = new Thickness(8, 12, 0, 4);
             _sidebar.Children.Add(header);
@@ -118,8 +148,13 @@ public sealed class MainWindow : Window
             }
         }
         _topBar.Refresh();
+        while (_contentHost.Children.Count > 1) _contentHost.Children.RemoveAt(1);
+        if (_tutorialStep is int ts) _contentHost.Children.Add(new TutorialCard(this, ts));
         _content.Content = _current switch
         {
+            Section.Start => new StartView(this),
+            Section.Phone => new PhoneView(),
+            Section.Help => new HelpView(this, _helpTopic),
             Section.Tonight => new TonightView(this),
             Section.Pick => new PickView(this),
             Section.SkyChart => new SkyChartView(),
@@ -181,6 +216,10 @@ public sealed class TopBar : Border
         var conn = Item(c.IsConnected ? (c.DeviceName.Length > 0 ? c.DeviceName : "Seestar") : Ui.T("Sin telescopio"),
             c.IsConnected ? (c.Battery is int b ? Ui.T("Batería %@ %%", b) : c.Host) : c.StatusText);
         conn.Children.Insert(0, new Border { Width = 9, Height = 9, CornerRadius = new CornerRadius(5), Background = c.IsConnected ? (c.IsAuthenticated ? Ui.Good : Ui.Warn) : Brushes.Gray, HorizontalAlignment = HorizontalAlignment.Left });
+        var help = Ui.Button("?", () => MainWindow.Instance?.OpenHelpForCurrent());
+        ToolTip.SetTip(help, Ui.T("Ayuda de esta pantalla"));
+        help.FontWeight = FontWeight.Bold; help.VerticalAlignment = VerticalAlignment.Center;
+        _row.Children.Add(help);
         _row.Children.Add(conn);
     }
 }

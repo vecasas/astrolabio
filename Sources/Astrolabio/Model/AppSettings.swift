@@ -61,6 +61,11 @@ final class AppSettings: ObservableObject {
         GotoSafety.Limits(latitude: latitude, longitude: longitude, minAltitude: gotoMinAltitude,
                           minSunSeparation: max(GotoSafety.sunSeparationFloor, sunSafetyDeg))
     }
+    /// Control desde el móvil (servidor en la red local; apagado de serie).
+    @Published var companionEnabled: Bool { didSet { d.set(companionEnabled, forKey: "companionEnabled") } }
+    /// Modo principiante: menos secciones y la pantalla «Empieza aquí».
+    @Published var beginnerMode: Bool { didSet { d.set(beginnerMode, forKey: "beginnerMode") } }
+    @Published var tutorialSeen: Bool { didSet { d.set(tutorialSeen, forKey: "tutorialSeen") } }
     /// Modo nocturno manual, automático al anochecer y brillo (0,3–1).
     @Published var nightMode: Bool { didSet { d.set(nightMode, forKey: "nightMode"); nightOverride = nil } }
     @Published var nightModeAuto: Bool { didSet { d.set(nightModeAuto, forKey: "nightModeAuto") } }
@@ -115,6 +120,10 @@ final class AppSettings: ObservableObject {
         alertCountry = d.string(forKey: "alertCountry") ?? "spain"
         alertZone = d.string(forKey: "alertZone") ?? ""
         horizons = d.data(forKey: "horizons").flatMap { try? JSONDecoder().decode([String: Horizon].self, from: $0) } ?? [:]
+        companionEnabled = d.bool(forKey: "companionEnabled")
+        // Instalación nueva: empieza en modo principiante.
+        beginnerMode = d.object(forKey: "beginnerMode") == nil ? d.object(forKey: "siteName") == nil : d.bool(forKey: "beginnerMode")
+        tutorialSeen = d.bool(forKey: "tutorialSeen")
         nightMode = d.bool(forKey: "nightMode")
         nightModeAuto = d.bool(forKey: "nightModeAuto")
         nightBrightness = dbl("nightBrightness", 0.7)

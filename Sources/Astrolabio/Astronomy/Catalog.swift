@@ -39,10 +39,49 @@ struct DeepSkyObject: Identifiable, Hashable {
 /// Catálogo integrado: los 110 objetos Messier y una selección de objetos NGC, IC y Sharpless
 /// populares para el Seestar. Coordenadas J2000 redondeadas al décimo de minuto.
 enum Catalog {
-    static let objects: [DeepSkyObject] = raw.compactMap(parse)
+    /// Lista principal: objetos populares para el Seestar, con nombre en español. Es la que usan
+    /// «Qué mirar» y «Elige por mí».
+    static let featured: [DeepSkyObject] = raw.compactMap(parse)
+
+    /// Catálogo completo: la lista principal más unos 1 600 objetos de OpenNGC (CC BY-SA 4.0).
+    static let objects: [DeepSkyObject] = featured + CatalogExtra.rows.split(separator: "\n").compactMap { parse(String($0)) }
+
+    private static let index: [String: DeepSkyObject] = {
+        var d: [String: DeepSkyObject] = [:]
+        for o in objects.reversed() { d[normalize(o.id)] = o }
+        return d
+    }()
+
+    /// Números Caldwell → identificador del objeto.
+    static let caldwell: [Int: String] = Dictionary(uniqueKeysWithValues: CatalogExtra.caldwell.split(separator: "\n").compactMap { line in
+        let p = line.split(separator: "=", maxSplits: 1)
+        guard p.count == 2, let n = Int(p[0]) else { return nil }
+        return (n, String(p[1]))
+    })
+
+    /// Objeto del catálogo Caldwell (C1…C109).
+    static func caldwellObject(_ n: Int) -> DeepSkyObject? { caldwell[n].flatMap { find($0) } }
+
+    /// Número Caldwell de un objeto, si lo tiene.
+    static func caldwellNumber(of id: String) -> Int? {
+        let k = normalize(id)
+        return caldwell.first { normalize($0.value) == k }?.key
+    }
+
+    /// Número Messier de un objeto («M31» → 31).
+    static func messierNumber(of id: String) -> Int? {
+        let k = normalize(id)
+        guard k.hasPrefix("m"), let n = Int(k.dropFirst()), (1...110).contains(n) else { return nil }
+        return n
+    }
 
     static func find(_ query: String) -> DeepSkyObject? {
         let q = normalize(query)
+        if let hit = index[q] { return hit }
+        // «C 14» / «Caldwell 14».
+        if q.hasPrefix("c"), let n = Int(q.dropFirst().replacingOccurrences(of: "aldwell", with: "")), let id = caldwell[n], normalize(id) != q {
+            return find(id)
+        }
         return objects.first { normalize($0.id) == q || normalize($0.name) == q || (!$0.name.isEmpty && normalize(tr($0.name)) == q) }
     }
 

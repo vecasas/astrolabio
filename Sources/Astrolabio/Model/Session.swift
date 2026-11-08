@@ -18,6 +18,8 @@ struct PlanItem: Identifiable, Codable, Hashable {
     var stackedFrames = 0
     /// Segundos ya apilados (para retomar el plan tras un reinicio).
     var doneSeconds: Double?
+    /// Nombre del cometa: su posición se recalcula y el telescopio le sigue mientras apila.
+    var comet: String?
 
     var isMosaic: Bool { mosaicColumns * mosaicRows > 1 }
 }
@@ -301,9 +303,26 @@ final class SessionRunner: ObservableObject {
         return true
     }
 
+    /// Distancia que puede moverse un cometa antes de volver a apuntar (el campo mide unos 44′ × 77′).
+    static let cometRetargetArcmin = 3.0
+    /// Órbitas de los cometas (cambia en las pruebas).
+    var cometOrbit: (String) -> CometOrbit? = { CometStore.shared.orbit(named: $0) }
+    private var cometAim: (ra: Double, dec: Double)?
+    /// Cada cuánto se revisan el amanecer, la altura, el cometa… durante el apilado (más corto en las pruebas).
+    var chunkSeconds: Double = 300
+    /// No se vuelve a apuntar al cometa si queda menos de esto en el objeto.
+    var cometMinRemaining: Double = 60
+
     private func runItem(_ item: PlanItem, index: Int, lastFocus: inout Date) async -> Bool {
         guard let client, let settings, let plan else { return false }
         let fov = (w: settings.fovWidthDeg, h: settings.fovHeightDeg)
+        // Cometa: posición de ahora (se mueve entre la planificación y la noche).
+        var item = item
+        if let name = item.comet, let orbit = cometOrbit(name) {
+            let p = Comets.position(orbit, date: Date())
+            item.raHours = p.raHours; item.decDeg = p.decDeg
+            item.mosaicColumns = 1; item.mosaicRows = 1
+        }
         let panels = item.isMosaic
             ? Planner.mosaicPanels(centerRA: item.raHours, centerDec: item.decDeg, columns: item.mosaicColumns,
                                    rows: item.mosaicRows, overlapPercent: item.overlapPercent, fov: fov)
@@ -381,7 +400,13 @@ final class SessionRunner: ObservableObject {
                     }
                     phase = .slewing
                     say(tr("Apuntando a %@…", "\(label)"))
-                    let target = Astro.precessFromJ2000(raHours: panel.ra, decDeg: panel.dec, to: Date())
+                    var j2000 = (ra: panel.ra, dec: panel.dec)
+                    if let name = item.comet, let orbit = cometOrbit(name) {
+                        let p = Comets.position(orbit, date: Date())
+                        j2000 = (p.raHours, p.decDeg)
+                        cometAim = j2000
+                    }
+                    let target = Astro.precessFromJ2000(raHours: j2000.ra, decDeg: j2000.dec, to: Date())
                     var reached = false
                     for attempt in 1...3 {
                         do {
@@ -418,7 +443,7 @@ final class SessionRunner: ObservableObject {
 
                 // Espera por tramos de 5 s comprobando amanecer, nubes y altura.
                 let epoch = client.connectionCount
-                let chunkEnd = Date().addingTimeInterval(min(remaining, 300))
+                let chunkEnd = Date().addingTimeInterval(min(remaining, chunkSeconds))
                 while Date() < chunkEnd {
                     if !(await sleep(5)) { try? await client.stopStack(); return anyPanelDone }
                     if skipRequested { try? await client.stopStack(); return anyPanelDone }
@@ -434,6 +459,17 @@ final class SessionRunner: ObservableObject {
                 }
                 anyPanelDone = true
                 if nightGuard?.stormReason != nil { continue }   // se recoge al principio del bucle
+                // Seguimiento del cometa: si se ha movido más de 3′ desde el último GoTo, se vuelve a apuntar.
+                if let name = item.comet, let orbit = cometOrbit(name), let aim = cometAim {
+                    let p = Comets.position(orbit, date: Date())
+                    let moved = Astro.separation(ra1: aim.ra, dec1: aim.dec, ra2: p.raHours, dec2: p.decDeg) * 60
+                    if moved > Self.cometRetargetArcmin && remaining > cometMinRemaining {
+                        say(tr("%@ se ha movido %@′: se vuelve a apuntar.", label, String(format: "%.1f", moved)))
+                        try? await client.stopStack()
+                        needGoto = true
+                        continue
+                    }
+                }
                 if !client.isConnected || client.connectionCount != epoch {
                     say(tr("Se perdió la conexión durante el apilado: se volverá a apuntar y apilar."))
                     needGoto = true

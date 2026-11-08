@@ -112,7 +112,7 @@ public sealed class AppState
     {
         var s = Settings; var w = Weather;
         var n = Astro.NightFor(DateTime.Now, s.Latitude, s.Longitude);
-        var f = await Task.Run(() => Planner.Evaluate(Catalog.Objects, n, s.Latitude, s.Longitude, s.MinAltitude, s.Fov, w));
+        var f = await Task.Run(() => Planner.Evaluate(Catalog.Featured, n, s.Latitude, s.Longitude, s.MinAltitude, s.Fov, w));
         Dispatcher.UIThread.Post(() => { Night = n; Forecasts = f; TonightUpdated?.Invoke(); });
     }
 }

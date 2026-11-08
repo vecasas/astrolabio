@@ -15,6 +15,7 @@ struct PlannerView: View {
     @State private var night: Astro.Night?
     @State private var selectedID: String?
     @State private var kindFilter: ObjectKind? = nil
+    @State private var fullCatalog = false
     @State private var search = ""
     @State private var loading = false
     @State private var weatherNote = ""
@@ -65,6 +66,8 @@ struct PlannerView: View {
                 }
                 .frame(width: 240)
                 TextField(tr("Buscar"), text: $search).textFieldStyle(.roundedBorder).frame(width: 240)
+                Toggle(tr("Catálogo completo (%@ objetos)", "\(Catalog.objects.count)"), isOn: $fullCatalog)
+                    .help(tr("Incluye unos 1 600 objetos NGC e IC más débiles (datos de OpenNGC)."))
             }
             if loading { ProgressView().controlSize(.small) }
         }
@@ -72,6 +75,7 @@ struct PlannerView: View {
 
     private var filtered: [TargetForecast] {
         forecasts.filter { f in
+            (fullCatalog || f.object.magnitude <= 10 || Catalog.featured.contains(f.object) || !search.isEmpty) &&
             (kindFilter == nil || f.object.kind == kindFilter) &&
             (search.isEmpty || f.object.displayName.localizedCaseInsensitiveContains(search))
         }

@@ -19,6 +19,11 @@ cat = open(os.path.join(SRC, 'Astronomy', 'Catalog.swift'), encoding='utf-8').re
 rows = re.findall(r'^\s*"([^"\n]*\|[^"\n]*)",\s*$', cat, re.M)
 open(os.path.join(OUT, 'catalog.txt'), 'w', encoding='utf-8').write('\n'.join(rows) + '\n')
 
+# Catálogo ampliado (OpenNGC, CC BY-SA 4.0) y números Caldwell.
+extra = open(os.path.join(SRC, 'Astronomy', 'CatalogExtra.swift'), encoding='utf-8').read()
+open(os.path.join(OUT, 'catalog_extra.txt'), 'w', encoding='utf-8').write(multiline(extra, 'rows') + '\n')
+open(os.path.join(OUT, 'caldwell.txt'), 'w', encoding='utf-8').write(multiline(extra, 'caldwell') + '\n')
+
 moon = open(os.path.join(SRC, 'Astronomy', 'MoonTexture.swift'), encoding='utf-8').read()
 b64 = ''.join(multiline(moon, 'jpegBase64').split())
 open(os.path.join(OUT, 'moon.jpg'), 'wb').write(base64.b64decode(b64))

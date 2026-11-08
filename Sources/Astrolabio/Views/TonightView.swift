@@ -33,6 +33,10 @@ struct TonightView: View {
             VStack(alignment: .leading, spacing: 18) {
                 summary
                 planetsTonight
+                HStack(alignment: .top, spacing: 14) {
+                    WeekOutlookCard()
+                    CometsTonightCard(night: tonight.night, message: $message)
+                }
                 HStack {
                     Picker("", selection: $filter) {
                         ForEach(Filter.allCases) { Text(tr($0.rawValue)).tag($0) }

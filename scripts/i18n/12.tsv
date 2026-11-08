@@ -1,0 +1,37 @@
+%@ de %@ fotografiados	%@ of %@ imaged	%@ sur %@ photographiés	%@ von %@ fotografiert	已拍摄 %1$@ / %2$@	Снято %@ из %@
+%@ de 110 objetos en orden · %@ no se pueden ver esa noche desde tu lugar	%@ of 110 objects in order · %@ cannot be seen that night from your site	%@ objets sur 110 dans l’ordre · %@ invisibles cette nuit-là depuis votre lieu	%@ von 110 Objekten in Reihenfolge · %@ in dieser Nacht von deinem Standort aus nicht sichtbar	按顺序排列 %1$@ / 110 个天体 · 当晚在你的位置看不到 %2$@ 个	%@ из 110 объектов по порядку · %@ не видно в эту ночь с вашего места
+%@ h	%@ h	%@ h	%@ h	%@ 小时	%@ ч
+%@ h de noche cerrada · nubes %@ · Luna al %@ %%, sobre el horizonte el %@ %% de la noche	%@ h of full darkness · clouds %@ · Moon %@ %% lit, above the horizon %@ %% of the night	%@ h de nuit noire · nuages %@ · Lune éclairée à %@ %%, au-dessus de l’horizon %@ %% de la nuit	%@ h volle Dunkelheit · Wolken %@ · Mond zu %@ %% beleuchtet, %@ %% der Nacht über dem Horizont	%1$@ 小时完全黑夜 · 云量 %2$@ · 月面照亮 %3$@%%，%4$@%% 的夜晚在地平线以上	%@ ч полной темноты · облачность %@ · Луна освещена на %@ %%, над горизонтом %@ %% ночи
+%@ min por objeto	%@ min per object	%@ min par objet	%@ Min. pro Objekt	每个天体 %@ 分钟	%@ мин на объект
+%@ se ha movido %@′: se vuelve a apuntar.	%@ has moved %@′: pointing again.	%@ s’est déplacé de %@′ : nouveau pointage.	%@ hat sich um %@′ bewegt: wird neu angefahren.	%1$@ 已移动 %2$@′：重新指向。	%@ сместился на %@′: повторное наведение.
+Altura	Altitude	Hauteur	Höhe	高度	Высота
+Caldwell	Caldwell	Caldwell	Caldwell	科德韦尔	Колдуэлл
+Catálogo completo (%@ objetos)	Full catalogue (%@ objects)	Catalogue complet (%@ objets)	Vollständiger Katalog (%@ Objekte)	完整星表（%@ 个天体）	Полный каталог (%@ объектов)
+Cometas esta noche	Comets tonight	Comètes cette nuit	Kometen heute Nacht	今晚的彗星	Кометы этой ночью
+Descargando las órbitas de los cometas…	Downloading comet orbits…	Téléchargement des orbites des comètes…	Kometenbahnen werden geladen…	正在下载彗星轨道…	Загрузка орбит комет…
+Hecho	Done	Fait	Erledigt	已完成	Снято
+Hechos	Done	Faits	Erledigt	已完成	Снятые
+Híades	Hyades	Hyades	Hyaden	毕星团	Гиады
+Incluye unos 1 600 objetos NGC e IC más débiles (datos de OpenNGC).	Includes about 1,600 fainter NGC and IC objects (OpenNGC data).	Inclut environ 1 600 objets NGC et IC plus faibles (données OpenNGC).	Enthält etwa 1.600 lichtschwächere NGC- und IC-Objekte (OpenNGC-Daten).	包含约 1600 个较暗的 NGC 和 IC 天体（OpenNGC 数据）。	Включает около 1600 более слабых объектов NGC и IC (данные OpenNGC).
+La semana	The week	La semaine	Die Woche	本周	Неделя
+Listas	Lists	Listes	Listen	清单	Списки
+Mag	Mag	Mag	Mag	星等	Зв. в.
+Maratón Messier	Messier Marathon	Marathon Messier	Messier-Marathon	梅西耶马拉松	Марафон Мессье
+Mejor noche: %@ (%@ puntos)	Best night: %@ (%@ points)	Meilleure nuit : %@ (%@ points)	Beste Nacht: %@ (%@ Punkte)	最佳夜晚：%1$@（%2$@ 分）	Лучшая ночь: %@ (%@ баллов)
+Messier	Messier	Messier	Messier	梅西耶	Мессье
+Mostrar	Show	Afficher	Anzeigen	显示	Показать
+Ningún cometa más brillante que la magnitud 12 sube lo bastante esta noche.	No comet brighter than magnitude 12 rises high enough tonight.	Aucune comète plus brillante que la magnitude 12 ne monte assez haut cette nuit.	Kein Komet heller als Größe 12 steht heute Nacht hoch genug.	今晚没有亮于 12 等的彗星升得足够高。	Этой ночью ни одна комета ярче 12-й величины не поднимется достаточно высоко.
+No sale	Not up	Ne se lève pas	Geht nicht auf	不升起	Не восходит
+No se pudieron descargar las órbitas de los cometas.	Could not download comet orbits.	Impossible de télécharger les orbites des comètes.	Kometenbahnen konnten nicht geladen werden.	无法下载彗星轨道。	Не удалось загрузить орбиты комет.
+No visibles: %@	Not visible: %@	Non visibles : %@	Nicht sichtbar: %@	不可见：%@	Не видны: %@
+Nº	No.	Nº	Nr.	编号	№
+Pendiente	Pending	À faire	Offen	待拍	Не снято
+Pendientes	Pending	À faire	Offen	待拍	Не снятые
+Pendientes y visibles esta noche	Pending and visible tonight	À faire et visibles cette nuit	Offen und heute Nacht sichtbar	待拍且今晚可见	Не снятые и видимые этой ночью
+Plan con %@ objetos creado. Revísalo en «Sesión automática».	Plan with %@ objects created. Review it in “Automatic session”.	Plan de %@ objets créé. Vérifiez-le dans « Session automatique ».	Plan mit %@ Objekten erstellt. Prüfe ihn in „Automatische Sitzung“.	已创建包含 %@ 个天体的计划。请在“自动观测”中查看。	Создан план из %@ объектов. Проверьте его в «Автоматическом сеансе».
+Puntos: nubes durante la noche (lo que más pesa), Luna y horas de oscuridad. Sin previsión, la barra sale tenue.	Points: clouds during the night (weighs most), Moon and hours of darkness. Without a forecast the bar is faint.	Points : nuages pendant la nuit (le plus important), Lune et heures d’obscurité. Sans prévision, la barre est pâle.	Punkte: Wolken in der Nacht (zählen am meisten), Mond und Dunkelstunden. Ohne Vorhersage ist der Balken blass.	分数：夜间云量（最重要）、月亮和黑夜时长。没有预报时，柱子显示为浅色。	Баллы: облачность ночью (важнее всего), Луна и часы темноты. Без прогноза столбик бледный.
+Saco de Carbón	Coalsack	Sac de Charbon	Kohlensack	煤袋星云	Угольный Мешок
+Se ordenan para ver cada objeto antes de que se ponga: primero los del oeste al anochecer y al final los que salen por el este al amanecer. Con el Seestar, cada objeto necesita además el tiempo del GoTo.	Objects are ordered so each is seen before it sets: first those in the west at dusk, last those rising in the east at dawn. With the Seestar each object also needs time for the GoTo.	Les objets sont ordonnés pour voir chacun avant son coucher : d’abord ceux de l’ouest au crépuscule, en dernier ceux qui se lèvent à l’est à l’aube. Avec le Seestar, chaque objet demande aussi le temps du GoTo.	Die Objekte sind so geordnet, dass jedes vor seinem Untergang gesehen wird: zuerst die im Westen in der Dämmerung, zuletzt die im Osten vor Sonnenaufgang. Mit dem Seestar braucht jedes Objekt zusätzlich die Zeit für das GoTo.	按落下顺序排列：先看黄昏时西边的天体，最后看黎明时从东方升起的天体。使用 Seestar 时，每个天体还需要 GoTo 的时间。	Объекты упорядочены так, чтобы увидеть каждый до захода: сначала западные в сумерках, последними — восходящие на востоке на рассвете. С Seestar на каждый объект нужно ещё время на GoTo.
+Usar como plan de la noche	Use as tonight’s plan	Utiliser comme plan de la nuit	Als Plan für die Nacht verwenden	用作今晚的计划	Сделать планом ночи
+mag %@ · máx. %@° a las %@ · a %@ UA de la Tierra	mag %@ · max %@° at %@ · %@ AU from Earth	mag %@ · max %@° à %@ · à %@ UA de la Terre	Größe %@ · max. %@° um %@ · %@ AE von der Erde	%1$@ 等 · 最高 %2$@°（%3$@）· 距地球 %4$@ 天文单位	%@ зв. в. · макс. %@° в %@ · %@ а. е. от Земли
+Órbitas del Minor Planet Center, actualizadas cada día. En la sesión automática el telescopio vuelve a apuntar al cometa cuando se ha movido.	Orbits from the Minor Planet Center, updated daily. In the automatic session the telescope re-points at the comet when it has moved.	Orbites du Minor Planet Center, mises à jour chaque jour. En session automatique, le télescope repointe la comète lorsqu’elle s’est déplacée.	Bahnen vom Minor Planet Center, täglich aktualisiert. In der automatischen Sitzung fährt das Teleskop den Kometen neu an, wenn er sich bewegt hat.	轨道来自小行星中心，每天更新。在自动观测中，彗星移动后望远镜会重新指向。	Орбиты из Центра малых планет, обновляются ежедневно. В автоматическом сеансе телескоп перенаводится на комету, когда она смещается.

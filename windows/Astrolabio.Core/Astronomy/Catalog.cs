@@ -26,11 +26,49 @@ public sealed record DeepSkyObject(string Id, string Name, ObjectKind Kind, doub
 /// <summary>Catálogo integrado (Messier y una selección de NGC, IC y Sharpless), el mismo que en macOS.</summary>
 public static class Catalog
 {
-    public static readonly IReadOnlyList<DeepSkyObject> Objects = Load();
+    /// <summary>Lista principal (con nombres en español): la que usan «Qué mirar» y «Elige por mí».</summary>
+    public static readonly IReadOnlyList<DeepSkyObject> Featured = Load("catalog.txt");
 
-    private static List<DeepSkyObject> Load()
+    /// <summary>Catálogo completo: la lista principal más unos 1 600 objetos de OpenNGC (CC BY-SA 4.0).</summary>
+    public static readonly IReadOnlyList<DeepSkyObject> Objects = [.. Featured, .. Load("catalog_extra.txt")];
+
+    private static readonly Dictionary<string, DeepSkyObject> Index = BuildIndex();
+
+    private static Dictionary<string, DeepSkyObject> BuildIndex()
     {
-        using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("Astrolabio.Core.Data.catalog.txt")!;
+        var d = new Dictionary<string, DeepSkyObject>();
+        foreach (var o in Objects) d.TryAdd(Normalize(o.Id), o);
+        return d;
+    }
+
+    /// <summary>Números Caldwell → identificador del objeto.</summary>
+    public static readonly IReadOnlyDictionary<int, string> Caldwell = LoadCaldwell();
+
+    private static Dictionary<int, string> LoadCaldwell()
+    {
+        using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("Astrolabio.Core.Data.caldwell.txt")!;
+        using var r = new StreamReader(s);
+        var d = new Dictionary<int, string>();
+        while (r.ReadLine() is { } l)
+        {
+            var p = l.Split('=', 2);
+            if (p.Length == 2 && int.TryParse(p[0], out var n)) d[n] = p[1];
+        }
+        return d;
+    }
+
+    public static DeepSkyObject? CaldwellObject(int n) => Caldwell.TryGetValue(n, out var id) ? Find(id) : null;
+
+    public static int? CaldwellNumber(string id)
+    {
+        var k = Normalize(id);
+        foreach (var (n, v) in Caldwell) if (Normalize(v) == k) return n;
+        return null;
+    }
+
+    private static List<DeepSkyObject> Load(string resource)
+    {
+        using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream("Astrolabio.Core.Data." + resource)!;
         using var r = new StreamReader(s);
         var list = new List<DeepSkyObject>();
         while (r.ReadLine() is { } line)
@@ -58,6 +96,9 @@ public static class Catalog
     public static DeepSkyObject? Find(string query)
     {
         var q = Normalize(query);
+        if (Index.TryGetValue(q, out var hit)) return hit;
+        if (q.StartsWith('c') && int.TryParse(q[1..].Replace("aldwell", ""), out var cn) && Caldwell.TryGetValue(cn, out var cid) && Normalize(cid) != q)
+            return Find(cid);
         return Objects.FirstOrDefault(o => Normalize(o.Id) == q || Normalize(o.Name) == q || (o.Name.Length > 0 && Normalize(Strings.T(o.Name)) == q));
     }
 }

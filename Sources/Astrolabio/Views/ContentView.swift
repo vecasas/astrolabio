@@ -9,6 +9,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case planner = "Planificar la noche"
     case session = "Sesión automática"
     case mosaic = "Mosaicos"
+    case lists = "Listas"
     case moon = "Luna"
     case planets = "Planetas"
     case stacker = "Apilador planetario"
@@ -30,6 +31,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .planner: return "list.star"
         case .session: return "moon.stars"
         case .mosaic: return "square.grid.3x3"
+        case .lists: return "checklist"
         case .moon: return "moonphase.waxing.gibbous"
         case .planets: return "globe.europe.africa"
         case .stacker: return "square.stack.3d.down.right"
@@ -46,7 +48,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         (tr("Esta noche"), [.tonight, .pick, .skyChart]),
         ("Observar", [.telescope, .live]),
         (tr("Sistema solar"), [.moon, .planets, .stacker]),
-        ("Planificar", [.planner, .session, .mosaic]),
+        ("Planificar", [.planner, .session, .mosaic, .lists]),
         ("Archivo", [.album, .stats, .reports]),
         ("Sistema", [.weather, .log]),
     ]
@@ -88,6 +90,7 @@ struct ContentView: View {
                     case .planner: PlannerView()
                     case .session: SessionView()
                     case .mosaic: MosaicView()
+                    case .lists: ListsView()
                     case .moon: MoonView()
                     case .planets: PlanetsView()
                     case .stacker: StackerView()

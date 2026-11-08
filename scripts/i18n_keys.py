@@ -14,7 +14,7 @@ for root, _, files in os.walk(ROOT):
         for m in lit.finditer(src):
             keys.add(unescape(m.group(1)))
         # Valores de enums que se muestran traducidos con tr(rawValue)
-        for m in re.finditer(r'enum (ObjectKind|AppSection|PickStyle|Tab|Filter|Range)\b[^{]*\{(.*?)\n\s*(?:var|static|func|init)', src, re.S):
+        for m in re.finditer(r'enum (ObjectKind|AppSection|PickStyle|Tab|Filter|Range|ListStatus)\b[^{]*\{(.*?)\n\s*(?:var|static|func|init)', src, re.S):
             for v in re.findall(r'=\s*"((?:[^"\\]|\\.)*)"', m.group(2)):
                 keys.add(unescape(v))
         # Títulos de grupos de la barra lateral y notas de planetas
@@ -26,5 +26,8 @@ for root, _, files in os.walk(ROOT):
 cat = open(os.path.join(ROOT, 'Astronomy', 'Catalog.swift'), encoding='utf-8').read()
 for m in re.finditer(r'^\s*"([^"|]+)\|([^"|]*)\|', cat, re.M):
     if m.group(2): keys.add(m.group(2))
+extra = open(os.path.join(ROOT, 'Astronomy', 'CatalogExtra.swift'), encoding='utf-8').read()
+for m in re.finditer(r'^([^|\n"/]+)\|([^|\n]+)\|(?:N|G|OC|GC|P|S)\|', extra, re.M):
+    keys.add(m.group(2))
 keys.discard('')
 json.dump(sorted(keys), sys.stdout, ensure_ascii=False, indent=0)

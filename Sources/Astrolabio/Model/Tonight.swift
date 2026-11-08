@@ -29,7 +29,7 @@ final class TonightModel: ObservableObject {
         let n = Astro.night(for: Date(), lat: lat, lon: lon)
         night = n
         forecasts = await Task.detached(priority: .userInitiated) {
-            Planner.evaluate(objects: Catalog.objects, night: n, lat: lat, lon: lon,
+            Planner.evaluate(objects: Catalog.featured, night: n, lat: lat, lon: lon,
                              minAltitude: minAlt, fov: fov, weather: weather)
         }.value
         computedAt = Date()

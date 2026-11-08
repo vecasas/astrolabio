@@ -19,7 +19,7 @@ struct WeatherHour: Identifiable {
 
 enum WeatherService {
     static func forecast(lat: Double, lon: Double) async throws -> [WeatherHour] {
-        try await fetch("https://api.open-meteo.com/v1/forecast", lat: lat, lon: lon, extra: [.init(name: "forecast_days", value: "3")])
+        try await fetch("https://api.open-meteo.com/v1/forecast", lat: lat, lon: lon, extra: [.init(name: "forecast_days", value: "7")])
     }
 
     /// Tiempo pasado entre dos fechas: los últimos 90 días salen de la API de previsión

@@ -224,7 +224,7 @@ public static class Satellites
     public static double Gmst(double jd)
     {
         var t = (jd - 2451545.0) / 36525;
-        var s = 67310.54841 + (876600 * 3600 + 8640184.812866) * t + 0.093104 * t * t - 6.2e-6 * t * t * t;
+        var s = 67310.54841 + (876600.0 * 3600 + 8640184.812866) * t + 0.093104 * t * t - 6.2e-6 * t * t * t;
         s %= 86400; if (s < 0) s += 86400;
         return s / 240 * Math.PI / 180;
     }

@@ -172,7 +172,7 @@ public sealed class FakeImageServer : IDisposable
         for (var i = 0; i < w * h * 3; i++) BitConverter.TryWriteBytes(raw.AsSpan(i * 2), (ushort)(1000 + i % 3 * 500));
         using var ms = new MemoryStream();
         using (var z = new System.IO.Compression.ZipArchive(ms, System.IO.Compression.ZipArchiveMode.Create, true))
-        using (var s = z.CreateEntry("raw_data").Open()) s.Write(raw);
+        using (var s = z.CreateEntry("raw_data", System.IO.Compression.CompressionLevel.NoCompression).Open()) s.Write(raw);
         var zip = ms.ToArray();
         var hdr = new byte[80];
         hdr[6] = (byte)(zip.Length >> 24); hdr[7] = (byte)(zip.Length >> 16); hdr[8] = (byte)(zip.Length >> 8); hdr[9] = (byte)zip.Length;

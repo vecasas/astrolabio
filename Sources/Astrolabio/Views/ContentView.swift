@@ -4,6 +4,9 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case tonight = "Qué mirar"
     case pick = "Elige por mí"
     case skyChart = "Carta estelar"
+    case events = "Eventos del cielo"
+    case satellites = "Satélites"
+    case nightSheet = "Hoja de la noche"
     case telescope = "Telescopio"
     case live = "Vista en directo"
     case planner = "Planificar la noche"
@@ -28,6 +31,9 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .tonight: return "binoculars"
         case .pick: return "wand.and.stars"
         case .skyChart: return "map"
+        case .events: return "calendar.badge.clock"
+        case .satellites: return "airplane"
+        case .nightSheet: return "doc.text.image"
         case .telescope: return "scope"
         case .live: return "camera.aperture"
         case .planner: return "list.star"
@@ -49,7 +55,7 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
 
     /// Grupos de la barra lateral.
     static let groups: [(title: String, items: [AppSection])] = [
-        (tr("Esta noche"), [.tonight, .pick, .skyChart]),
+        (tr("Esta noche"), [.tonight, .pick, .skyChart, .events, .satellites, .nightSheet]),
         ("Observar", [.telescope, .live]),
         (tr("Sistema solar"), [.moon, .planets, .stacker]),
         ("Planificar", [.planner, .session, .mosaic, .lists, .horizon]),
@@ -89,6 +95,9 @@ struct ContentView: View {
                     case .tonight: TonightView()
                     case .pick: PickForMeView()
                     case .skyChart: SkyChartView()
+                    case .events: SkyEventsView()
+                    case .satellites: SatellitesView()
+                    case .nightSheet: NightSheetView()
                     case .telescope: TelescopeView()
                     case .live: LiveView()
                     case .planner: PlannerView()

@@ -12,13 +12,13 @@ using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.App;
 
-public enum Section { Tonight, Pick, SkyChart, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Editor, Stats, Reports, Weather, Log, Settings }
+public enum Section { Tonight, Pick, SkyChart, Events, Satellites, NightSheet, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Editor, Stats, Reports, Weather, Log, Settings }
 
 public sealed class MainWindow : Window
 {
     private static readonly (string Group, (Section S, string Key, string Icon)[] Items)[] Groups =
     [
-        ("Esta noche", [(Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺")]),
+        ("Esta noche", [(Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺"), (Section.Events, "Eventos del cielo", "📅"), (Section.Satellites, "Satélites", "🛰"), (Section.NightSheet, "Hoja de la noche", "🗒")]),
         ("Observar", [(Section.Telescope, "Telescopio", "🎯"), (Section.Live, "Vista en directo", "📷")]),
         ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐"), (Section.Stacker, "Apilador planetario", "🎞")]),
         ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑"), (Section.Horizon, "Mi horizonte", "⛰")]),
@@ -123,6 +123,9 @@ public sealed class MainWindow : Window
             Section.Tonight => new TonightView(this),
             Section.Pick => new PickView(this),
             Section.SkyChart => new SkyChartView(),
+            Section.Events => new SkyEventsView(),
+            Section.Satellites => new SatellitesView(),
+            Section.NightSheet => new NightSheetView(),
             Section.Telescope => new TelescopeView(),
             Section.Live => new LiveView(),
             Section.Moon => new MoonView(),

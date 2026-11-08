@@ -38,6 +38,26 @@ public sealed class SessionRunner : Observable
     /// <summary>Cada cuánto se revisa todo durante el apilado (más corto en las pruebas).</summary>
     public double ChunkSeconds { get; set; } = 300;
     public double CometMinRemaining { get; set; } = 60;
+    /// <summary>Satélites conocidos, para avisar de los que cruzarán el campo (cambia en las pruebas).</summary>
+    public Func<List<Tle>> SatelliteProvider { get; set; } = () => SatelliteStore.Shared.Tles;
+    private readonly HashSet<string> _satelliteWarned = [];
+
+    /// <summary>Busca en segundo plano satélites iluminados que pasarán a menos de 1° del objetivo mientras se apila.</summary>
+    private void WarnSatellites(SeestarClient c, string label, double ra, double dec, double seconds, double lat, double lon)
+    {
+        var tles = SatelliteProvider();
+        if (tles.Count == 0 || seconds <= 0) return;
+        var from = DateTime.UtcNow; var to = from.AddSeconds(seconds);
+        _ = Task.Run(() =>
+        {
+            foreach (var h in Satellites.Crossings(tles, ra, dec, from, to, lat, lon).Take(5))
+            {
+                lock (_satelliteWarned) if (!_satelliteWarned.Add($"{h.Name}|{(long)(h.At - DateTime.UnixEpoch).TotalMinutes}")) continue;
+                Say(c, Strings.T("Aviso: %1$@ cruzará cerca de %2$@ hacia las %3$@ (a %4$.1f°). Puede dejar una traza; el editor de fotos sabe quitarla.",
+                                 h.Name, label, h.At.ToLocalTime().ToString("t", Strings.Culture), h.Sep));
+            }
+        });
+    }
     private (double Ra, double Dec)? _cometAim;
 
     private CancellationTokenSource? _cts;
@@ -323,6 +343,7 @@ public sealed class SessionRunner : Observable
                     catch (Exception e) { Say(c, Strings.T("No se pudo empezar a apilar: %@", e.Message)); break; }
                     SetPhase(RunPhase.Stacking);
                     Say(c, Strings.T("Apilando %@ durante %@ min.", label, (int)(remaining / 60)));
+                    WarnSatellites(c, label, aim.Ra, aim.Dec, remaining, s.Latitude, s.Longitude);
                 }
                 var epoch = c.ConnectionCount;
                 var chunkEnd = DateTime.Now.AddSeconds(Math.Min(remaining, ChunkSeconds));

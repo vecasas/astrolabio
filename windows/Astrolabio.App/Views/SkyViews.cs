@@ -216,10 +216,13 @@ public static class MoonRenderer
         return _tex = (w, h, buf);
     }
 
-    public static WriteableBitmap? Render(int size, double elongation)
+    public static WriteableBitmap? Render(int size, double elongation) => Render(size, new MoonGeometry(0, 0, 180 - elongation, 0));
+
+    /// <summary>Con libración: la cara visible y la luz corresponden a la fecha de <paramref name="g"/>. Norte arriba.</summary>
+    public static WriteableBitmap? Render(int size, MoonGeometry g)
     {
         if (Texture() is not { } tex) return null;
-        var theta = Math.PI - elongation * Math.PI / 180; double sx = Math.Sin(theta), sz = Math.Cos(theta);
+        var sun = MoonFeatures.SunInView(g); var e = MoonFeatures.ViewBasis(g);
         var wb = new WriteableBitmap(new PixelSize(size, size), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
         var outp = new byte[size * size * 4]; var r = size / 2.0 - 1;
         for (var py = 0; py < size; py++)
@@ -228,11 +231,12 @@ public static class MoonRenderer
             double y = (r - py + 0.5) / r, x = (px - r + 0.5) / r, d2 = x * x + y * y;
             if (d2 > 1) continue;
             var z = Math.Sqrt(1 - d2);
-            double lon = Math.Atan2(x, z), lat = Math.Asin(y);
+            double mx = x * e.Ex.X + y * e.Ey.X + z * e.Ez.X, my = x * e.Ex.Y + y * e.Ey.Y + z * e.Ez.Y, mz = x * e.Ex.Z + y * e.Ey.Z + z * e.Ez.Z;
+            double lon = Math.Atan2(mx, mz), lat = Math.Asin(Math.Clamp(my, -1, 1));
             var tu = Math.Clamp((int)((lon / (2 * Math.PI) + 0.5) * tex.W), 0, tex.W - 1);
             var tv = Math.Clamp((int)((0.5 - lat / Math.PI) * tex.H), 0, tex.H - 1);
             var ti = 4 * (tv * tex.W + tu);
-            var mu0 = x * sx + z * sz;
+            var mu0 = x * sun.X + y * sun.Y + z * sun.Z;
             var soft = Math.Clamp((mu0 + 0.04) / 0.08, 0, 1);
             var lit = mu0 > 0 ? 2 * mu0 / (mu0 + z) : 0;
             var light = lit * soft * 1.05 + 0.06 * (1 - soft) * (0.6 + 0.4 * z);
@@ -277,13 +281,14 @@ public sealed class MoonView : UserControl
             _ => aa.Alt > 0 ? "Luna brillante: mejor cúmulos, estrellas dobles, planetas… o la propia Luna. Las nebulosas de emisión aguantan con el filtro LP." : "Luna brillante pero bajo el horizonte: aprovecha mientras no sale.",
         };
         Content = Ui.Scroll(Ui.V(
-            Ui.H(new StackPanel { Width = 300, Spacing = 8, Children = { new Image { Source = MoonRenderer.Render(500, Ephemeris.MoonElongation(now)), Width = 250, Height = 250 },
+            Ui.H(new StackPanel { Width = 320, Spacing = 8, Children = { MoonAtlas.LabeledMoonPanel(now, 290),
                     Ui.Text(ph.Name, 24, FontWeight.Bold), Ui.Caption(Ui.T("Iluminada al %.0f %% · %.1f días", m.Illumination * 100, ph.Age), false) } },
                 Ui.V(Ui.H(Ui.Tile(Ui.T("Altura ahora"), $"{aa.Alt:F0}°", Ui.T("Acimut %.0f° · %@", aa.Az, aa.Alt > 0 ? Ui.T("sobre el horizonte") : Ui.T("bajo el horizonte"))),
                           Ui.Tile(Ui.T("Distancia"), Ui.T("%.0f km", dist), Ui.T("Diámetro aparente %.1f′", 2 * Math.Atan(1737.4 / dist) * Astro.Rad * 60))),
                      Ui.H(Ui.Tile(Ui.T("Sale"), Ui.Time(rs.Rise)), Ui.Tile(Ui.T("Culmina"), Ui.Time(rs.Transit), $"{rs.MaxAltitude:F0}°"), Ui.Tile(Ui.T("Se pone"), Ui.Time(rs.Set))),
                      Ui.Card(Ui.T("Y para el cielo profundo…"), Ui.Text(Ui.T(advice), 12, wrap: true)))),
             Ui.Card(Ui.T("Próximas fases"), phases),
+            MoonAtlas.FeaturesCard(now),
             Ui.Card(Ui.T("Los próximos 30 días"), calendar, Ui.Caption(Ui.T("En verde, las noches con poca Luna: las mejores para galaxias y nebulosas débiles."))),
             Ui.Card(Ui.T("Fotografiar la Luna con el Seestar"),
                 Ui.H(Ui.Button(Ui.T("Modo Luna del Seestar"), async () => await Ui.Run(Ui.T("Modo Luna"), c.StartMoonView), true),

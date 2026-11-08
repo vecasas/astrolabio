@@ -26,10 +26,15 @@ enum MoonRenderer {
     /// 180 llena, 270 cuarto menguante). Con `northUp` el creciente se ilumina por la derecha,
     /// como se ve desde el hemisferio norte.
     static func render(size: Int, elongation: Double, earthshine: Double = 0.06) -> CGImage? {
+        render(size: size, geometry: MoonGeometry(l: 0, b: 0, l0: 180 - elongation, b0: 0), earthshine: earthshine)
+    }
+
+    /// Con libración: la cara que se ve y la luz del Sol corresponden a la fecha de `geometry`. Norte arriba.
+    static func render(size: Int, geometry g: MoonGeometry, earthshine: Double = 0.06) -> CGImage? {
         guard let tex = texture, size > 8 else { return nil }
         // Dirección del Sol en el sistema del observador (x a la derecha, y arriba, z hacia nosotros).
-        let theta = Double.pi - elongation * Double.pi / 180
-        let sx = sin(theta), sz = cos(theta)
+        let sun = MoonFeatures.sunInView(g)
+        let basis = MoonFeatures.viewBasis(g)
         var out = [UInt8](repeating: 0, count: size * size * 4)
         let r = Double(size) / 2 - 1
         for py in 0..<size {
@@ -40,15 +45,16 @@ enum MoonRenderer {
                 let o = 4 * (py * size + px)
                 guard d2 <= 1 else { continue }
                 let z = sqrt(1 - d2)
-                // Coordenadas selenográficas (cara visible centrada en longitud 0).
-                let lon = atan2(x, z), lat = asin(y)
+                // Coordenadas selenográficas del punto (con la libración del día).
+                let m = x * basis.x + y * basis.y + z * basis.z
+                let lon = atan2(m.x, m.z), lat = asin(max(-1, min(1, m.y)))
                 let u = (lon / (2 * Double.pi) + 0.5) * Double(tex.w)
                 let v = (0.5 - lat / Double.pi) * Double(tex.h)
                 let tu = min(tex.w - 1, max(0, Int(u))), tv = min(tex.h - 1, max(0, Int(v)))
                 let ti = 3 * (tv * tex.w + tu)
                 // Iluminación: ley de Lommel-Seeliger (la Luna no se oscurece como una esfera mate)
                 // con un terminador suavizado y luz cenicienta tenue.
-                let mu0 = x * sx + z * sz            // coseno del ángulo con el Sol
+                let mu0 = x * sun.x + y * sun.y + z * sun.z           // coseno del ángulo con el Sol
                 let mu = z                            // coseno del ángulo con el observador
                 let soft = max(0, min(1, (mu0 + 0.04) / 0.08))
                 let lit = mu0 > 0 ? 2 * mu0 / (mu0 + mu) : 0
@@ -82,8 +88,8 @@ struct RealisticMoon: View {
         }
         .aspectRatio(1, contentMode: .fit)
         .task(id: Int(date.timeIntervalSince1970 / 600)) {
-            let e = Ephemeris.moonElongation(date), s = pixelSize
-            image = await Task.detached { MoonRenderer.render(size: s, elongation: e) }.value
+            let g = MoonFeatures.geometry(date), s = pixelSize
+            image = await Task.detached { MoonRenderer.render(size: s, geometry: g) }.value
         }
     }
 }

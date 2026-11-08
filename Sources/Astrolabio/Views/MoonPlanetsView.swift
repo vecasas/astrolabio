@@ -9,6 +9,8 @@ struct MoonView: View {
     @EnvironmentObject var settings: AppSettings
     @EnvironmentObject var tonight: TonightModel
     @State private var now = Date()
+    @State private var showLabels = true
+    @State private var snapMessage = ""
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -23,14 +25,23 @@ struct MoonView: View {
             VStack(alignment: .leading, spacing: 18) {
                 HStack(alignment: .top, spacing: 18) {
                     VStack(spacing: 14) {
-                        RealisticMoon(date: now)
-                            .frame(width: 250, height: 250)
+                        LabeledMoon(date: now, showLabels: showLabels)
+                            .frame(width: 290, height: 290)
                             .shadow(color: Theme.accentSoft.opacity(0.25), radius: 30)
+                        HStack(spacing: 8) {
+                            Toggle(tr("Nombres"), isOn: $showLabels).toggleStyle(.checkbox)
+                            Button(tr("Guardar imagen")) { saveSnapshot() }
+                            Button(tr("Copiar")) {
+                                if let d = MoonAtlas.snapshot(date: now, place: placeText) { ImageSaving.copy(d); snapMessage = tr("Copiada al portapapeles") }
+                            }
+                        }
+                        .controlSize(.small)
+                        if !snapMessage.isEmpty { Text(snapMessage).font(.caption).foregroundStyle(.secondary) }
                         Text(ph.name).font(.system(.title, design: .rounded).weight(.bold))
                         Text(tr("Iluminada al %.0f %% · %.1f días", m.illumination * 100, ph.age))
                             .foregroundStyle(.secondary)
                     }
-                    .frame(width: 300)
+                    .frame(width: 320)
                     .padding(.vertical, 12)
 
                     VStack(alignment: .leading, spacing: 14) {
@@ -70,6 +81,8 @@ struct MoonView: View {
                             .frame(height: 170)
                     }
                 }
+
+                MoonFeaturesCard(date: now)
 
                 Card(title: tr("Los próximos 30 días"), systemImage: "moon.stars") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 10), spacing: 10) {
@@ -117,6 +130,18 @@ struct MoonView: View {
         }
         .navigationTitle(tr("Luna"))
         .onReceive(timer) { now = $0 }
+    }
+
+    private var placeText: String {
+        String(format: "%.2f°, %.2f°", settings.latitude, settings.longitude)
+    }
+
+    private func saveSnapshot() {
+        guard let d = MoonAtlas.snapshot(date: now, place: placeText) else { snapMessage = tr("No se pudo crear la imagen."); return }
+        let f = DateFormatter(); f.dateFormat = "yyyy-MM-dd_HHmm"
+        if let url = ImageSaving.savePNG(d, name: "Luna_\(f.string(from: now)).png", folder: settings.saveFolderURL) {
+            snapMessage = tr("Guardada en %@", url.lastPathComponent)
+        }
     }
 
     private func deepSkyAdvice(_ illum: Double, up: Bool) -> String {

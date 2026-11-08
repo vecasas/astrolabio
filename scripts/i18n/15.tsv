@@ -1,0 +1,103 @@
+%1$.0f° del Sol, visible %2$@.	%1$.0f° from the Sun, visible %2$@.	à %1$.0f° du Soleil, visible %2$@.	%1$.0f° von der Sonne entfernt, sichtbar %2$@.	距太阳 %1$.0f°，%2$@可见。	%1$.0f° от Солнца, виден %2$@.
+%1$@ a las %2$@, a %3$.1f° del centro	%1$@ at %2$@, %3$.1f° from the centre	%1$@ à %2$@, à %3$.1f° du centre	%1$@ um %2$@, %3$.1f° von der Mitte	%1$@ 于 %2$@，距中心 %3$.1f°	%1$@ в %2$@, в %3$.1f° от центра
+%1$@ y %2$@	%1$@ and %2$@	%1$@ et %2$@	%1$@ und %2$@	%1$@ 与 %2$@	%1$@ и %2$@
+%1$@ → %2$@	%1$@ → %2$@	%1$@ → %2$@	%1$@ → %2$@	%1$@ → %2$@	%1$@ → %2$@
+A simple vista	Naked eye	À l’œil nu	Mit bloßem Auge	肉眼可见	Невооружённым глазом
+Abre «Qué mirar» para calcular la lista.	Open “What to observe” to compute the list.	Ouvrez « Que regarder » pour calculer la liste.	Öffne „Was beobachten“, um die Liste zu berechnen.	打开“看什么”以计算列表。	Откройте «Что смотреть», чтобы рассчитать список.
+Actualizar órbitas	Update orbits	Mettre à jour les orbites	Bahnen aktualisieren	更新轨道	Обновить орбиты
+Ahora no hay accidentes de la lista junto al terminador (Luna llena o nueva).	No listed features are near the terminator right now (full or new Moon).	Aucun relief de la liste n’est près du terminateur en ce moment (pleine ou nouvelle Lune).	Gerade liegt kein Objekt der Liste am Terminator (Voll- oder Neumond).	目前列表中没有位于明暗界线附近的地貌（满月或新月）。	Сейчас у терминатора нет объектов из списка (полнолуние или новолуние).
+Alunizaje	Landing site	Site d’alunissage	Landestelle	着陆点	Место посадки
+Aviso: %1$@ cruzará cerca de %2$@ hacia las %3$@ (a %4$.1f°). Puede dejar una traza; el editor de fotos sabe quitarla.	Warning: %1$@ will pass near %2$@ at about %3$@ (%4$.1f° away). It may leave a trail; the photo editor can remove it.	Attention : %1$@ passera près de %2$@ vers %3$@ (à %4$.1f°). Il peut laisser une traînée ; l’éditeur photo sait l’effacer.	Hinweis: %1$@ zieht gegen %3$@ nahe an %2$@ vorbei (%4$.1f° entfernt). Das kann eine Spur hinterlassen; der Fotoeditor kann sie entfernen.	提醒：%1$@ 将在 %3$@ 左右经过 %2$@ 附近（相距 %4$.1f°）。可能留下轨迹，照片编辑器可以去除。	Внимание: %1$@ пройдёт около %2$@ примерно в %3$@ (в %4$.1f°). Может остаться след; фоторедактор умеет его убрать.
+Bajo en el cielo	Low in the sky	Bas dans le ciel	Tief am Himmel	位置较低	Низко над горизонтом
+Cabe en el campo del Seestar	Fits in the Seestar field	Tient dans le champ du Seestar	Passt ins Seestar-Bildfeld	可放入 Seestar 视场	Помещается в поле Seestar
+Calculando…	Calculating…	Calcul…	Wird berechnet…	计算中…	Расчёт…
+Cara oculta	Far side	Face cachée	Rückseite	背面	Обратная сторона
+Colongitud %.1f°	Colongitude %.1f°	Colongitude %.1f°	Kolongitude %.1f°	余经度 %.1f°	Колонгитуда %.1f°
+Cometas	Comets	Comètes	Kometen	彗星	Кометы
+Comprobar	Check	Vérifier	Prüfen	检查	Проверить
+Con la Luna a medias el terminador muestra el relieve: buen momento para fotografiarla.	With a half Moon the terminator shows the relief: a good time to photograph it.	À la demi-Lune, le terminateur révèle le relief : bon moment pour la photographier.	Bei Halbmond zeigt der Terminator das Relief: eine gute Zeit zum Fotografieren.	半月时明暗界线能显出地形：拍摄的好时机。	При половинной Луне терминатор подчёркивает рельеф: хорошее время для съёмки.
+Copiada al portapapeles	Copied to the clipboard	Copiée dans le presse-papiers	In die Zwischenablage kopiert	已复制到剪贴板	Скопировано в буфер обмена
+Cráter	Crater	Cratère	Krater	环形山	Кратер
+De noche	In darkness	De nuit	Im Dunkeln	处于黑夜	В тени
+Descargando las órbitas…	Downloading orbits…	Téléchargement des orbites…	Bahnen werden geladen…	正在下载轨道…	Загрузка орбит…
+El Seestar ve la Luna entera de una vez (su campo mide 44′ × 77′ y la Luna unos 31′), así que no hace falta apuntar a cada cráter: usa el modo Luna y amplía la imagen.	The Seestar sees the whole Moon at once (its field is 44′ × 77′ and the Moon about 31′), so there is no need to point at each crater: use Moon mode and zoom into the image.	Le Seestar voit la Lune entière d’un coup (champ de 44′ × 77′, Lune d’environ 31′) : inutile de viser chaque cratère, utilisez le mode Lune et agrandissez l’image.	Das Seestar sieht den ganzen Mond auf einmal (Bildfeld 44′ × 77′, Mond etwa 31′), daher muss man nicht jeden Krater anfahren: Mondmodus nutzen und ins Bild zoomen.	Seestar 一次就能看到整个月亮（视场 44′ × 77′，月亮约 31′），无需逐个指向环形山：使用月亮模式并放大图像即可。	Seestar видит всю Луну сразу (поле 44′ × 77′, Луна около 31′), так что наводиться на каждый кратер не нужно: включите лунный режим и увеличьте изображение.
+Elige…	Choose…	Choisir…	Auswählen…	选择…	Выберите…
+Elongaciones	Elongations	Élongations	Elongationen	大距	Элонгации
+En el crepúsculo	In twilight	Au crépuscule	In der Dämmerung	在暮光中	В сумерках
+Esta semana en el cielo	This week in the sky	Cette semaine dans le ciel	Diese Woche am Himmel	本周天象	На этой неделе в небе
+Estación Espacial y satélites	Space Station and satellites	Station spatiale et satellites	Raumstation und Satelliten	空间站与卫星	Космическая станция и спутники
+Eventos del cielo	Sky events	Événements du ciel	Himmelsereignisse	天象事件	Небесные события
+Fases	Phases	Phases	Phasen	月相	Фазы
+Fin de la noche	End of night	Fin de la nuit	Ende der Nacht	夜晚结束	Конец ночи
+Guardar imagen	Save image	Enregistrer l’image	Bild speichern	保存图像	Сохранить изображение
+Hecho con Astrolabio para el Seestar S50 · horas locales	Made with Astrolabio for the Seestar S50 · local times	Réalisé avec Astrolabio pour le Seestar S50 · heures locales	Erstellt mit Astrolabio für das Seestar S50 · Ortszeit	由 Astrolabio 为 Seestar S50 制作 · 当地时间	Сделано в Astrolabio для Seestar S50 · местное время
+Hoja de la noche	Night sheet	Fiche de la nuit	Nachtblatt	今夜一览	Лист ночи
+Iluminado	Sunlit	Éclairé	Beleuchtet	受光照	Освещён
+Imprimir	Print	Imprimer	Drucken	打印	Печать
+Junto al terminador	Near the terminator	Près du terminateur	Am Terminator	靠近明暗界线	У терминатора
+La Luna ilumina todo el cielo: buena noche para la Luna, los planetas y las estrellas dobles.	The Moon lights up the whole sky: a good night for the Moon, planets and double stars.	La Lune éclaire tout le ciel : bonne nuit pour la Lune, les planètes et les étoiles doubles.	Der Mond erhellt den ganzen Himmel: eine gute Nacht für Mond, Planeten und Doppelsterne.	月光照亮整个天空：适合观测月亮、行星和双星。	Луна освещает всё небо: хорошая ночь для Луны, планет и двойных звёзд.
+La Luna y %@	The Moon and %@	La Lune et %@	Der Mond und %@	月亮与%@	Луна и %@
+Las horas son aproximadas (unos minutos). Las conjunciones se dan con la separación mínima vista desde el centro de la Tierra.	Times are approximate (a few minutes). Conjunctions are given at minimum separation as seen from the Earth’s centre.	Les heures sont approximatives (quelques minutes). Les conjonctions sont données à la séparation minimale vue du centre de la Terre.	Die Zeiten sind ungefähr (einige Minuten). Konjunktionen gelten für den kleinsten Abstand vom Erdmittelpunkt aus gesehen.	时间为近似值（误差几分钟）。合的时间按地心所见最小角距给出。	Время приблизительное (несколько минут). Соединения даны по минимальному расстоянию, видимому из центра Земли.
+Las noches más oscuras del mes: lo mejor para galaxias y nebulosas débiles.	The darkest nights of the month: best for faint galaxies and nebulae.	Les nuits les plus sombres du mois : idéal pour les galaxies et nébuleuses faibles.	Die dunkelsten Nächte des Monats: ideal für schwache Galaxien und Nebel.	本月最暗的夜晚：最适合暗弱星系和星云。	Самые тёмные ночи месяца: лучшее время для слабых галактик и туманностей.
+Libración: %1$+.1f° en longitud, %2$+.1f° en latitud	Libration: %1$+.1f° in longitude, %2$+.1f° in latitude	Libration : %1$+.1f° en longitude, %2$+.1f° en latitude	Libration: %1$+.1f° in Länge, %2$+.1f° in Breite	天平动：经度 %1$+.1f°，纬度 %2$+.1f°	Либрация: %1$+.1f° по долготе, %2$+.1f° по широте
+Lo que pasa en el cielo en las próximas seis semanas, calculado para tu lugar.	What happens in the sky over the next six weeks, calculated for your location.	Ce qui se passe dans le ciel ces six prochaines semaines, calculé pour votre lieu.	Was in den nächsten sechs Wochen am Himmel passiert, berechnet für deinen Ort.	未来六周的天象，按你的位置计算。	Что произойдёт в небе за следующие шесть недель, с расчётом для вашего места.
+Los %d accidentes de la lista	The %d features in the list	Les %d reliefs de la liste	Die %d Objekte der Liste	列表中的 %d 处地貌	%d объектов в списке
+Los mejores objetos para el Seestar	Best targets for the Seestar	Meilleurs objets pour le Seestar	Die besten Objekte für das Seestar	最适合 Seestar 的目标	Лучшие объекты для Seestar
+Los relieves lucen más junto al terminador, la línea entre el día y la noche lunar: allí el Sol está bajo y las sombras son largas.	Relief stands out best near the terminator, the line between lunar day and night: there the Sun is low and shadows are long.	Le relief ressort le mieux près du terminateur, la limite entre le jour et la nuit lunaires : le Soleil y est bas et les ombres longues.	Das Relief wirkt am Terminator am stärksten, der Grenze zwischen Mondtag und Mondnacht: dort steht die Sonne tief und die Schatten sind lang.	地形在明暗界线（月面昼夜分界）附近最明显：那里太阳低，影子长。	Рельеф лучше всего виден у терминатора — границы лунного дня и ночи: там Солнце низко и тени длинные.
+Lugar: %@	Location: %@	Lieu : %@	Ort: %@	地点：%@	Место: %@
+Luna brillante	Bright Moon	Lune brillante	Heller Mond	月光明亮	Яркая Луна
+Luna y planetas	Moon and planets	Lune et planètes	Mond und Planeten	月亮与行星	Луна и планеты
+Magnitud prevista %.1f en su mejor momento del periodo.	Predicted magnitude %.1f at its best in this period.	Magnitude prévue %.1f à son meilleur moment de la période.	Erwartete Helligkeit %.1f mag zum besten Zeitpunkt des Zeitraums.	此期间最亮时预计星等 %.1f。	Ожидаемая звёздная величина %.1f в лучший момент периода.
+Mar	Mare	Mer	Mare	月海	Море
+Meteoros	Meteors	Météores	Meteore	流星	Метеоры
+Montes	Mountains	Montagnes	Gebirge	山脉	Горы
+Máxima elongación de %@	Greatest elongation of %@	Plus grande élongation de %@	Größte Elongation von %@	%@大距	Наибольшая элонгация: %@
+Máximo de unos %d meteoros por hora con cielo ideal; radiante en %@. Mejor de madrugada, a simple vista o con una cámara de gran angular: el Seestar tiene un campo demasiado pequeño.	Peak of about %d meteors per hour under ideal skies; radiant in %@. Best before dawn, with the naked eye or a wide-angle camera: the Seestar’s field is too small.	Maximum d’environ %d météores par heure sous un ciel idéal ; radiant dans %@. Mieux avant l’aube, à l’œil nu ou avec un appareil grand angle : le champ du Seestar est trop petit.	Maximum von etwa %d Meteoren pro Stunde bei idealem Himmel; Radiant in %@. Am besten vor der Morgendämmerung, mit bloßem Auge oder einer Weitwinkelkamera: das Bildfeld des Seestar ist zu klein.	理想天空下每小时约 %d 颗流星；辐射点在 %@。最好在黎明前用肉眼或广角相机观看：Seestar 视场太小。	Максимум около %d метеоров в час при идеальном небе; радиант в %@. Лучше перед рассветом, глазами или широкоугольной камерой: поле Seestar слишком мало.
+Nada destacado.	Nothing notable.	Rien de notable.	Nichts Besonderes.	无重要天象。	Ничего примечательного.
+Ninguno al alcance esta noche.	None within reach tonight.	Aucune à portée ce soir.	Heute Nacht keiner in Reichweite.	今晚没有可观测的。	Сегодня ни одной в пределах досягаемости.
+Ninguno alto esta noche.	None high tonight.	Aucune haute ce soir.	Heute Nacht keiner hoch am Himmel.	今晚没有高挂的。	Сегодня ни одной высоко.
+Ningún cruce previsto.	No crossings expected.	Aucun passage prévu.	Keine Durchgänge erwartet.	预计没有穿越。	Пересечений не ожидается.
+No hay eventos de este tipo en las próximas seis semanas.	No events of this type in the next six weeks.	Aucun événement de ce type dans les six prochaines semaines.	Keine Ereignisse dieser Art in den nächsten sechs Wochen.	未来六周没有此类事件。	В ближайшие шесть недель таких событий нет.
+No hay pasos visibles en estos días.	No visible passes in these days.	Aucun passage visible ces jours-ci.	In diesen Tagen keine sichtbaren Überflüge.	这几天没有可见过境。	В эти дни видимых пролётов нет.
+No se pudieron descargar las órbitas de los satélites.	Could not download the satellite orbits.	Impossible de télécharger les orbites des satellites.	Die Satellitenbahnen konnten nicht geladen werden.	无法下载卫星轨道。	Не удалось загрузить орбиты спутников.
+Norte arriba · %@ · Astrolabio	North up · %@ · Astrolabio	Nord en haut · %@ · Astrolabio	Norden oben · %@ · Astrolabio	上北 · %@ · Astrolabio	Север сверху · %@ · Astrolabio
+Oposiciones	Oppositions	Oppositions	Oppositionen	冲	Противостояния
+Oposición de %@	Opposition of %@	Opposition de %@	Opposition von %@	%@冲日	Противостояние: %@
+Oscuridad	Darkness	Obscurité	Dunkelheit	黑夜	Темнота
+Parejas de planetas	Planet pairs	Paires de planètes	Planetenpaare	行星相合	Пары планет
+Pasos visibles de la Estación Espacial y de los satélites más brillantes en las próximas cinco noches.	Visible passes of the Space Station and the brightest satellites over the next five nights.	Passages visibles de la Station spatiale et des satellites les plus brillants ces cinq prochaines nuits.	Sichtbare Überflüge der Raumstation und der hellsten Satelliten in den nächsten fünf Nächten.	未来五晚空间站和最亮卫星的可见过境。	Видимые пролёты космической станции и самых ярких спутников в ближайшие пять ночей.
+Próximos pasos	Upcoming passes	Prochains passages	Nächste Überflüge	即将过境	Ближайшие пролёты
+Puesta de sol	Sunset	Coucher du soleil	Sonnenuntergang	日落	Закат
+Qué mirar en la Luna	What to see on the Moon	Que regarder sur la Lune	Was man auf dem Mond sehen kann	月面看点	Что смотреть на Луне
+Salida del sol	Sunrise	Lever du soleil	Sonnenaufgang	日出	Восход
+Satélites	Satellites	Satellites	Satelliten	卫星	Спутники
+Semana del %@	Week of %@	Semaine du %@	Woche vom %@	%@ 这一周	Неделя с %@
+Separación mínima de %.1f°.	Minimum separation %.1f°.	Séparation minimale de %.1f°.	Kleinster Abstand %.1f°.	最小角距 %.1f°。	Минимальное расстояние %.1f°.
+Sin Luna	No Moon	Sans Lune	Ohne Mond	无月光	Без Луны
+Sin eventos	No events	Aucun événement	Keine Ereignisse	无事件	Нет событий
+Sin pasos visibles esta noche.	No visible passes tonight.	Aucun passage visible ce soir.	Heute Nacht keine sichtbaren Überflüge.	今晚没有可见过境。	Сегодня видимых пролётов нет.
+Solo estaciones tripuladas	Crewed stations only	Stations habitées seulement	Nur bemannte Stationen	仅载人空间站	Только пилотируемые станции
+Solo se muestran pasos con el satélite iluminado por el Sol y tu cielo a oscuras. Precisión: alrededor de un minuto con órbitas de menos de tres días.	Only passes with the satellite sunlit and your sky dark are shown. Accuracy: about a minute with orbits less than three days old.	Seuls les passages où le satellite est éclairé et votre ciel sombre sont affichés. Précision : environ une minute avec des orbites de moins de trois jours.	Es werden nur Überflüge gezeigt, bei denen der Satellit beleuchtet und dein Himmel dunkel ist. Genauigkeit: etwa eine Minute bei Bahndaten unter drei Tagen.	只显示卫星受阳光照射且你的天空已黑的过境。精度：轨道数据不超过三天时约一分钟。	Показаны только пролёты, когда спутник освещён Солнцем, а у вас темно. Точность: около минуты при орбитах не старше трёх дней.
+Toda la noche en el cielo y en su máximo brillo y tamaño: el mejor momento del año para fotografiarlo.	Up all night at its brightest and largest: the best time of the year to photograph it.	Visible toute la nuit, au plus brillant et au plus grand : le meilleur moment de l’année pour le photographier.	Die ganze Nacht am Himmel, am hellsten und größten: die beste Zeit des Jahres zum Fotografieren.	整夜可见，亮度和视大小达到最大：一年中拍摄的最佳时机。	Всю ночь на небе, максимально яркий и большой: лучшее время года для съёмки.
+Un resumen de la noche en una imagen, para guardarla, copiarla o imprimirla.	A summary of the night in one image, to save, copy or print.	Un résumé de la nuit en une image, à enregistrer, copier ou imprimer.	Eine Zusammenfassung der Nacht in einem Bild zum Speichern, Kopieren oder Drucken.	用一张图总结今夜，可保存、复制或打印。	Сводка ночи в одном изображении: сохраните, скопируйте или распечатайте.
+Un satélite iluminado deja una raya en la foto. Elige un objeto para ver qué satélites pasarán a menos de 1° mientras esté a oscuras. Durante una sesión automática el aviso es automático.	A sunlit satellite leaves a streak in the photo. Choose a target to see which satellites will pass within 1° while it is dark. During an automatic session the warning is automatic.	Un satellite éclairé laisse une traînée sur la photo. Choisissez un objet pour voir quels satellites passeront à moins de 1° pendant la nuit. En séance automatique, l’avertissement est automatique.	Ein beleuchteter Satellit hinterlässt eine Spur im Foto. Wähle ein Objekt, um zu sehen, welche Satelliten bei Dunkelheit näher als 1° vorbeiziehen. In einer automatischen Sitzung kommt der Hinweis von selbst.	受光照的卫星会在照片上留下划痕。选择一个目标，查看天黑期间哪些卫星会从 1° 以内经过。自动会话中会自动提醒。	Освещённый спутник оставляет полосу на снимке. Выберите объект, чтобы узнать, какие спутники пройдут ближе 1° в тёмное время. В автоматическом сеансе предупреждение выдаётся само.
+Valle o falla	Valley or fault	Vallée ou faille	Tal oder Verwerfung	月谷或断层	Долина или разлом
+al amanecer	at dawn	à l’aube	in der Morgendämmerung	在黎明	на рассвете
+al anochecer	at dusk	au crépuscule	in der Abenddämmerung	在黄昏	в сумерках
+máx. %.0f°	max %.0f°	max %.0f°	max. %.0f°	最高 %.0f°	макс. %.0f°
+¿Cruzará algo mi objetivo esta noche?	Will anything cross my target tonight?	Quelque chose traversera-t-il mon objet ce soir ?	Kreuzt heute Nacht etwas mein Objekt?	今晚会有东西穿过我的目标吗？	Пересечёт ли что-то мой объект сегодня?
+Órbitas de CelesTrak del %@ · %d satélites	CelesTrak orbits from %@ · %d satellites	Orbites CelesTrak du %@ · %d satellites	CelesTrak-Bahnen vom %@ · %d Satelliten	CelesTrak 轨道（%@）· %d 颗卫星	Орбиты CelesTrak от %@ · %d спутников
+Cuadrántidas	Quadrantids	Quadrantides	Quadrantiden	象限仪座流星雨	Квадрантиды
+Líridas	Lyrids	Lyrides	Lyriden	天琴座流星雨	Лириды
+Eta Acuáridas	Eta Aquariids	Êta Aquarides	Eta-Aquariiden	宝瓶座η流星雨	Эта-Аквариды
+Delta Acuáridas	Delta Aquariids	Delta Aquarides	Delta-Aquariiden	宝瓶座δ流星雨	Дельта-Аквариды
+Perseidas	Perseids	Perséides	Perseiden	英仙座流星雨	Персеиды
+Dracónidas	Draconids	Draconides	Draconiden	天龙座流星雨	Дракониды
+Oriónidas	Orionids	Orionides	Orioniden	猎户座流星雨	Ориониды
+Táuridas	Taurids	Taurides	Tauriden	金牛座流星雨	Тауриды
+Leónidas	Leonids	Léonides	Leoniden	狮子座流星雨	Леониды
+Gemínidas	Geminids	Géminides	Geminiden	双子座流星雨	Геминиды
+Úrsidas	Ursids	Ursides	Ursiden	小熊座流星雨	Урсиды
+desde %@	from %@	dès %@	ab %@	%@ 起	с %@
+hasta %@	until %@	jusqu’à %@	bis %@	至 %@	до %@
+toda la noche	all night	toute la nuit	die ganze Nacht	整夜	всю ночь

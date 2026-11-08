@@ -25,7 +25,7 @@ enum DebugSnapshot {
             for section in sections {
                 nav?.selection = section
                 let slow = Double(ProcessInfo.processInfo.environment["ASTROLABIO_SNAPSHOT_WAIT"] ?? "") ?? 9
-                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic, .editor].contains(section) ? slow : 3))
+                try? await Task.sleep(for: .seconds([.tonight, .pick, .mosaic, .editor, .events, .satellites, .nightSheet].contains(section) ? slow : 3))
                 save(to: folder.appendingPathComponent("\(section).png"))
             }
             if only?.contains("settings") == true {

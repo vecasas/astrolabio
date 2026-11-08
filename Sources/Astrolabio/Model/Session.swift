@@ -308,6 +308,29 @@ final class SessionRunner: ObservableObject {
     /// Órbitas de los cometas (cambia en las pruebas).
     var cometOrbit: (String) -> CometOrbit? = { CometStore.shared.orbit(named: $0) }
     private var cometAim: (ra: Double, dec: Double)?
+    /// Satélites conocidos para avisar de los que cruzarán el campo (cambia en las pruebas).
+    var satellites: () -> [TLE] = { SatelliteStore.shared.tles }
+    /// Avisos de satélites ya dados (para no repetirlos).
+    private var satelliteWarned = Set<String>()
+
+    /// Busca en segundo plano los satélites iluminados que pasarán a menos de 1° del objetivo mientras se apila.
+    private func warnSatellites(label: String, raHours: Double, decDeg: Double, seconds: Double) {
+        let tles = satellites()
+        guard !tles.isEmpty, seconds > 0 else { return }
+        let la = lat(), lo = lon(), from = Date(), to = from.addingTimeInterval(seconds)
+        Task { [weak self] in
+            let hits = await Task.detached(priority: .utility) {
+                SatelliteStore.crossings(tles, raHours: raHours, decDeg: decDeg, from: from, to: to, lat: la, lon: lo)
+            }.value
+            guard let self else { return }
+            for h in hits.prefix(5) where self.satelliteWarned.insert("\(h.name)|\(Int(h.at.timeIntervalSince1970 / 60))").inserted {
+                let f = DateFormatter(); f.timeStyle = .short
+                self.say(tr("Aviso: %1$@ cruzará cerca de %2$@ hacia las %3$@ (a %4$.1f°). Puede dejar una traza; el editor de fotos sabe quitarla.",
+                            h.name, label, f.string(from: h.at), h.sep))
+            }
+        }
+    }
+
     /// Cada cuánto se revisan el amanecer, la altura, el cometa… durante el apilado (más corto en las pruebas).
     var chunkSeconds: Double = 300
     /// No se vuelve a apuntar al cometa si queda menos de esto en el objeto.
@@ -443,6 +466,7 @@ final class SessionRunner: ObservableObject {
                     }
                     phase = .stacking
                     say(tr("Apilando %@ durante %@ min.", "\(label)", "\(Int(remaining / 60))"))
+                    warnSatellites(label: label, raHours: j2000.ra, decDeg: j2000.dec, seconds: remaining)
                 }
 
                 // Espera por tramos de 5 s comprobando amanecer, nubes y altura.

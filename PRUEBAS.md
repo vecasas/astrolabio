@@ -1,6 +1,6 @@
 # Pruebas automáticas de Astrolabio
 
-**Versión:** 1.5.0 · **Mac:** 77 pruebas en 14 grupos · **Windows:** 45 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
+**Versión:** 1.6.0 · **Mac:** 84 pruebas en 15 grupos · **Windows:** 48 pruebas · todas se ejecutan en cada cambio (GitHub Actions)
 
 Cómo ejecutarlas:
 - Mac: `./scripts/test.sh` (o `swift test`)
@@ -47,6 +47,9 @@ Las pruebas usan ajustes, plan e historial temporales: **nunca tocan los datos r
 | Seguimiento del cometa | En un plan contra el simulador, vuelve a apuntar cuando el cometa se ha movido más de 3′ | ✅ | — |
 | Listas y maratón | Hechos y pendientes según el historial, CSV, orden del maratón Messier (≥ 95 de 110 en abril) | ✅ | ✅ |
 | La semana | Puntuación por nubes, Luna y oscuridad; elige la noche despejada | ✅ | ✅ |
+| Horizonte propio | Interpolación, importar y exportar, planificación y listas que lo respetan; la sesión salta un objeto tapado sin apuntar (Seestar simulado) | ✅ | ✅ |
+| Línea de tiempo | Orden, espera por «no antes de», tiempo ya hecho, avisos de amanecer y de horizonte | ✅ | ✅ |
+| Proyectos y copia de seguridad | Avance desde el historial; la copia nunca incluye la clave PEM y no la sobrescribe al restaurar | ✅ | ✅ |
 | Astronomía | Día juliano, altura de la Polar, precesión, coordenadas, Luna, planetas, salidas y puestas | ✅ | ✅ |
 | Qué mirar / Elige por mí | Sugerencias y plan corto; consejos de captura por tipo de objeto | ✅ | — |
 | Mosaicos | Número y posición de paneles | ✅ | ✅ |

@@ -12,7 +12,7 @@ namespace Astrolabio.App.Views;
 /// <summary>Datos de «Acerca de» (un único sitio, igual que AppInfo.swift en macOS).</summary>
 public static class AppInfo
 {
-    public const string Version = "1.5.0";
+    public const string Version = "1.6.0";
     public const string Build = "1";
     public const string Author = "Víctor Casas";
     public const string Email = "vecasas@gmail.com";

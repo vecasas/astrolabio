@@ -1,6 +1,6 @@
 # Astrolabio
 
-**Versión 1.9.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
+**Versión 2.0.0** · creada el 5 de noviembre de 2026 por Víctor Casas · contacto: vecasas@gmail.com
 
 App nativa para macOS (SwiftUI) que controla un telescopio inteligente Seestar S50 desde el Mac por la red local.
 
@@ -55,7 +55,7 @@ python3 scripts/i18n_build.py   # valida (huecos %@, %.1f…) y regenera Transla
 
 ## Instalar
 
-Descarga `Astrolabio-1.9.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
+Descarga `Astrolabio-2.0.0.dmg` de la página de versiones (Releases) de GitHub, ábrelo y arrastra Astrolabio a Aplicaciones. La primera vez, haz clic derecho sobre la app y elige «Abrir»: está firmada localmente, no con un certificado de desarrollador de Apple, y macOS pide confirmarlo una vez.
 
 Para crear el instalador desde el código: `./scripts/make_dmg.sh` (deja `dist/Astrolabio-<versión>.dmg`).
 

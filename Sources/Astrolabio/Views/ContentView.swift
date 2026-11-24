@@ -9,19 +9,12 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     case satellites = "Satélites"
     case nightSheet = "Hoja de la noche"
     case telescope = "Telescopio"
-    case live = "Vista en directo"
     case planner = "Planificar la noche"
     case session = "Sesión automática"
     case mosaic = "Mosaicos"
     case lists = "Listas"
-    case horizon = "Mi horizonte"
     case moon = "Luna"
     case planets = "Planetas"
-    case stacker = "Apilador planetario"
-    case album = "Álbum"
-    case stats = "Estadísticas"
-    case editor = "Retoque"
-    case reports = "Informes"
     case weather = "Tiempo"
     case log = "Registro"
     case phone = "Control desde el móvil"
@@ -41,19 +34,12 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
         case .satellites: return "airplane"
         case .nightSheet: return "doc.text.image"
         case .telescope: return "scope"
-        case .live: return "camera.aperture"
         case .planner: return "list.star"
         case .session: return "moon.stars"
         case .mosaic: return "square.grid.3x3"
         case .lists: return "checklist"
-        case .horizon: return "mountain.2"
         case .moon: return "moonphase.waxing.gibbous"
         case .planets: return "globe.europe.africa"
-        case .stacker: return "square.stack.3d.down.right"
-        case .album: return "photo.on.rectangle"
-        case .stats: return "chart.bar.xaxis"
-        case .editor: return "wand.and.rays"
-        case .reports: return "doc.richtext"
         case .weather: return "cloud.sun"
         case .log: return "text.alignleft"
         }
@@ -62,10 +48,9 @@ enum AppSection: String, CaseIterable, Identifiable, Hashable {
     /// Grupos de la barra lateral.
     static let groups: [(title: String, items: [AppSection])] = [
         (tr("Esta noche"), [.start, .tonight, .pick, .skyChart, .events, .satellites, .nightSheet]),
-        ("Observar", [.telescope, .live]),
-        (tr("Sistema solar"), [.moon, .planets, .stacker]),
-        ("Planificar", [.planner, .session, .mosaic, .lists, .horizon]),
-        ("Archivo", [.album, .editor, .stats, .reports]),
+        ("Observar", [.telescope]),
+        (tr("Sistema solar"), [.moon, .planets]),
+        ("Planificar", [.planner, .session, .mosaic, .lists]),
         ("Sistema", [.weather, .log, .phone, .help]),
     ]
 }
@@ -117,19 +102,12 @@ struct ContentView: View {
                     case .satellites: SatellitesView()
                     case .nightSheet: NightSheetView()
                     case .telescope: TelescopeView()
-                    case .live: LiveView()
                     case .planner: PlannerView()
                     case .session: SessionView()
                     case .mosaic: MosaicView()
                     case .lists: ListsView()
-                    case .horizon: HorizonView()
                     case .moon: MoonView()
                     case .planets: PlanetsView()
-                    case .stacker: StackerView()
-                    case .album: AlbumView()
-                    case .stats: StatsView()
-                    case .editor: PhotoEditorView()
-                    case .reports: ReportsView()
                     case .weather: WeatherView()
                     case .log: LogView()
                     case .start: StartView()

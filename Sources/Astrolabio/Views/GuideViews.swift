@@ -12,7 +12,7 @@ struct ManualTopic: Identifiable {
 
 enum Guide {
     /// Secciones que se ven en modo principiante.
-    static let beginnerSections: Set<AppSection> = [.start, .tonight, .pick, .telescope, .live, .moon, .planets, .album, .weather, .phone, .help]
+    static let beginnerSections: Set<AppSection> = [.start, .tonight, .pick, .telescope, .moon, .planets, .weather, .phone, .help]
 
     static var topics: [ManualTopic] {
         [
@@ -26,8 +26,6 @@ enum Guide {
                         body: tr("Si no sabes por dónde empezar, elige un estilo (lo mejor, fácil, un reto o sorpresa) y Astrolabio propone un objeto y un plan corto para ahora mismo.")),
             ManualTopic(id: "goto", section: .telescope, title: tr("Apuntar (GoTo)"),
                         body: tr("Antes de mover, Astrolabio comprueba que el objeto está sobre la altura mínima y lejos del Sol. Si el telescopio está apilando, pregunta antes de interrumpir. Tras el GoTo puede recentrar con resolución de placa.")),
-            ManualTopic(id: "live", section: .live, title: tr("Vista en directo"),
-                        body: tr("Muestra la imagen apilada mientras crece. Puedes estirarla, ajustar el color y guardar una copia. El modo «Fiesta de estrellas» la pone a pantalla completa para enseñarla.")),
             ManualTopic(id: "planner", section: .planner, title: tr("Planificar la noche"),
                         body: tr("Añade objetos con su tiempo de apilado, filtro y enfoque. La línea de tiempo muestra cuándo se hará cada uno y avisa si alguno queda tras el horizonte o después del amanecer.")),
             ManualTopic(id: "session", section: .session, title: tr("Sesión automática"),
@@ -36,22 +34,16 @@ enum Guide {
                         body: tr("Para objetos más grandes que el campo (44′ × 77′): divide el encuadre en paneles de hasta 3 × 3 con solape y los añade al plan.")),
             ManualTopic(id: "lists", section: .lists, title: tr("Listas y proyectos"),
                         body: tr("Las listas Messier y Caldwell marcan lo fotografiado. Un proyecto suma horas de varias noches sobre el mismo objeto hasta el objetivo que pongas.")),
-            ManualTopic(id: "horizon", section: .horizon, title: tr("Mi horizonte"),
-                        body: tr("Dibuja la altura de árboles y tejados alrededor. Lo que quede detrás no se sugiere y la sesión automática lo espera o lo salta.")),
             ManualTopic(id: "moon", section: .moon, title: tr("La Luna"),
                         body: tr("Fase, salida y puesta, y los cráteres que lucen esta noche junto al terminador, rotulados sobre la Luna. El Seestar la ve entera: usa el modo Luna y amplía la imagen.")),
-            ManualTopic(id: "planets", section: .planets, title: tr("Planetas y apilador"),
-                        body: tr("Cuándo se ve cada planeta, su tamaño y brillo. Para más detalle graba un vídeo con el modo planeta y apílalo en «Apilador planetario».")),
+            ManualTopic(id: "planets", section: .planets, title: tr("Planetas"),
+                        body: tr("Cuándo se ve cada planeta, su tamaño y brillo. Para verlo con más detalle, usa el modo planeta del Seestar.")),
             ManualTopic(id: "events", section: .events, title: tr("Eventos del cielo"),
                         body: tr("Lluvias de estrellas, conjunciones, oposiciones y cometas de las próximas seis semanas, con etiquetas que dicen si caben en el campo del Seestar.")),
             ManualTopic(id: "satellites", section: .satellites, title: tr("Satélites"),
                         body: tr("Pasos visibles de la Estación Espacial y satélites brillantes. Durante la sesión automática se avisa si alguno va a cruzar el objeto que se apila.")),
             ManualTopic(id: "sheet", section: .nightSheet, title: tr("Hoja de la noche"),
                         body: tr("Una imagen con las horas de oscuridad, la Luna, los planetas, los mejores objetos y los eventos, para guardar, copiar o imprimir.")),
-            ManualTopic(id: "album", section: .album, title: tr("Álbum"),
-                        body: tr("Las fotos guardadas en el telescopio. Puedes verlas, descargarlas, copiar el álbum entero al ordenador o abrir una en el editor. Astrolabio nunca borra nada del telescopio.")),
-            ManualTopic(id: "editor", section: .editor, title: tr("Retoque de fotos"),
-                        body: tr("Quita el gradiente, el ruido y las trazas de satélite, ajusta color y brillo, recorta y añade los nombres de los objetos. Siempre se guarda una copia; el original no se toca.")),
             ManualTopic(id: "weather", section: .weather, title: tr("Tiempo"),
                         body: tr("Nubes por horas, viento, humedad y riesgo de rocío. Los avisos oficiales y el radar de lluvia ayudan a decidir si merece la pena sacar el telescopio.")),
             ManualTopic(id: "phone", section: .phone, title: tr("Control desde el móvil"),
@@ -74,14 +66,11 @@ enum Guide {
             (.tonight, tr("3. Abre un objeto"), tr("Pulsa cualquier objeto para ver su foto, su mejor hora y los botones para apuntar o añadirlo al plan.")),
             (.pick, tr("4. ¿Indeciso?"), tr("«Elige por mí» propone un objeto y un plan corto según el estilo que prefieras.")),
             (.telescope, tr("5. Apunta y apila"), tr("Desde un objeto o desde aquí, el GoTo mueve el telescopio. Después pulsa «Apilar» para empezar a acumular luz.")),
-            (.live, tr("6. Mira cómo crece la imagen"), tr("La vista en directo muestra el apilado. Cuantos más minutos, menos ruido y más detalle.")),
-            (.live, tr("7. Guarda la foto"), tr("Guarda una copia en el ordenador cuando te guste. El telescopio también la guarda en su álbum.")),
-            (.moon, tr("8. La Luna y los planetas"), tr("La Luna y los planetas tienen su propia sección, con sus horas y los cráteres que lucen esta noche.")),
-            (.weather, tr("9. Mira el tiempo"), tr("Antes de salir, revisa las nubes por horas y el riesgo de rocío.")),
-            (.album, tr("10. Tu álbum"), tr("Todas tus fotos del telescopio, para verlas o copiarlas al ordenador.")),
-            (.phone, tr("11. Controla desde el móvil"), tr("Si quieres seguir la noche desde el sofá, activa el control desde el móvil y empareja tu teléfono con el QR.")),
-            (.help, tr("12. Ayuda siempre a mano"), tr("El botón «?» de arriba abre el manual en la sección donde estés. También puedes buscar cualquier tema.")),
-            (.start, tr("13. Modo avanzado"), tr("Cuando quieras más (planificar la noche, sesiones automáticas, mosaicos, retoque), cambia a «Avanzado» en la barra lateral.")),
+            (.moon, tr("6. La Luna y los planetas"), tr("La Luna y los planetas tienen su propia sección, con sus horas y los cráteres que lucen esta noche.")),
+            (.weather, tr("7. Mira el tiempo"), tr("Antes de salir, revisa las nubes por horas y el riesgo de rocío.")),
+            (.phone, tr("8. Controla desde el móvil"), tr("Si quieres seguir la noche desde el sofá, activa el control desde el móvil y empareja tu teléfono con el QR.")),
+            (.help, tr("9. Ayuda siempre a mano"), tr("El botón «?» de arriba abre el manual en la sección donde estés. También puedes buscar cualquier tema.")),
+            (.start, tr("10. Modo avanzado"), tr("Cuando quieras más (planificar la noche, sesiones automáticas, mosaicos), cambia a «Avanzado» en la barra lateral.")),
             (.start, tr("¡Listo!"), tr("Cielos despejados. Recuerda: nunca apuntes al Sol sin filtro solar.")),
         ]
     }
@@ -105,7 +94,7 @@ struct StartView: View {
                          client.isConnected ? tr("El telescopio está listo.") : tr("Busca el Seestar en tu wifi y conéctate."), .telescope)
                     tile(tr("Qué mirar esta noche"), "binoculars", tr("Los mejores objetos para hoy, ordenados."), .tonight)
                     tile(tr("Elige por mí"), "wand.and.stars", tr("Un objeto y un plan corto, sin pensar."), .pick)
-                    tile(tr("Ver en directo"), "camera.aperture", tr("Mira cómo crece la imagen apilada."), .live)
+                    tile(tr("Mira el tiempo"), "cloud.sun", tr("Nubes por horas y riesgo de rocío antes de salir."), .weather)
                 }
                 HStack(spacing: 12) {
                     Button { nav.tutorialStep = 0 } label: { Label(tr("Ver el tutorial"), systemImage: "graduationcap") }

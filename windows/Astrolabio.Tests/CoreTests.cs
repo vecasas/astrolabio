@@ -4,7 +4,6 @@ using Astrolabio.Core.Astronomy;
 using Astrolabio.Core.Imaging;
 using Astrolabio.Core.Model;
 using Astrolabio.Core.Protocol;
-using Astrolabio.Core.Reports;
 using Astrolabio.Core.Services;
 using Xunit;
 
@@ -179,19 +178,6 @@ public class ReportTests
     public void ZeroPaddedFormat() => Assert.Equal("1 h 05 min", Strings.Format("%d h %02d min", 1, 5));
 
     [Fact]
-    public void GroupsByNightNewestFirst()
-    {
-        var nights = NightSession.Group([
-            Rec("M 31", new DateTime(2026, 11, 1, 22, 0, 0, DateTimeKind.Local), 30, 180),
-            Rec("M 45", new DateTime(2026, 11, 2, 1, 30, 0, DateTimeKind.Local), 20, 120),
-            Rec("M 42", new DateTime(2026, 11, 3, 23, 0, 0, DateTimeKind.Local), 10, 60)]);
-        Assert.Equal(2, nights.Count);
-        Assert.Equal(["M 42"], nights[0].Targets);
-        Assert.Equal(["M 31", "M 45"], nights[1].Targets);
-        Assert.Equal(300, nights[1].Frames);
-    }
-
-    [Fact]
     public void OldHistoryJsonStillDecodes()
     {
         var json = """[{"Id":"6f1c4d2e-9c1b-4e55-8b7a-1d2e3f4a5b6c","Target":"M 31","Start":"2026-11-01T21:00:00Z","End":"2026-11-01T21:30:00Z","Frames":180,"ExposureMs":10000}]""";
@@ -201,36 +187,6 @@ public class ReportTests
         Assert.NotNull(recs[0].Coordinates);
     }
 
-    [Fact]
-    public void ReportContentAndPdf()
-    {
-        var original = Strings.Language;
-        try
-        {
-            Strings.SetLanguage(AppLanguage.es);
-            var r = Rec("M 31", new DateTime(2026, 11, 1, 22, 0, 0, DateTimeKind.Local), 30, 180) with
-            {
-                Gain = 80, LpFilter = true, Dropped = 4, DitherEnabled = true, DitherPixels = 50, DitherInterval = 10,
-                BatteryStart = 92, BatteryEnd = 81, Firmware = "4.43", Device = "Seestar S50",
-                Weather = new WeatherSnapshot(12, 8.5, 2.1, 64, 7),
-                Events = Enumerable.Range(0, 120).Select(i => $"22:{i % 60:00}  evento {i}").ToList(),
-            };
-            var doc = ReportDocument.Make(NightSession.Group([r])[0], site: ("Casa", 40.48, -3.36));
-            Assert.Contains(doc.Summary, x => x.Label == "Integración total" && x.Value == "30 min");
-            Assert.Contains(doc.Conditions, x => x.Label == "Nubes" && x.Value == "12 %");
-            Assert.Contains(doc.Objects[0].Rows, x => x.Label == "Filtro LP" && x.Value == "Sí");
-            Assert.Contains(doc.Device, x => x.Value == "92 % / 81 %");
-            var pdf = ReportPdf.Render(doc);
-            Assert.True(pdf.Length > 2000);
-            Assert.Equal("%PDF", System.Text.Encoding.ASCII.GetString(pdf, 0, 4));
-
-            Strings.SetLanguage(AppLanguage.zh);
-            var zh = ReportDocument.Make(NightSession.Group([r])[0]);
-            Assert.NotEqual("Informe de sesión", zh.Title);
-            Assert.True(ReportPdf.Render(zh).Length > 2000);
-        }
-        finally { Strings.SetLanguage(original); }
-    }
 }
 
 [Collection("Idioma")]
@@ -696,65 +652,5 @@ public class HorizonPlanTests
         Assert.Equal("/otra.pem", restored.PemPath);
         Assert.Equal(12, restored.Horizons["x"].Altitudes[0]);
         Assert.Throws<InvalidDataException>(() => BackupFile.Decode("{}"));
-    }
-}
-
-public class PhotoEditorTests
-{
-    private static LinearImage Sky(int w = 400, int h = 300, bool trail = false)
-    {
-        ulong rng = 42;
-        float Rand() { rng = rng * 6364136223846793005UL + 1442695040888963407UL; return (rng >> 40) / (float)(1 << 24); }
-        var l = new float[w * h];
-        for (var i = 0; i < l.Length; i++) l[i] = 3000 + (Rand() - 0.5f) * 400;
-        for (var s = 0; s < 60; s++)
-        {
-            int cx = (int)(Rand() * (w - 20)) + 10, cy = (int)(Rand() * (h - 20)) + 10;
-            for (var dy = -3; dy <= 3; dy++) for (var dx = -3; dx <= 3; dx++) l[(cy + dy) * w + cx + dx] += 30000 * MathF.Exp(-(dx * dx + dy * dy) / 2f);
-        }
-        if (trail) for (var x = 0; x < w; x++) { var y = 40 + x * 200 / w; for (var d = -1; d <= 1; d++) l[(y + d) * w + x] += 9000; }
-        return new LinearImage(w, h, l, l.Select(v => v * 1.05f).ToArray(), l.Select(v => v * 0.95f).ToArray());
-    }
-
-    [Fact]
-    public void FitsRoundTripAndEdits()
-    {
-        var img = Sky(40, 30);
-        img.R[0] = 60000; img.G[0] = 60000; img.B[0] = 60000;
-        var path = Path.Combine(Path.GetTempPath(), $"pe-{Guid.NewGuid()}.fits");
-        ImageProcessing.SaveFits(img, path, "M 42");
-        var back = PhotoEditor.ReadFits(File.ReadAllBytes(path))!.Value;
-        Assert.Equal(40, back.Image.Width);
-        Assert.True(back.Image.R[0] > 50000);
-        Assert.Equal("M 42", back.Header["OBJECT"]);
-        Assert.Null(PhotoEditor.ReadFits(System.Text.Encoding.ASCII.GetBytes("SIMPLE  =                    T")));
-        Assert.Equal((50, 0, 300, 300), PhotoEditor.CropRect(400, 300, new PhotoEdit { Crop = CropAspect.Square }));
-        var src = new EditableImage(Sky(), true, "x");
-        var stars = PhotoEditor.Clone(src.Image);
-        PhotoEditor.ReduceStars(stars, 1);
-        Assert.True(stars.R.Max() < src.Image.R.Max() * 0.95f);
-        var o = PhotoEditor.Stretched(PhotoEditor.Process(src, new PhotoEdit()), true, new PhotoEdit());
-        Assert.Equal(400 * 300 * 3, o.Rgb.Length);
-    }
-
-    [Fact]
-    public void TrailsLabelsAndSafety()
-    {
-        Assert.Empty(SatelliteTrails.Detect(Sky()));
-        var img = Sky(trail: true);
-        var found = SatelliteTrails.Detect(img);
-        Assert.Single(found);
-        Assert.True(found[0].Length > 300);
-        SatelliteTrails.Remove(found, img);
-        Assert.True(img.R[(40 + 100 * 200 / 400) * 400 + 100] < 5000);
-        var w = ImageWcs.Estimate(5.588, -5.39, 1080, 1920, 0.73);
-        var c = w.Pixel(5.588 * 15, -5.39)!.Value;
-        Assert.InRange(c.X, 539.5, 540.5);
-        Assert.True(w.Pixel(5.588 * 15, -5.2)!.Value.Y < c.Y);
-        Assert.Contains(SkyLabels.Labels(w, 1080, 1920), l => l.Id == "M42");
-        Assert.Equal(["a.jpg", "a.fit"], AlbumCopy.ParseIndex("""<a href="../">u</a><a href="a.jpg">a</a><a href="a.fit">b</a><a href="/etc/x.jpg">c</a><a href="http://x/y.jpg">d</a><a href="..%2Fz.jpg">e</a>"""));
-        var args = GraXpert.Arguments(GraXpert.Tool.Denoise, "C:\\a b.fits", "C:\\out", 0.7);
-        Assert.Equal(["C:\\a b.fits", "-cli", "-cmd", "denoising", "-output", "C:\\out", "-strength", "0.70"], args);
-        Assert.Null(GraXpert.Find(["C:\\no\\existe.exe"]));
     }
 }

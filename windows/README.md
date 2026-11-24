@@ -19,6 +19,5 @@ El instalador se genera con Inno Setup (`windows/installer/Astrolabio.iss`); Git
 
 ## Diferencias con la versión de macOS
 
-- El apilador planetario lee vídeos SER; los MP4/MOV todavía no (en macOS se leen con AVFoundation).
 - Los avisos al móvil (ntfy) funcionan igual; no hay notificaciones del sistema de Windows.
-- Interfaz más sencilla en algunos apartados (gráficas de tiempo y estadísticas como listas).
+- Interfaz más sencilla en algunos apartados (gráficas de tiempo como listas).

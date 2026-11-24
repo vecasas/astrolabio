@@ -150,7 +150,7 @@ public sealed class PhoneView : UserControl
 public static class Guide
 {
     public static readonly HashSet<Section> BeginnerSections =
-        [Section.Start, Section.Tonight, Section.Pick, Section.Telescope, Section.Live, Section.Moon, Section.Planets, Section.Album, Section.Weather, Section.Phone, Section.Help, Section.Settings];
+        [Section.Start, Section.Tonight, Section.Pick, Section.Telescope, Section.Moon, Section.Planets, Section.Weather, Section.Phone, Section.Help, Section.Settings];
 }
 
 public sealed class StartView : UserControl
@@ -177,7 +177,7 @@ public sealed class StartView : UserControl
                 Tile(st.Client.IsConnected ? Ui.T("Conectado") : Ui.T("Conectar"), "📡", st.Client.IsConnected ? Ui.T("El telescopio está listo.") : Ui.T("Busca el Seestar en tu wifi y conéctate."), Section.Telescope),
                 Tile(Ui.T("Qué mirar esta noche"), "🔭", Ui.T("Los mejores objetos para hoy, ordenados."), Section.Tonight),
                 Tile(Ui.T("Elige por mí"), "✨", Ui.T("Un objeto y un plan corto, sin pensar."), Section.Pick),
-                Tile(Ui.T("Ver en directo"), "📷", Ui.T("Mira cómo crece la imagen apilada."), Section.Live),
+                Tile(Ui.T("Mira el tiempo"), "⛅", Ui.T("Nubes por horas y riesgo de rocío antes de salir."), Section.Weather),
             },
         };
         var beginner = new RadioButton { Content = Ui.T("Principiante"), GroupName = "modo", IsChecked = s.BeginnerMode };

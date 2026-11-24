@@ -12,17 +12,16 @@ using Astrolabio.Core.Astronomy;
 
 namespace Astrolabio.App;
 
-public enum Section { Start, Tonight, Pick, SkyChart, Events, Satellites, NightSheet, Telescope, Live, Moon, Planets, Stacker, Planner, Session, Mosaic, Lists, Horizon, Album, Editor, Stats, Reports, Weather, Log, Phone, Help, Settings }
+public enum Section { Start, Tonight, Pick, SkyChart, Events, Satellites, NightSheet, Telescope, Moon, Planets, Planner, Session, Mosaic, Lists, Weather, Log, Phone, Help, Settings }
 
 public sealed class MainWindow : Window
 {
     private static readonly (string Group, (Section S, string Key, string Icon)[] Items)[] Groups =
     [
         ("Esta noche", [(Section.Start, "Empieza aquí", "🏁"), (Section.Tonight, "Qué mirar", "🔭"), (Section.Pick, "Elige por mí", "✨"), (Section.SkyChart, "Carta estelar", "🗺"), (Section.Events, "Eventos del cielo", "📅"), (Section.Satellites, "Satélites", "🛰"), (Section.NightSheet, "Hoja de la noche", "🗒")]),
-        ("Observar", [(Section.Telescope, "Telescopio", "🎯"), (Section.Live, "Vista en directo", "📷")]),
-        ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐"), (Section.Stacker, "Apilador planetario", "🎞")]),
-        ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑"), (Section.Horizon, "Mi horizonte", "⛰")]),
-        ("Archivo", [(Section.Album, "Álbum", "🖼"), (Section.Editor, "Retoque", "🪄"), (Section.Stats, "Estadísticas", "📊"), (Section.Reports, "Informes", "📄")]),
+        ("Observar", [(Section.Telescope, "Telescopio", "🎯")]),
+        ("Sistema solar", [(Section.Moon, "Luna", "🌙"), (Section.Planets, "Planetas", "🪐")]),
+        ("Planificar", [(Section.Planner, "Planificar la noche", "📋"), (Section.Session, "Sesión automática", "🌌"), (Section.Mosaic, "Mosaicos", "▦"), (Section.Lists, "Listas", "☑")]),
         ("Sistema", [(Section.Weather, "Tiempo", "⛅"), (Section.Log, "Registro", "📜"), (Section.Phone, "Control desde el móvil", "📱"), (Section.Help, "Manual", "📖"), (Section.Settings, "Ajustes", "⚙")]),
     ];
 
@@ -162,19 +161,12 @@ public sealed class MainWindow : Window
             Section.Satellites => new SatellitesView(),
             Section.NightSheet => new NightSheetView(),
             Section.Telescope => new TelescopeView(),
-            Section.Live => new LiveView(),
             Section.Moon => new MoonView(),
             Section.Planets => new PlanetsView(),
-            Section.Stacker => new StackerView(),
             Section.Planner => new PlannerView(),
             Section.Session => new SessionView(),
             Section.Mosaic => new MosaicView(),
-            Section.Album => new AlbumView(),
-            Section.Stats => new StatsView(),
-            Section.Editor => new PhotoEditorView(),
             Section.Lists => new ListsView(),
-            Section.Horizon => new HorizonView(),
-            Section.Reports => new ReportsView(),
             Section.Weather => new WeatherView(),
             Section.Log => new LogView(),
             _ => new SettingsView(),

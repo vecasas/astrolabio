@@ -15,13 +15,11 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 
 **Observar**
 - **Telescopio**: busca el Seestar en la wifi, se conecta, se autentica y muestra batería, temperatura, firmware, espacio libre y la posición. Lee del propio telescopio la exposición, la ganancia, el dithering y el objeto en curso. Desde aquí: GoTo por nombre (catálogo o SIMBAD) o por coordenadas, sincronizar, apilar (con dithering y enfoque previo), mover, enfocar, abrir el brazo, aparcar, calentador, oscuros, alineación polar y apagado.
-- **Vista en directo**: imagen apilada que se actualiza sola (o vista previa fotograma a fotograma), con estirado, saturación, quitar gradiente y reducir ruido. Guarda PNG y FITS lineal. El canal de imagen se reconecta solo.
 - **Fiesta de estrellas**: ventana a pantalla completa (⌃⌘F).
 
 **Sistema solar**
 - **Luna**: imagen realista con la fase del momento (mapa real de la superficie iluminado desde la dirección del Sol), iluminación, distancia, salida, culminación y puesta, próximas fases, curva de altura, calendario de 30 días y botones del modo Luna.
 - **Planetas**: altura, magnitud, tamaño aparente, distancia, separación del Sol y horarios de cada planeta, gráfica de la noche, GoTo y modo planeta.
-- **Apilador planetario**: abre un vídeo MP4/MOV o un SER, ordena los fotogramas por nitidez, se queda con el porcentaje que elijas, los alinea (con ajuste fino subpíxel), los promedia y realza el detalle. Guarda PNG o TIFF de 16 bits.
 
 **Planificar**
 - **Planificar la noche**: unos 170 objetos ordenados por tiempo útil, Luna, nubes y encuadre, con gráfica de altura.
@@ -30,16 +28,12 @@ Tema oscuro en azules pensado para la noche y **modo nocturno** (⌃⌘N o el bo
 - **Vigilancia de la noche** (nuevo en 1.3): mide la nitidez de las estrellas en cada apilado y avisa (o vuelve a enfocar) si empeora; avisa del riesgo de rocío y puede encender el calentador; recoge el telescopio si hay aviso oficial (MeteoAlarm), tormenta, lluvia o rachas fuertes, y sigue tras 30 minutos de calma. La sección Tiempo incluye un radar de lluvia animado.
 - **Más segura y robusta** (1.4): revisión completa de seguridad ([SEGURIDAD.md](SEGURIDAD.md)), recuperación automática si el Seestar se reinicia o se cae la wifi a mitad de plan, y una batería de pruebas con un Seestar simulado ([PRUEBAS.md](PRUEBAS.md)).
 - **Catálogo, cometas y listas** (nuevo en 1.5): unos 1 800 objetos (OpenNGC, CC BY-SA 4.0) y los 109 Caldwell; cometas visibles esta noche con órbitas del Minor Planet Center y seguimiento en la sesión automática; listas Messier y Caldwell con lo fotografiado y lo pendiente; planificador del maratón Messier; y la mejor noche de la semana.
-- **Mi horizonte y la noche planificada** (nuevo en 1.6): dibuja tu horizonte (árboles, tejados) y Astrolabio no sugiere ni apila lo que queda detrás; línea de tiempo del plan con barras arrastrables, avisos y «Simular la noche»; proyectos de varias noches con objetivo de horas; y copia de seguridad de ajustes, horizontes, plan, proyectos e historial (nunca la clave PEM).
-- **Retoque de fotos** (nuevo en 1.7): gradiente, fondo neutro, punto negro, brillo, ruido, ruido de color, enfoque, saturación, reducción de estrellas, recortes, comparación antes/después y pie de foto; trazas de satélite (detección automática o a mano); nombres de los objetos con la rosa N/E; integración con GraXpert si está instalado; y copia del álbum al ordenador con reanudación y comprobación SHA-256 (nunca borra nada del telescopio).
+- **La noche planificada** (nuevo en 1.6): línea de tiempo del plan con barras arrastrables, avisos y «Simular la noche»; proyectos de varias noches con objetivo de horas; y copia de seguridad de ajustes, horizontes, plan, proyectos e historial (nunca la clave PEM).
 - **Luna, satélites y eventos** (nuevo en 1.8): 74 cráteres, mares y montes de la Luna con la libración del día y los mejores junto al terminador, rotulados sobre la Luna (imagen para guardar o copiar); pasos de la Estación Espacial y de los satélites brillantes en las próximas cinco noches, con un modelo orbital SGP4 propio y aviso si alguno va a cruzar el objeto que se está apilando; eventos del cielo de las próximas seis semanas (lluvias de estrellas, conjunciones, oposiciones, elongaciones, fases y cometas) con etiquetas pensadas para el Seestar; y la «Hoja de la noche», una imagen con todo lo de la noche para guardar, copiar o imprimir.
 - **Móvil y principiantes** (nuevo en 1.9): control desde el navegador del móvil en tu wifi (estado, imagen apilada, parar, saltar y aparcar), con emparejamiento por QR y código, apagado de serie; modo principiante con «Empieza aquí», tutorial guiado de 15 pasos y un manual integrado con buscador (botón «?» en cada pantalla). El mapa del radar pasa a OpenStreetMap.
 - **Mosaicos**: hasta 3×3 paneles con vista previa.
 
 **Archivo**
-- **Álbum**: las fotos del Seestar (portada y número de archivos de cada sesión) con visor a tamaño completo y descarga, y las imágenes guardadas en el Mac.
-- **Estadísticas**: horas de integración, noches, sesiones, objetos, gráficas por noche y por tipo y tabla por objeto. Astrolabio anota cada sesión mientras apila; también puede importar las sesiones antiguas del álbum del Seestar. Exporta a CSV.
-- **Informes** (nuevo en 1.1): lista de noches de observación e informe completo de cada una (lugar, tiempo, Luna, ajustes y fotogramas de cada objeto, imagen apilada, batería, firmware y eventos), descargable en PDF A4 en el idioma elegido.
 
 **Sistema**: previsión del tiempo de 48 horas y registro con diagnóstico.
 
@@ -111,15 +105,13 @@ Los nombres de los métodos del protocolo vienen de lo que ha documentado la com
 
 ## Limitaciones conocidas
 
-- La vista previa en vídeo del firmware actual va por RTSP (puerto 4554) y no está integrada. La vista en directo muestra la imagen apilada, que es lo útil en cielo profundo.
+- La vista previa en vídeo del firmware actual va por RTSP (puerto 4554) y no está integrada.
 - Las posiciones de planetas y Luna son de baja precisión (minutos de arco). Basta porque el Seestar centra con resolución de placa.
-- El telescopio solo informa de la portada y del número de archivos de cada carpeta del álbum, así que el álbum muestra una foto por sesión.
-- El apilador planetario alinea el disco completo (sin puntos de alineación múltiples), suficiente para los vídeos cortos del Seestar.
 - Astrolabio es independiente y no está afiliado a ZWO.
 
 ## English
 
-Astrolabio is a native macOS app (SwiftUI, macOS 14+, no external dependencies) to control a ZWO Seestar S50 smart telescope over the local network: discovery, authentication (PEM key required by recent firmware), GoTo, stacking with live view and on-the-fly processing, a night planner with "what to see" and "pick for me", an interactive star chart, Moon and planets, an automatic session runner, mosaics, a planetary video stacker, the telescope album, observing statistics and per-night session reports exportable to PDF. The interface is available in Spanish, English, French, German, Chinese and Russian, with a red night mode.
+Astrolabio is a native macOS app (SwiftUI, macOS 14+, no external dependencies) to control a ZWO Seestar S50 smart telescope over the local network: discovery, authentication (PEM key required by recent firmware), GoTo, stacking, a night planner with "what to see" and "pick for me", an interactive star chart, Moon and planets, an automatic session runner, mosaics and phone control. The interface is available in Spanish, English, French, German, Chinese and Russian, with a red night mode.
 
 Install from the `.dmg` in Releases (right-click → Open the first time), or build with `swift build` / `./scripts/make_app.sh` / `./scripts/make_dmg.sh`. Tests: `./scripts/test.sh`.
 
